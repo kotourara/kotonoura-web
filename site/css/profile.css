@@ -1,0 +1,1351 @@
+@font-face {
+    font-family: "PixelMplus10Subset";
+    src: url("../fonts/PixelMplus10-subset.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+:root {
+    --profile-width: 960px;
+    --profile-purple: #7018b6;
+    --profile-green: #05b9a7;
+    --profile-blue: #054ab9;
+    --profile-ease: cubic-bezier(.2, .72, .2, 1);
+}
+
+html,
+body {
+    overflow-x: clip;
+}
+
+body[data-page="profile"] {
+    background: #fff;
+}
+
+
+/* 動画を含む黒い導入エリア上だけ、Musicと同じheader-bgマスク仕様へ切り替える。 */
+body[data-page="profile"].profile-header-dark {
+    --site-theme-color: #fff;
+    --site-theme-contrast: #000;
+}
+
+body[data-page="profile"].profile-header-dark .site-header {
+    background-image: none;
+}
+
+body[data-page="profile"].profile-header-dark .site-header::before {
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+    content: "";
+    background-color: #000;
+    mask-image: url("../images/common/header-bg.webp");
+    mask-repeat: repeat-x;
+    mask-position: top center;
+    mask-size: auto 100%;
+    -webkit-mask-image: url("../images/common/header-bg.webp");
+    -webkit-mask-repeat: repeat-x;
+    -webkit-mask-position: top center;
+    -webkit-mask-size: auto 100%;
+    pointer-events: none;
+}
+
+body[data-page="profile"].profile-header-dark .site-header__frame {
+    position: relative;
+    z-index: 1;
+}
+
+body[data-page="profile"].profile-header-dark .site-header,
+body[data-page="profile"].profile-header-dark .site-header button,
+body[data-page="profile"].profile-header-dark .site-header a {
+    color: #fff;
+}
+
+body[data-page="profile"].profile-header-dark .site-nav__current-label,
+body[data-page="profile"].profile-header-dark .site-nav__current-label::after {
+    color: #000;
+}
+
+body[data-page="profile"].profile-header-dark .site-nav__current-label::after {
+    background: #fff;
+}
+
+body[data-page="profile"].profile-header-dark .site-header__logo-mask,
+body[data-page="profile"].profile-header-dark .site-nav__icon-part,
+body[data-page="profile"].profile-header-dark .site-nav__underline,
+body[data-page="profile"].profile-header-dark .site-nav__current-label::after {
+    background-color: #fff !important;
+}
+
+body[data-page="profile"].profile-header-dark .site-nav__current {
+    color: #000 !important;
+    background: #fff !important;
+}
+
+body[data-page="profile"].profile-header-dark .site-nav__current-label {
+    color: #000 !important;
+}
+
+.profile-page {
+    width: min(100%, var(--profile-width));
+    margin-inline: auto;
+    overflow: clip;
+    color: #000;
+    background: #fff;
+    container-type: inline-size;
+    container-name: profile-page;
+}
+
+/* =========================================================
+   Urban legend
+   数値はすべてcqw換算用の無単位値。JSが区間ごとの実スクロール量へ変換する。
+   ========================================================= */
+
+.profile-legend {
+    --legend-guide-scroll: 44;
+    --legend-intro-scroll: 56;
+    --legend-line-gap-scroll: 60;
+    --legend-line-reveal-scroll: 24;
+    --legend-after-six-hold: 240;
+    --legend-align-scroll: 140;
+    --legend-after-align-hold: 180;
+    --legend-movie-reveal-scroll: 55;
+
+    --legend-line-start-top: 17cqw;
+    --legend-final-line-bottom: 111cqw;
+    --legend-movie-gap: 4cqw;
+    --legend-movie-gap-value: 4;
+
+    position: relative;
+    padding-bottom: 16cqw;
+    color: #fff;
+    background: #000;
+    font-family: "Hina Mincho", serif;
+    isolation: isolate;
+}
+
+.profile-legend__lead {
+    height: 24cqw;
+}
+
+.profile-legend__scroll {
+    position: relative;
+    height: 1320cqw;
+}
+
+.profile-legend__stage {
+    position: sticky;
+    z-index: 1;
+    top: min(28cqw, 268.8px);
+    width: 100%;
+    height: 176cqw;
+    overflow: hidden;
+    background: #000;
+    isolation: isolate;
+}
+
+.profile-legend__guide {
+    position: absolute;
+    z-index: 8;
+    top: 40%;
+    left: 50%;
+    margin: 0;
+    color: #fff;
+    font-family: "PixelMplus10Subset", "DotGothic16", sans-serif;
+    font-size: 4.2cqw;
+    line-height: 1.2;
+    letter-spacing: 0.2em;
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    white-space: nowrap;
+    opacity: 1;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    will-change: opacity;
+}
+
+.profile-legend__portrait {
+    position: absolute;
+    z-index: 1;
+    top: 21cqw;
+    left: 15cqw;
+    width: 70cqw;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    background: #050505;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.profile-legend__portrait-media {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    object-position: center top;
+}
+
+.profile-legend__portrait-pattern {
+    position: absolute;
+    z-index: 2;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+        0deg,
+        transparent 0 2px,
+        rgb(0 0 0 / 42%) 2px 4px
+    );
+    pointer-events: none;
+}
+
+.profile-legend__corruption {
+    position: absolute;
+    z-index: 3;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.profile-legend__corruption-cell,
+.profile-legend__corruption-bar {
+    position: absolute;
+    display: none;
+    background: #000;
+}
+
+.profile-legend__corruption-cell.is-visible,
+.profile-legend__corruption-bar.is-visible {
+    display: block;
+}
+
+.profile-legend__copy {
+    position: absolute;
+    z-index: 4;
+    inset: 0;
+    pointer-events: none;
+}
+
+.profile-legend__line {
+    position: absolute;
+    top: var(--legend-line-start-top);
+    right: var(--line-right);
+    margin: 0;
+    opacity: 0;
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    transform: translate3d(0, 0, 0);
+    will-change: opacity, transform;
+}
+
+.profile-legend__line-text {
+    position: relative;
+    display: block;
+    color: #fff;
+    font-size: var(--line-font-size);
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: 0.4em;
+    white-space: nowrap;
+    text-shadow: var(--line-shadow-x) 0 0 #000;
+}
+
+.profile-legend__line--1 {
+    --line-right: 10cqw;
+    --line-font-size: 10cqw;
+    --line-shadow-x: -1.15cqw;
+}
+
+.profile-legend__line--2 {
+    --line-right: 25.5cqw;
+    --line-font-size: 3.8cqw;
+    --line-shadow-x: -0.75cqw;
+}
+
+.profile-legend__line--3 {
+    --line-right: 39cqw;
+    --line-font-size: 3.8cqw;
+    --line-shadow-x: -0.35cqw;
+}
+
+.profile-legend__line--4 {
+    --line-right: 53cqw;
+    --line-font-size: 3.8cqw;
+    --line-shadow-x: 0.35cqw;
+}
+
+.profile-legend__line--5 {
+    --line-right: 66.5cqw;
+    --line-font-size: 3.8cqw;
+    --line-shadow-x: 0.75cqw;
+}
+
+.profile-legend__line--6 {
+    --line-right: 81cqw;
+    --line-font-size: 5.2cqw;
+    --line-shadow-x: 1.15cqw;
+}
+
+.is-glitch-line .profile-legend__line-text::before,
+.is-glitch-line .profile-legend__line-text::after {
+    position: absolute;
+    inset: 0;
+    display: none;
+    content: attr(data-text);
+    color: #fff;
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    pointer-events: none;
+}
+
+.is-glitch-line.is-glitching .profile-legend__line-text::before,
+.is-glitch-line.is-glitching .profile-legend__line-text::after {
+    display: block;
+}
+
+.is-glitch-line.is-glitching .profile-legend__line-text::before {
+    text-shadow: -0.75cqw 0 #fff;
+    animation: profileTextGlitchA 520ms steps(1, end) both;
+}
+
+.is-glitch-line.is-glitching .profile-legend__line-text::after {
+    text-shadow: 0.75cqw 0 #fff;
+    animation: profileTextGlitchB 520ms steps(1, end) both;
+}
+
+@keyframes profileTextGlitchA {
+    0% { clip-path: inset(0 0 82% 0); transform: translateX(-1.2cqw); }
+    18% { clip-path: inset(36% 0 42% 0); transform: translateX(0.8cqw); }
+    34% { clip-path: inset(72% 0 10% 0); transform: translateX(-0.4cqw); }
+    52% { clip-path: inset(18% 0 65% 0); transform: translateX(1.3cqw); }
+    70% { clip-path: inset(55% 0 22% 0); transform: translateX(-0.7cqw); }
+    100% { clip-path: inset(100% 0 0 0); transform: translateX(0); }
+}
+
+@keyframes profileTextGlitchB {
+    0% { clip-path: inset(76% 0 0 0); transform: translateX(1cqw); }
+    16% { clip-path: inset(5% 0 78% 0); transform: translateX(-0.9cqw); }
+    36% { clip-path: inset(48% 0 28% 0); transform: translateX(0.5cqw); }
+    58% { clip-path: inset(24% 0 57% 0); transform: translateX(-1.2cqw); }
+    82% { clip-path: inset(68% 0 12% 0); transform: translateX(0.7cqw); }
+    100% { clip-path: inset(100% 0 0 0); transform: translateX(0); }
+}
+
+.profile-legend__movie {
+    position: absolute;
+    z-index: 6;
+    top: calc(var(--legend-final-line-bottom) + var(--legend-movie-gap));
+    right: 0;
+    left: 0;
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    padding: 0;
+    overflow: hidden;
+    background: #000;
+    border: 0;
+    opacity: 0;
+    visibility: hidden;
+    cursor: pointer;
+    transform: translateY(1.8cqw);
+}
+
+.profile-legend__movie.is-visible {
+    visibility: visible;
+    animation: profileMovieNoiseIn 620ms steps(1, end) both;
+}
+
+.profile-legend__movie.is-playing {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    animation: none;
+    cursor: default;
+}
+
+.profile-legend__movie-thumbnail,
+.profile-legend__movie iframe,
+.profile-legend__movie-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    border: 0;
+}
+
+.profile-legend__movie-thumbnail,
+.profile-legend__movie-video {
+    object-fit: contain;
+    object-position: center;
+    background: #000;
+}
+
+
+.profile-legend__movie-play {
+    position: absolute;
+    z-index: 3;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-top: 4cqw solid transparent;
+    border-bottom: 4cqw solid transparent;
+    border-left: 6.5cqw solid rgb(255 255 255 / 80%);
+    filter: drop-shadow(0 0 1.5cqw #000);
+    opacity: 0;
+    transform: translate(-42%, -50%);
+    transition: opacity 520ms ease;
+}
+
+.profile-legend__movie.is-visible:not(.is-playing) .profile-legend__movie-play {
+    opacity: 1;
+    transition-delay: 900ms;
+}
+
+.profile-legend__movie.is-playing .profile-legend__movie-play,
+.profile-legend__movie.is-playing .profile-legend__movie-thumbnail {
+    display: none;
+}
+
+.profile-legend__movie:focus-visible {
+    outline: 0.55cqw solid #fff;
+    outline-offset: -0.55cqw;
+}
+
+@keyframes profileMovieNoiseIn {
+    0% { opacity: 0; transform: translateY(1.8cqw); clip-path: inset(0 0 88% 0); }
+    12% { opacity: .45; transform: translate(-1.2cqw, 1.2cqw); clip-path: inset(12% 0 62% 0); }
+    26% { opacity: .2; transform: translate(1.4cqw, .8cqw); clip-path: inset(58% 0 20% 0); }
+    42% { opacity: .8; transform: translate(-.8cqw, .4cqw); clip-path: inset(6% 0 18% 0); }
+    58% { opacity: .35; transform: translate(.6cqw, .2cqw); clip-path: inset(40% 0 8% 0); }
+    72% { opacity: 1; transform: none; clip-path: inset(0); }
+    82% { opacity: .72; transform: translateX(-.4cqw); clip-path: inset(0); }
+    100% { opacity: 1; transform: none; clip-path: inset(0); }
+}
+
+/* =========================================================
+   White line transitions
+   幅・太さ・移動を同一のpx座標系でJSから制御する。
+   ========================================================= */
+
+.profile-transition {
+    position: relative;
+    z-index: 8;
+    width: 100%;
+    height: 60cqw;
+    overflow: hidden;
+    pointer-events: none;
+    isolation: isolate;
+}
+
+.profile-transition--first {
+    margin-top: -1px;
+    background: #000;
+}
+
+.profile-transition--second {
+    z-index: 9;
+    height: 118cqw;
+    margin-top: 0;
+    background: transparent;
+}
+
+.profile-transition__line {
+    position: absolute;
+    right: -2px;
+    left: -2px;
+    top: calc((var(--line-index) + 0.5) * (100% / 11));
+    display: block;
+    width: calc(100% + 4px);
+    height: 1px;
+    background: #fff;
+    transform: translate3d(0, -50%, 0)
+        scaleY(var(--transition-scale, 1));
+    transform-origin: center;
+    will-change: transform;
+}
+
+/* =========================================================
+   History / people
+   ========================================================= */
+
+.profile-history {
+    --history-koto-profile-gap: 12cqw;
+    --history-koto-timeline-gap: 28cqw;
+    --history-wimina-profile-gap: 12cqw;
+    --history-wimina-timeline-gap: 10cqw;
+
+    position: relative;
+    margin-top: -1px;
+    overflow: hidden;
+    color: #000;
+    background: #fff;
+    font-family: "Hina Mincho", "Yu Mincho", "游明朝", YuMincho, serif;
+    font-weight: 600;
+    isolation: isolate;
+}
+
+.profile-history__characters {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.profile-history__character {
+    position: absolute;
+    top: 18cqw;
+    left: 30%;
+    display: block;
+    width: 290cqw;
+    max-width: none;
+    height: auto;
+    opacity: 1;
+    transform: translate3d(-50%, var(--character-y, 0px), 0);
+    transform-origin: 50% 0;
+    will-change: transform;
+}
+
+.profile-history__character--koto { z-index: 1; }
+.profile-history__character--wimina { z-index: 2; }
+
+.profile-history__content {
+    position: relative;
+    z-index: 4;
+    min-height: 480cqw;
+    padding-top: var(--history-koto-profile-gap);
+}
+
+.profile-person {
+    position: relative;
+    z-index: 6;
+    opacity: 0;
+    transform: translateX(var(--person-enter-x));
+    transition: opacity 620ms ease, transform 820ms var(--profile-ease);
+}
+
+.profile-person.is-visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.profile-person--koto {
+    --person-enter-x: 12cqw;
+    width: 60cqw;
+    margin-left: auto;
+    padding-right: 4cqw;
+    text-align: right;
+}
+
+.profile-person--wimina {
+    --person-enter-x: -12cqw;
+    width: 76cqw;
+    margin-top: var(--history-wimina-profile-gap);
+    padding-left: 4cqw;
+    text-align: left;
+}
+
+.profile-person__copy {
+    position: relative;
+}
+
+.profile-person__name {
+    position: relative;
+    display: flex;
+    min-height: 6.4cqw;
+    margin: 0;
+    padding-bottom: 0.3px;
+    align-items: flex-start;
+    font-size: 5.8cqw;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+}
+
+.profile-person__name--koto {
+    justify-content: flex-end;
+}
+
+.profile-person__name--wimina {
+    justify-content: flex-start;
+}
+
+.profile-person__name::after {
+    position: absolute;
+    bottom: 0;
+    height: 0.5cqw;
+    content: "";
+}
+
+.profile-person__name--koto::after {
+    right: -4cqw;
+    left: -15cqw;
+    background: var(--profile-purple);
+}
+
+.profile-person__name--wimina::after {
+    right: -15cqw;
+    left: -4cqw;
+    background: var(--profile-green);
+}
+
+.profile-person__description {
+    margin: 2.2cqw 0 0;
+    font-size: 3cqw;
+    font-weight: 600;
+    line-height: 1.72;
+    white-space: normal;
+}
+
+.profile-fixed-line {
+    display: block;
+    white-space: nowrap;
+}
+
+.profile-person__description--wimina,
+.profile-person__name--wimina {
+    text-shadow:
+        -0.16cqw -0.16cqw 0.55cqw #fff,
+        0.16cqw -0.16cqw 0.55cqw #fff,
+        -0.16cqw 0.16cqw 0.55cqw #fff,
+        0.16cqw 0.16cqw 0.55cqw #fff,
+        0 0 1.5cqw #fff;
+}
+
+.profile-person__description--wimina .is-self-proclaimed {
+    text-decoration: line-through;
+    text-decoration-thickness: 0.12em;
+    text-decoration-skip-ink: none;
+}
+
+[data-profile-type-text] {
+    display: block;
+    min-height: 1em;
+    font-family: "Hina Mincho", serif;
+    line-height: inherit;
+    vertical-align: top;
+}
+
+.profile-person__name [data-profile-type-text] {
+    display: flex;
+    height: 6.4cqw;
+    min-height: 0;
+    align-items: flex-start;
+    font-family: "Hina Mincho", serif;
+    line-height: 1;
+    transform: none;
+}
+
+.profile-timeline {
+    position: relative;
+    z-index: 6;
+}
+
+.profile-timeline--koto {
+    margin-top: var(--history-koto-timeline-gap);
+}
+
+.profile-timeline--wimina {
+    margin-top: var(--history-wimina-timeline-gap);
+}
+
+.profile-timeline__title {
+    position: absolute;
+    z-index: 3;
+    top: -7cqw;
+    right: 1.5cqw;
+    display: flex;
+    width: max-content;
+    height: 9cqw;
+    align-items: flex-start;
+    justify-content: flex-end;
+    margin: 0;
+    color: var(--profile-purple);
+    font-family: "Hina Mincho", serif;
+    font-size: 8.5cqw;
+    font-weight: 600;
+    line-height: 1;
+    text-align: right;
+}
+
+.profile-timeline__list {
+    position: relative;
+    z-index: 2;
+}
+
+.profile-history-item {
+    --history-x: 0cqw;
+    --history-width: 60cqw;
+    --history-height: 8.8cqw;
+    --history-gap-before: 4.4cqw;
+    --history-date-width: 21cqw;
+    --history-main-width: minmax(0, 1fr);
+    --history-side-width: 0cqw;
+    --history-padding-x: 2.8cqw;
+    --history-padding-y: 1cqw;
+    --history-font-size: 2.5cqw;
+    --history-line-height: 1.28;
+    --history-background: var(--profile-purple);
+    --history-date-x: 0cqw;
+    --history-date-y: 0cqw;
+    --history-main-x: 0cqw;
+    --history-main-y: 0cqw;
+    --history-side-x: 0cqw;
+    --history-side-y: 0cqw;
+    --history-main-content-width: auto;
+    --history-main-white-space: normal;
+
+    position: relative;
+    display: grid;
+    grid-template-columns:
+        var(--history-date-width)
+        var(--history-main-width)
+        var(--history-side-width);
+    align-items: center;
+    width: var(--history-width);
+    height: var(--history-height);
+    min-height: 0;
+    overflow: visible;
+    margin-top: var(--history-gap-before);
+    margin-left: var(--history-x);
+    padding: var(--history-padding-y) var(--history-padding-x);
+    color: #fff;
+    background: var(--history-background);
+    border: 0.45cqw solid rgb(255 255 255 / 70%);
+    box-shadow: 0 0.4cqw 0.9cqw rgb(0 0 0 / 18%);
+    font-size: var(--history-font-size);
+    line-height: var(--history-line-height);
+    opacity: 0;
+    transform: translateX(var(--history-enter-x));
+    transition:
+        opacity 420ms ease var(--history-delay, 0ms),
+        transform 720ms var(--profile-ease) var(--history-delay, 0ms);
+}
+
+.profile-history-item:first-child {
+    margin-top: 0;
+}
+
+.profile-history-item.is-visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.profile-history-item--koto { --history-enter-x: 18cqw; }
+.profile-history-item--wimina { --history-enter-x: -18cqw; }
+
+.profile-history-item__date {
+    position: relative;
+    white-space: nowrap;
+    transform: translate(var(--history-date-x), var(--history-date-y));
+}
+
+.profile-history-item__main {
+    position: relative;
+    width: var(--history-main-content-width);
+    max-width: none;
+    min-width: 0;
+    overflow: visible;
+    white-space: var(--history-main-white-space);
+    overflow-wrap: normal;
+    word-break: normal;
+    text-align: left;
+    transform: translate(
+        var(--history-main-x),
+        var(--history-main-y)
+    );
+}
+
+.profile-history-item__side {
+    min-width: 0;
+    padding-left: 2.5cqw;
+    text-align: center;
+    white-space: normal;
+    transform: translate(var(--history-side-x), var(--history-side-y));
+}
+
+.profile-history-item__side:empty {
+    display: none;
+}
+
+.profile-history-item__broken {
+    display: inline-flex;
+    align-items: baseline;
+    justify-content: flex-start;
+    gap: 0.03em;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.profile-history-item__broken > span {
+    --broken-size: 1em;
+
+    --broken-scale-x: 1;
+    --broken-scale-y: 1;
+
+    --broken-x: 0cqw;
+    --broken-y: 0em;
+    --broken-rotate: 0deg;
+
+    /* 横拡大時に隣の文字との間隔も調整する */
+    --broken-margin-left: 0em;
+    --broken-margin-right: 0em;
+
+    display: inline-block;
+    flex: 0 0 auto;
+    margin-left: var(--broken-margin-left);
+    margin-right: var(--broken-margin-right);
+    font-size: var(--broken-size);
+    line-height: 1;
+
+    transform:
+        translate(var(--broken-x), var(--broken-y))
+        rotate(var(--broken-rotate))
+        scale(
+            var(--broken-scale-x),
+            var(--broken-scale-y)
+        );
+
+    transform-origin: center;
+}
+
+/* History individual placement
+   各項目はここだけでX/Y/幅/列幅/文字/色を調整できる。 */
+
+.profile-history-item[data-history-id="koto-origin"] {
+    --history-x: 38cqw;
+    --history-width: 63cqw;
+    --history-date-width: 20cqw;
+    --history-font-size: 2.4cqw;
+}
+
+.profile-history-item[data-history-id="koto-2021"] {
+    --history-x: 38cqw;
+    --history-width: 63cqw;
+    --history-gap-before: 5.2cqw;
+    --history-date-width: 20cqw;
+    --history-font-size: 2.4cqw;
+}
+
+.profile-history-item[data-history-id="koto-live2d"] {
+    --history-x: 38cqw;
+    --history-width: 63cqw;
+    --history-gap-before: 5.2cqw;
+    --history-date-width: 20cqw;
+    --history-font-size: 2.4cqw;
+}
+
+.profile-history-item[data-history-id="koto-vtuber"] {
+    --history-x: 35cqw;
+    --history-width: 66cqw;
+    --history-gap-before: 5.2cqw;
+    --history-date-width: 20cqw;
+    --history-font-size: 2.4cqw;
+    --history-background: linear-gradient(120deg, #7018b6 0 72%, #05b9a7 100%);
+}
+
+.profile-history-item[data-history-id="koto-studio"] {
+    --history-x: 18cqw;
+    --history-width: 88cqw;
+    --history-gap-before: 5.2cqw;
+    --history-date-width: 20cqw;
+    --history-side-width: 22cqw;
+    --history-font-size: 2.4cqw;
+    --history-background: linear-gradient(120deg, #7018b6 0 48%, #05b9a7 78% 100%);
+}
+
+.profile-history-item[data-history-id="koto-body"] {
+    --history-x: 11cqw;
+    --history-width: 87cqw;
+    --history-gap-before: 5.2cqw;
+    --history-date-width: 21cqw;
+    --history-side-width: 24cqw;
+    --history-font-size: 2.4cqw;
+    --history-background: linear-gradient(140deg, #7018b6 0 44%, #05b9a7 68% 100%);
+}
+
+.profile-history-item[data-history-id="koto-takeover"] {
+    --history-x: 8cqw;
+    --history-width: 72cqw;
+    --history-gap-before: 4.8cqw;
+    --history-date-width: 21cqw;
+    --history-font-size: 2.4cqw;
+
+    --history-main-content-width: max-content;
+    --history-main-white-space: nowrap;
+
+    --history-background: linear-gradient(
+        160deg,
+        #7018b6 0 8%,
+        #05b9a7 35% 100%
+    );
+}
+
+.profile-history-item[data-history-id="koto-takeover"]
+[data-broken-index="5"] {
+    --broken-size: 1.3em;
+    --broken-y: .5em;
+}
+
+.profile-history-item[data-history-id="koto-takeover"]
+[data-broken-index="6"] {
+    --broken-size: 0.72em;
+    --broken-y: 0.05em;
+}
+
+.profile-history-item[data-history-id="koto-takeover"]
+[data-broken-index="7"] {
+    --broken-size: 1.08em;
+    --broken-y: -0.04em;
+}
+
+.profile-history-item[data-history-id="koto-takeover"]
+[data-broken-index="8"] {
+    --broken-size: 1em;
+    --broken-scale-x: 1.8;
+    --broken-y: 0.1em;
+}
+
+.profile-history-item[data-history-id="koto-takeover"]
+[data-broken-index="9"] {
+    --broken-size: 1.24em;
+    --broken-y: -0.08em;
+}
+
+.profile-history-item[data-history-id="koto-takeover"]
+[data-broken-index="10"] {
+    --broken-size: 1.3em;
+    --broken-scale-y: 2;
+    --broken-y: -.5em;
+}
+
+.profile-history-item[data-history-id="koto-takeover"]
+[data-broken-index="11"] {
+    --broken-size: 1.14em;
+    --broken-y: -0.05em;
+}
+
+.profile-history-item[data-history-id="koto-takeover"]
+[data-broken-index="12"] {
+    --broken-size: 0.9em;
+    --broken-scale-y: 3;
+    --broken-y: 0.08em;
+}
+
+.profile-history-item[data-history-id="koto-takeover"]
+[data-broken-index="13"] {
+    --broken-size: 1.2em;
+    --broken-y: -0.09em;
+}
+
+.profile-history-item[data-history-id="koto-takeover"]
+[data-broken-index="14"] {
+    --broken-size: 2em;
+    --broken-y: 0.04em;
+}
+
+.profile-history-item[data-history-id="wimina-rvc"] {
+    --history-x: 2cqw;
+    --history-width: 66cqw;
+    --history-main-content-width: max-content;
+    --history-main-white-space: pre;
+    --history-date-width: 23cqw;
+    --history-font-size: 2.4cqw;
+    --history-line-height: 1.55;
+    --history-date-x: -3cqw;
+    --history-date-y: -6cqw;
+    --history-main-x: 1cqw;
+    --history-main-y: 1.5cqw;
+    --history-background: var(--profile-green);
+}
+
+.profile-history-item[data-history-id="wimina-anime"] {
+    --history-x: 0cqw;
+    --history-width: 72cqw;
+    --history-main-content-width: max-content;
+    --history-main-white-space: pre;
+    --history-gap-before: 4.8cqw;
+    --history-date-width: 25cqw;
+    --history-font-size: 2.35cqw;
+    --history-line-height: 1.55;
+    --history-date-x: -3cqw;
+    --history-date-y: 1cqw;
+    --history-main-x: 1cqw;
+    --history-main-y: -1cqw;
+    --history-background: var(--profile-green);
+}
+
+.profile-history-item[data-history-id="wimina-debut"] {
+    --history-x: 0cqw;
+    --history-width: 62cqw;
+    --history-main-content-width: max-content;
+    --history-main-white-space: pre;
+    --history-gap-before: 4.8cqw;
+    --history-date-width: 19cqw;
+    --history-font-size: 2.4cqw;
+    --history-line-height: 1.5;
+    --history-date-x: 0cqw;
+    --history-date-y: 0cqw;
+    --history-main-x: 1cqw;
+    --history-main-y: 0cqw;
+    --history-background: var(--profile-green);
+}
+
+.profile-history-item[data-history-id="wimina-treaty"] {
+    --history-x: 3cqw;
+    --history-width: 56cqw;
+    --history-gap-before: 4.8cqw;
+    --history-date-width: 19cqw;
+    --history-font-size: 2.4cqw;
+    --history-background: var(--profile-blue);
+}
+
+.profile-history-item[data-history-id="wimina-split"] {
+    --history-x: 30cqw;
+    --history-width: 40cqw;
+    --history-gap-before: 5cqw;
+    --history-date-width: 19cqw;
+    --history-font-size: 2.4cqw;
+    --history-background: var(--profile-blue);
+}
+
+/* =========================================================
+   Logos / accounts
+   ========================================================= */
+
+.profile-logos {
+    position: relative;
+    z-index: 7;
+    margin-top: 18cqw;
+    padding: 9cqw 4cqw 14cqw;
+    isolation: isolate;
+}
+
+.profile-logos__branch {
+    position: absolute;
+    z-index: 3;
+    top: -18cqw;
+    left: 4cqw;
+    width: calc(100% - 8cqw);
+    height: 27cqw;
+    pointer-events: none;
+}
+
+.profile-logos__branch span {
+    position: absolute;
+    display: block;
+    background: #fff;
+    opacity: .7;
+}
+
+.profile-logos__branch-stem {
+    top: 0;
+    left: 50%;
+    width: 1.5cqw;
+    height: 12cqw;
+    transform: translateX(-50%);
+}
+
+.profile-logos__branch-bar {
+    top: 12cqw;
+    left: 25%;
+    width: 50%;
+    height: 1cqw;
+}
+
+.profile-logos__branch-left,
+.profile-logos__branch-right {
+    top: 12cqw;
+    width: 1cqw;
+    height: 15cqw;
+    transform: translateX(-50%);
+}
+
+.profile-logos__branch-left { left: 25%; }
+.profile-logos__branch-right { left: 75%; }
+
+.profile-logos__wash {
+    position: absolute;
+    z-index: 0;
+    top: -27cqw;
+    right: 0;
+    bottom: -8cqw;
+    left: 0;
+    background: linear-gradient(
+        to bottom,
+        rgb(255 255 255 / 0%) 0,
+        rgb(255 255 255 / 42%) 20%,
+        rgb(255 255 255 / 80%) 43%,
+        rgb(255 255 255 / 80%) 80%,
+        rgb(255 255 255 / 65%) 92%,
+        rgb(255 255 255 / 0%) 100%
+    );
+    pointer-events: none;
+}
+
+.profile-logos__badges,
+.profile-logos__marks,
+.profile-logos__accounts {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: center;
+    gap: 4cqw;
+}
+
+.profile-logos__badges {
+    opacity: 0;
+    transform: translateY(3cqw);
+    transition: opacity 520ms ease, transform 720ms var(--profile-ease);
+}
+
+.profile-logos.is-visible .profile-logos__badges {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.profile-logos__badge {
+    margin: 0;
+    padding: 1.15cqw 1cqw;
+    color: #fff;
+    font-size: 2.75cqw;
+    line-height: 1.1;
+    text-align: center;
+    white-space: nowrap;
+    border: 0.42cqw solid rgb(255 255 255 / 72%);
+    box-shadow: 0 0.4cqw 0.9cqw rgb(0 0 0 / 15%);
+}
+
+.profile-logos__badge--koto { background: var(--profile-purple); }
+.profile-logos__badge--wimina { background: var(--profile-green); }
+
+.profile-logos__marks {
+    margin-top: 8cqw;
+}
+
+.profile-logo {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    opacity: 0;
+    transform: translateY(4cqw);
+    transition: opacity 480ms ease, transform 760ms var(--profile-ease);
+}
+
+.profile-logos.is-visible .profile-logo {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.profile-logo--koto {
+    width: 180%;
+    margin-left: -42%;
+}
+
+.profile-logo--wimina {
+    width: 120%;
+    margin-left: -10%;
+}
+
+.profile-logo__anime,
+.profile-logo__static {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    background-color: var(--logo-color);
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    -webkit-mask-size: contain;
+    opacity: 0;
+}
+
+.profile-logo__anime {
+    z-index: 1;
+}
+
+.profile-logo__static {
+    z-index: 2;
+}
+
+.profile-logo.is-playing:not(.is-finished) .profile-logo__anime {
+    opacity: 1;
+}
+
+.profile-logo.is-finished .profile-logo__static {
+    opacity: 1;
+}
+
+.profile-logos__accounts {
+    margin-top: 5.5cqw;
+}
+
+.profile-logos__accounts a {
+    color: #000;
+    font-size: 3cqw;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    text-shadow: 0 0 1cqw #fff;
+}
+
+.profile-logos__accounts a:focus-visible {
+    outline: 0.45cqw solid currentColor;
+    outline-offset: 0.5cqw;
+}
+
+/* =========================================================
+   Concept
+   ========================================================= */
+
+.profile-concept {
+    position: relative;
+    z-index: 10;
+    margin-top: -1px;
+    padding: 42cqw 8cqw 16cqw;
+    color: #000;
+    background: #fff;
+    font-family: "Hina Mincho", serif;
+}
+
+.profile-concept__label {
+    margin: 0;
+    font-size: 2.7cqw;
+    line-height: 1;
+    text-align: center;
+}
+
+.profile-concept__title {
+    margin: 8cqw 0 0;
+    font-size: 6.4cqw;
+    font-weight: 400;
+    line-height: 1.2;
+    text-align: center;
+}
+
+.profile-concept__body {
+    width: fit-content;
+    max-width: 76cqw;
+    margin: 27cqw auto 0;
+    font-size: 3.7cqw;
+    line-height: 1.8;
+    text-align: left;
+}
+
+.profile-concept__body p {
+    margin: 0 0 10cqw;
+}
+
+[data-profile-concept-item] {
+    opacity: 0;
+    transform: translateY(3cqw);
+    transition:
+        opacity 700ms ease var(--concept-delay, 0ms),
+        transform 900ms var(--profile-ease) var(--concept-delay, 0ms);
+}
+
+.profile-concept.is-visible [data-profile-concept-item] {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+body[data-page="profile"] .site-footer__inner {
+    margin-top: 12cqw;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .profile-legend__portrait,
+    .profile-legend__line,
+    .profile-legend__movie,
+    .profile-person,
+    .profile-history-item,
+    .profile-logos__badges,
+    .profile-logo,
+    .profile-legend__guide,
+    [data-profile-concept-item] {
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: none !important;
+        animation: none !important;
+        transition: none !important;
+    }
+
+    .profile-history__character {
+        --character-y: 0px !important;
+    }
+
+    .profile-logo__anime {
+        display: none !important;
+    }
+
+    .profile-logo__static {
+        opacity: 1 !important;
+    }
+}
+
+@media (min-width: 1100px) {
+    .profile-page,
+    .site-header__frame,
+    .site-footer__frame {
+        max-width: var(--profile-width);
+    }
+
+    /*
+     * 横長viewportではヘッダー下の可視高が不足するため、
+     * 都市伝説パートだけ高さをviewport基準へ切り替える。
+     * モバイル側の960pxカンプ座標・文字送り距離は変更しない。
+     */
+    .profile-legend {
+        --legend-line-start-top: min(17cqw, 4vh);
+        --legend-final-line-bottom: calc(100% - 8cqw);
+    }
+
+    .profile-legend__stage {
+        height: calc(100vh - min(28cqw, 268.8px));
+        min-height: 440px;
+    }
+
+    /* 縦組み本文は横幅だけでなく可視高でも上限を掛ける。 */
+    .profile-legend__line--1 {
+        --line-font-size: min(10cqw, 5.5vh);
+    }
+
+    .profile-legend__line--2,
+    .profile-legend__line--3,
+    .profile-legend__line--4,
+    .profile-legend__line--5 {
+        --line-font-size: min(3.8cqw, 2.4vh);
+    }
+
+    .profile-legend__line--6 {
+        --line-font-size: min(5.2cqw, 3.2vh);
+    }
+
+    .profile-legend__copy,
+    .profile-legend__portrait {
+        transition: opacity 180ms linear;
+    }
+
+    /*
+     * 文字送り終了後は文字群を退避し、動画を可視領域中央へ出す。
+     * 計測時のmovie位置は従来どおりなので、文字の整列計算は維持される。
+     */
+    .profile-legend__stage.is-movie-visible .profile-legend__copy,
+    .profile-legend__stage.is-movie-visible .profile-legend__portrait {
+        opacity: 0 !important;
+    }
+
+    .profile-legend__movie.is-visible,
+    .profile-legend__movie.is-playing {
+        top: calc((100% - 56.25cqw) / 2);
+    }
+}

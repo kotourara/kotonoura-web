@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>日記｜琴ノ裏工房</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="琴ノ裏工房の日記。制作、色、音楽、日々の思考を記録しています。">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Kurenaido&display=swap" rel="stylesheet">
+
+    <link href="css/site-loader.css" rel="stylesheet">
+    <link href="css/common.css" rel="stylesheet">
+    <link href="css/diary.css" rel="stylesheet">
+    <link href="css/desktop.css" rel="stylesheet">
+    <script src="js/site-loader.js" defer></script>
+    <script src="js/common.js" defer></script>
+    <script src="js/publication-state.js" defer></script>
+    <script src="js/diary-data.js" defer></script>
+    <script src="js/diary.js" defer></script>
+</head>
+<body class="is-site-loading" data-page="diary" data-loader-color="#746857" aria-busy="true">
+    <aside class="desktop-side-banner desktop-side-banner--left" aria-hidden="true">
+        <p class="desktop-side-banner__text">
+            <span>PC版webは気が向いたらつくります</span>
+            <span>見づらくてすみません！！　<small class="desktop-side-banner__by">by製作者</small></span>
+        </p>
+    </aside>
+    <aside class="desktop-side-banner desktop-side-banner--right" role="note" aria-label="PC版webは気が向いたらつくります。見づらくてすみません！！ by製作者">
+        <p class="desktop-side-banner__text">
+            <span>PC版webは気が向いたらつくります</span>
+            <span>見づらくてすみません！！　<small class="desktop-side-banner__by">by製作者</small></span>
+        </p>
+    </aside>
+
+    <div class="diary-site-bg" aria-hidden="true"></div>
+
+    <header id="site-header"></header>
+
+    <main id="diary-page" class="diary-page">
+        <h1 class="visually-hidden">日記</h1>
+
+        <section class="diary-header" aria-label="日記">
+            <img class="diary-header__base" src="images/diary/diary-header.webp" alt="">
+            <img class="diary-header__letter" src="images/diary/diary-header-letter.webp" alt="日記">
+        </section>
+
+        <section class="diary-index" aria-label="日記一覧">
+            <div class="diary-toolbar">
+                <button class="diary-sort" type="button" data-diary-sort aria-label="並び順：新しい順">
+                    <span class="diary-sort__icon" aria-hidden="true"
+                        style="mask-image:url('images/gallery/live2d/control-icons/sort.svg');-webkit-mask-image:url('images/gallery/live2d/control-icons/sort.svg');"></span>
+                    <span class="diary-sort__label" data-diary-sort-label>新しい順</span>
+                </button>
+
+                <p class="diary-page-count" aria-label="全1ページ">1 / 1</p>
+            </div>
+
+            <div class="diary-double-rule" aria-hidden="true"></div>
+
+            <div class="diary-list" data-diary-list aria-live="polite"></div>
+            <div class="diary-secret-list" data-diary-secret-list aria-label="分類されない日記"></div>
+        </section>
+    </main>
+
+    <section class="diary-window" data-diary-window hidden aria-hidden="true">
+        <div class="diary-window__panel" data-diary-window-panel role="dialog" aria-modal="false" aria-labelledby="diary-window-title">
+            <button class="diary-window__close" type="button" data-diary-window-close aria-label="日記を閉じる">×</button>
+
+            <div class="diary-window__article">
+                <div class="diary-window__heading-host" data-diary-heading-host></div>
+
+                <div class="diary-window__body" data-diary-window-body></div>
+
+                <div class="diary-window__author" data-diary-window-author aria-label="筆者"></div>
+
+                <div class="diary-window__lower-rule" aria-hidden="true"></div>
+
+                <nav class="diary-window__pager" aria-label="前後の日記">
+                    <button type="button" data-diary-prev aria-label="前の日記">←</button>
+                    <button type="button" data-diary-pager-close aria-label="日記を閉じる">×</button>
+                    <button type="button" data-diary-next aria-label="次の日記">→</button>
+                </nav>
+            </div>
+        </div>
+    </section>
+
+    <footer id="site-footer"></footer>
+</body>
+</html>

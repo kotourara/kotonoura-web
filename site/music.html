@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>音楽｜琴ノ裏工房</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="琴ノ裏工房が制作・プロデュースしたオリジナル楽曲とカバー楽曲を掲載するMusicページ。">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+
+    <link href="css/site-loader.css" rel="stylesheet">
+    <link href="css/common.css" rel="stylesheet">
+    <link href="css/music.css" rel="stylesheet">
+    <link href="css/desktop.css" rel="stylesheet">
+    <script src="js/mobile-assets.js" defer></script>
+    <script src="js/site-loader.js" defer></script>
+    <script src="js/common.js" defer></script>
+    <script src="js/publication-state.js" defer></script>
+    <script src="js/diary-data.js" defer></script>
+    <script src="js/music.js" defer></script>
+</head>
+<body class="is-site-loading" data-page="music" data-loader-color="#000000" aria-busy="true">
+    <aside class="desktop-side-banner desktop-side-banner--left" aria-hidden="true">
+        <p class="desktop-side-banner__text">
+            <span>PC版webは気が向いたらつくります</span>
+            <span>見づらくてすみません！！　<small class="desktop-side-banner__by">by製作者</small></span>
+        </p>
+    </aside>
+    <aside class="desktop-side-banner desktop-side-banner--right" role="note" aria-label="PC版webは気が向いたらつくります。見づらくてすみません！！ by製作者">
+        <p class="desktop-side-banner__text">
+            <span>PC版webは気が向いたらつくります</span>
+            <span>見づらくてすみません！！　<small class="desktop-side-banner__by">by製作者</small></span>
+        </p>
+    </aside>
+
+    <header id="site-header"></header>
+
+    <main id="music-page" class="music-page" data-music-view="original" data-original-mode="list">
+        <h1 class="visually-hidden">音楽</h1>
+
+        <nav class="music-tabs" aria-label="楽曲カテゴリ">
+            <button class="music-tabs__button is-active" type="button"
+                data-music-tab="original" aria-selected="true">Original</button>
+            <span class="music-tabs__divider" aria-hidden="true"></span>
+            <button class="music-tabs__button" type="button"
+                data-music-tab="cover" aria-selected="false">Cover</button>
+        </nav>
+
+        <section id="music-original" class="music-original" aria-label="オリジナル楽曲">
+            <div class="music-original__list-view" data-original-list-view>
+                <div class="music-original__columns">
+                    <div class="music-track-list" data-track-list aria-live="polite"></div>
+
+                    <aside class="music-summary" data-music-summary aria-live="polite">
+                        <div class="music-summary__inner" data-music-summary-inner></div>
+                    </aside>
+                </div>
+            </div>
+
+            <section class="music-player" data-music-player hidden aria-live="polite">
+                <div class="music-player__adjacent music-player__adjacent--prev" data-player-adjacent-prev></div>
+                <div class="music-player__adjacent music-player__adjacent--next" data-player-adjacent-next></div>
+
+                <div class="music-player__grid">
+                    <aside class="music-player__rail music-player__rail--left" data-player-rail-left
+                        aria-label="再生操作"></aside>
+
+                    <div class="music-player__center">
+                        <header class="music-player__heading">
+                            <h2 class="music-player__title" data-player-title></h2>
+                            <p class="music-player__instrumental-label" data-player-instrumental hidden>(instrumental)</p>
+                            <button class="music-player__variant" type="button"
+                                data-player-variant hidden></button>
+                        </header>
+
+                        <div class="music-player__disc-stage" data-player-disc-stage>
+                            <canvas class="music-player__visualizer" data-player-visualizer aria-hidden="true"></canvas>
+                            <span class="music-player__ring" aria-hidden="true"></span>
+                            <div class="music-player__disc-host" data-player-disc-host></div>
+                            <button class="music-player__progress-button" type="button"
+                                data-player-progress-button aria-label="再生">
+                                <span class="music-player__progress-icon-stack" data-player-progress-icon aria-hidden="true">
+                                    <span class="music-player__progress-icon music-player__progress-icon--play"
+                                        style="mask-image:url('images/music/dot-ui/dt_playArrow.svg');-webkit-mask-image:url('images/music/dot-ui/dt_playArrow.svg');"></span>
+                                    <span class="music-player__progress-icon music-player__progress-icon--pause"
+                                        style="mask-image:url('images/music/dot-ui/dt_pause.svg');-webkit-mask-image:url('images/music/dot-ui/dt_pause.svg');"></span>
+                                </span>
+                            </button>
+                        </div>
+
+                        <div class="music-player__back-row">
+                            <button class="music-player__back" type="button" data-player-back>＜Back</button>
+                            <span class="music-player__back-rule" aria-hidden="true"></span>
+                        </div>
+
+                        <section class="music-player__credits" data-player-credits aria-label="クレジット"></section>
+
+                        <section class="music-player__lyrics" data-player-lyrics-section>
+                            <div class="music-player__lyrics-rule" aria-hidden="true"></div>
+                            <div class="music-player__lyrics-body" data-player-lyrics></div>
+                        </section>
+                    </div>
+
+                    <aside class="music-player__rail music-player__rail--right" data-player-rail-right
+                        aria-label="楽曲関連操作"></aside>
+                </div>
+            </section>
+        </section>
+
+        <section id="music-cover" class="music-cover" hidden aria-label="カバー楽曲">
+            <div class="music-cover__toolbar" aria-label="カバー楽曲の並べ替えと絞り込み">
+                <button class="music-cover__sort" type="button" data-cover-sort
+                    aria-label="人気順へ切り替える">
+                    <span class="music-cover__sort-icon" aria-hidden="true"
+                        style="mask-image:url('images/gallery/live2d/control-icons/sort.svg');-webkit-mask-image:url('images/gallery/live2d/control-icons/sort.svg');"></span>
+                    <span class="music-cover__sort-label" data-cover-sort-label>新しい順</span>
+                </button>
+
+                <div class="music-cover__filters" role="group" aria-label="歌唱者">
+                    <button class="music-cover__filter music-cover__filter--all is-active" type="button"
+                        data-cover-filter="all" aria-pressed="true">ALL</button>
+                    <button class="music-cover__filter music-cover__filter--wimina" type="button"
+                        data-cover-filter="YumikakaWimina" aria-pressed="false">弓可可ヰミナ</button>
+                    <button class="music-cover__filter music-cover__filter--urara" type="button"
+                        data-cover-filter="KotoUrara" aria-pressed="false">琴麗等</button>
+                </div>
+            </div>
+
+            <div class="music-cover__list" data-cover-list aria-live="polite"></div>
+            <p class="music-cover__empty" data-cover-empty hidden>該当する楽曲はありません。</p>
+        </section>
+    </main>
+
+    <section class="music-interpretation" data-music-interpretation hidden aria-hidden="true">
+        <div class="music-interpretation__panel" data-music-interpretation-panel
+            role="dialog" aria-modal="false" aria-labelledby="music-interpretation-title">
+            <button class="music-interpretation__close" type="button"
+                data-music-interpretation-close aria-label="解釈入力を閉じる">×</button>
+
+            <form class="music-interpretation__form" data-music-interpretation-form novalidate>
+                <p class="music-interpretation__lead" id="music-interpretation-title">
+                    解釈は あなた次第 です。<br>
+                    この曲からはどんな世界が聞こえましたか？
+                </p>
+
+                <label class="music-interpretation__label">
+                    <span>表示名</span>
+                    <input type="text" name="displayName" value="名無しさん"
+                        maxlength="20" autocomplete="nickname">
+                </label>
+
+                <label class="music-interpretation__label">
+                    <span>感想・考察</span>
+                    <textarea name="body" rows="5" minlength="1" maxlength="80"
+                        data-music-interpretation-body
+                        placeholder="感想、考察などご自由にお書きください"></textarea>
+                </label>
+
+                <div class="music-interpretation__count">
+                    <span data-music-interpretation-count>0</span> / 80文字
+                </div>
+                <p class="music-interpretation__message" data-music-interpretation-message role="status"></p>
+
+                <div class="music-interpretation__buttons">
+                    <button type="submit">解釈を送る</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <section class="music-diary-window" data-music-diary-window hidden aria-hidden="true">
+        <div class="music-diary-window__panel" data-music-diary-panel
+            role="dialog" aria-modal="false" aria-labelledby="music-diary-title">
+            <button class="music-diary-window__close" type="button"
+                data-music-diary-close aria-label="日記を閉じる">×</button>
+
+            <article class="music-diary-window__article">
+                <header class="music-diary-window__heading">
+                    <h2 id="music-diary-title" data-music-diary-title></h2>
+                    <time data-music-diary-date></time>
+                </header>
+                <div class="music-diary-window__body" data-music-diary-body></div>
+                <div class="music-diary-window__author" data-music-diary-author aria-label="筆者"></div>
+                <a class="music-diary-window__more" data-music-diary-more href="diary.html">Diaryへ</a>
+            </article>
+        </div>
+    </section>
+
+    <footer id="site-footer"></footer>
+</body>
+</html>

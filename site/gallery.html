@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>作品｜琴ノ裏工房</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="琴ノ裏工房のLive2Dモデル・イラスト・制作実績を掲載するGalleryページ。">
+
+    <script>
+        (() => {
+            const category = new URLSearchParams(window.location.search).get("category");
+            if (category === "illustration" || category === "works") {
+                document.documentElement.dataset.galleryInitialCategory = category;
+            }
+        })();
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Zen+Old+Mincho:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <link href="css/common.css" rel="stylesheet">
+    <link href="css/gallery.css" rel="stylesheet">
+    <link href="css/desktop.css" rel="stylesheet">
+    <script src="js/mobile-assets.js" defer></script>
+    <script src="js/common.js" defer></script>
+    <script src="js/publication-state.js" defer></script>
+    <script src="js/diary-data.js" defer></script>
+    <script src="js/gallery.js" defer></script>
+</head>
+<body data-page="gallery">
+    <aside class="desktop-side-banner desktop-side-banner--left" aria-hidden="true">
+        <p class="desktop-side-banner__text">
+            <span>PC版webは気が向いたらつくります</span>
+            <span>見づらくてすみません！！　<small class="desktop-side-banner__by">by製作者</small></span>
+        </p>
+    </aside>
+    <aside class="desktop-side-banner desktop-side-banner--right" role="note" aria-label="PC版webは気が向いたらつくります。見づらくてすみません！！ by製作者">
+        <p class="desktop-side-banner__text">
+            <span>PC版webは気が向いたらつくります</span>
+            <span>見づらくてすみません！！　<small class="desktop-side-banner__by">by製作者</small></span>
+        </p>
+    </aside>
+
+    <header id="site-header"></header>
+
+    <main id="gallery-page" class="gallery-page" data-gallery-view="list">
+        <h1 class="visually-hidden">作品</h1>
+
+        <nav class="gallery-tabs" aria-label="作品カテゴリ">
+            <button class="gallery-tabs__button is-active" type="button" data-gallery-tab="live2d" aria-selected="true">Live2D</button>
+            <span class="gallery-tabs__divider" aria-hidden="true"></span>
+            <button class="gallery-tabs__button" type="button" data-gallery-tab="illustration" aria-selected="false">Illustration</button>
+            <span class="gallery-tabs__divider" aria-hidden="true"></span>
+            <button class="gallery-tabs__button" type="button" data-gallery-tab="works" aria-selected="false">Works</button>
+        </nav>
+
+        <div id="gallery-category-loader" class="gallery-category-loader" role="status" aria-live="polite" aria-hidden="true">
+            <span class="gallery-category-loader__mark" aria-hidden="true"></span>
+            <span class="gallery-category-loader__text" data-gallery-category-loader-text>LOADING</span>
+        </div>
+
+        <section id="live2d-gallery" class="live2d-gallery" aria-labelledby="models-title">
+            <header class="models-heading">
+                <button id="models-title" class="models-heading__button" type="button" data-back-to-list aria-label="モデル一覧へ戻る">
+                    Models
+                </button>
+            </header>
+
+            <div id="model-grid" class="model-grid" aria-live="polite" aria-busy="true">
+                <div class="model-grid__loading" role="status" aria-label="モデル一覧を読み込んでいます">
+                    <span class="model-grid__loading-mark" aria-hidden="true"></span>
+                    <span class="model-grid__loading-text">LOADING</span>
+                </div>
+            </div>
+
+            <section id="model-detail" class="model-detail" hidden aria-live="polite">
+                <div id="model-mini-grid" class="model-mini-grid" aria-label="モデル選択"></div>
+
+                <div id="model-detail-body" class="model-detail__body">
+                    <div class="model-detail__side-bands" aria-hidden="true"></div>
+
+                    <div id="model-media-stage" class="model-media-stage" aria-live="polite">
+                        <div class="model-media__persistent-logo" data-persistent-logo hidden aria-hidden="true">
+                            <div class="model-media__logo-anchor" data-persistent-logo-anchor>
+                                <span class="model-media__logo-tint" data-persistent-logo-tint aria-hidden="true"></span>
+                                <img class="model-media__logo-original" data-persistent-logo-image alt="">
+                                <button class="model-media__logo-replay-hit" type="button"
+                                    data-logo-replay disabled tabindex="-1" aria-label="ロゴアニメーションを再生"></button>
+                            </div>
+                            <span class="model-media__logo-cover" aria-hidden="true"></span>
+                        </div>
+                        <div id="model-media-scene-host" class="model-media__scene-host"></div>
+                    </div>
+                    <div class="model-detail__profile-gradient" aria-hidden="true"></div>
+
+                    <aside id="model-controls" class="model-controls" aria-label="表示内容の操作"></aside>
+
+                    <section id="model-profile" class="model-profile"></section>
+                </div>
+            </section>
+        </section>
+
+        <section id="illustration-gallery" class="illustration-gallery" hidden aria-live="polite">
+            <svg class="illustration-filter-defs" aria-hidden="true" focusable="false">
+                <defs>
+                    <filter id="illustration-goo" x="-30%" y="-30%" width="160%" height="160%">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur"></feGaussianBlur>
+                        <feColorMatrix in="blur" mode="matrix"
+                            values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 60 -9"></feColorMatrix>
+                    </filter>
+                </defs>
+            </svg>
+
+            <section class="iro-intro" data-iro-intro>
+                <div class="iro-intro__center" data-iro-center aria-hidden="true">
+                    <div class="iro-intro__code" data-iro-code>
+                        <span class="iro-intro__code-char iro-intro__code-char--hash" data-iro-code-char>#</span>
+                        <span class="iro-intro__code-char iro-intro__code-char--digit" data-iro-code-char>0</span>
+                        <span class="iro-intro__code-char iro-intro__code-char--digit" data-iro-code-char>0</span>
+                        <span class="iro-intro__code-char iro-intro__code-char--digit" data-iro-code-char>0</span>
+                        <span class="iro-intro__code-char iro-intro__code-char--digit" data-iro-code-char>0</span>
+                        <span class="iro-intro__code-char iro-intro__code-char--digit" data-iro-code-char>0</span>
+                        <span class="iro-intro__code-char iro-intro__code-char--digit" data-iro-code-char>0</span>
+                    </div>
+                    <span class="iro-intro__title-ja" data-iro-title-ja>色かさね</span>
+                </div>
+
+                <canvas id="iro-ink-canvas" class="iro-intro__canvas" aria-label="色を選ぶ"></canvas>
+                <div class="iro-intro__hit-layer" data-iro-hit-layer hidden aria-hidden="true"></div>
+
+                <div class="iro-intro__fluid" data-iro-fluid hidden aria-hidden="true">
+                    <img class="iro-image-layer iro-image-layer--background" data-iro-transition-background alt="">
+                    <img class="iro-image-layer iro-image-layer--character" data-iro-transition-character alt="">
+                </div>
+            </section>
+
+            <div class="iro-shared-copy" data-iro-shared-copy aria-hidden="true">
+                <div class="iro-shared-copy__kanji-clip" data-iro-kanji-clip>
+                    <span class="iro-shared-copy__kanji" data-iro-reveal-kanji></span>
+                </div>
+                <span class="iro-shared-copy__roman" data-iro-intro-roman>Iro Kasane</span>
+            </div>
+
+            <div class="iro-shared-palette" data-iro-palette aria-label="作品内の配色"></div>
+
+            <article class="iro-work" data-iro-work hidden>
+                <header class="iro-work__header">
+                    <button class="iro-work__arrow iro-work__arrow--prev" type="button" data-iro-prev aria-label="前の作品"></button>
+                    <h2 class="visually-hidden" data-iro-accessible-title></h2>
+                    <button class="iro-work__arrow iro-work__arrow--next" type="button" data-iro-next aria-label="次の作品"></button>
+                </header>
+
+                <div class="iro-work__tools" aria-label="作品操作">
+                    <button class="iro-mask-button" type="button" data-iro-zoom aria-label="全体表示へ切り替える">
+                        <span class="iro-mask-button__icon"
+                            style="mask-image:url('images/gallery/live2d/control-icons/zoomOut.svg');-webkit-mask-image:url('images/gallery/live2d/control-icons/zoomOut.svg');"></span>
+                    </button>
+                    <button class="iro-mask-button" type="button" data-iro-diary aria-label="日記を開く">
+                        <span class="iro-mask-button__icon"
+                            style="mask-image:url('images/top/contents/icon-diary-pic.svg');-webkit-mask-image:url('images/top/contents/icon-diary-pic.svg');"></span>
+                    </button>
+                </div>
+
+                <div class="iro-work__swipe-zone" data-iro-swipe-zone>
+                    <figure class="iro-work__visual" data-iro-visual>
+                        <div class="iro-work__image-host" data-iro-image-host></div>
+                    </figure>
+
+                    <div class="iro-work__palette-space" aria-hidden="true"></div>
+
+                    <div class="iro-work__lower">
+                        <div class="iro-work__meta">
+                            <p class="iro-work__meta-author">琴 麗等</p>
+                            <p class="iro-work__meta-title" data-iro-meta-title></p>
+                            <p class="iro-work__meta-line" data-iro-meta-date></p>
+                            <p class="iro-work__meta-line">CLIP STUDIO PAINT</p>
+                        </div>
+
+                        <div class="iro-work__actions">
+                            <button class="iro-mask-button iro-mask-button--fav" type="button" data-iro-fav aria-pressed="false" aria-label="作品をfavする">
+                                <span class="iro-mask-button__icon iro-mask-button__icon--fav-off" aria-hidden="true"
+                                    style="mask-image:url('images/gallery/illustration/common/fav-before.svg');-webkit-mask-image:url('images/gallery/illustration/common/fav-before.svg');"></span>
+                                <span class="iro-mask-button__icon iro-mask-button__icon--fav-on" aria-hidden="true"
+                                    style="mask-image:url('images/gallery/illustration/common/fav-after.svg');-webkit-mask-image:url('images/gallery/illustration/common/fav-after.svg');"></span>
+                            </button>
+                            <a class="iro-mask-button" data-iro-x target="_blank" rel="noopener noreferrer" aria-label="Xで作品を見る">
+                                <span class="iro-mask-button__icon"
+                                    style="mask-image:url('images/gallery/live2d/sns-icons/x.svg');-webkit-mask-image:url('images/gallery/live2d/sns-icons/x.svg');"></span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <section class="iro-comment-panel" data-iro-comment-panel aria-hidden="true" inert>
+                    <div class="iro-comment-panel__clip">
+                        <form class="iro-comment" data-iro-comment-form novalidate>
+                            <button class="iro-comment__close" type="button" data-iro-comment-close aria-label="閉じる">×</button>
+                            <p class="iro-comment__lead">解釈は あなた次第 です。<br>この色は、どんな子に見えましたか？</p>
+                            <label class="iro-comment__label">
+                                <span>表示名</span>
+                                <input type="text" name="displayName" value="名無しさん" maxlength="20" autocomplete="nickname">
+                            </label>
+                            <label class="iro-comment__label">
+                                <span>この色は、どんな子？</span>
+                                <textarea name="body" rows="4" minlength="1" maxlength="80" data-iro-comment-body></textarea>
+                            </label>
+                            <div class="iro-comment__count"><span data-iro-comment-count>0</span> / 80文字</div>
+                            <p class="iro-comment__message" data-iro-comment-message role="status"></p>
+                            <div class="iro-comment__buttons">
+                                <button type="submit">解釈を送る</button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+            </article>
+
+            <dialog class="iro-diary" data-iro-diary-dialog>
+                <div class="iro-diary__panel">
+                    <button class="iro-diary__close" type="button" data-iro-diary-close aria-label="閉じる">×</button>
+                    <a class="iro-diary__heading" data-iro-diary-link href="diary.html" aria-label="Diaryで続きを読む">
+                        <span class="iro-diary__pic"
+                            style="mask-image:url('images/top/contents/icon-diary-pic.svg');-webkit-mask-image:url('images/top/contents/icon-diary-pic.svg');"></span>
+                        <span class="iro-diary__word iro-diary__word--odd"
+                            style="mask-image:url('images/top/contents/icon-diary-odd.svg');-webkit-mask-image:url('images/top/contents/icon-diary-odd.svg');"></span>
+                        <span class="iro-diary__word iro-diary__word--even"
+                            style="mask-image:url('images/top/contents/icon-diary-even.svg');-webkit-mask-image:url('images/top/contents/icon-diary-even.svg');"></span>
+                    </a>
+                    <h2 data-iro-diary-title></h2>
+                    <p class="iro-diary__date" data-iro-diary-date></p>
+                    <div class="iro-diary__body" data-iro-diary-body></div>
+                    <a class="iro-diary__more" data-iro-diary-link-bottom href="diary.html">Diaryへ</a>
+                </div>
+            </dialog>
+        </section>
+
+        <section id="works-gallery" class="works-gallery" hidden aria-live="polite">
+            <div class="works-toolbar" aria-label="作品の並べ替えと絞り込み">
+                <button class="works-sort" type="button" data-works-sort aria-label="人気順へ切り替える">
+                    <span class="works-sort__icon" aria-hidden="true"
+                        style="mask-image:url('images/gallery/live2d/control-icons/sort.svg');-webkit-mask-image:url('images/gallery/live2d/control-icons/sort.svg');"></span>
+                    <span class="works-sort__label" data-works-sort-label>新しい順</span>
+                </button>
+
+                <div class="works-filters" role="group" aria-label="作品区分">
+                    <button class="works-filter works-filter--all is-active" type="button"
+                        data-works-filter="all" aria-pressed="true">All</button>
+                    <button class="works-filter works-filter--commission" type="button"
+                        data-works-filter="commission" aria-pressed="false">Commission</button>
+                    <button class="works-filter works-filter--personal" type="button"
+                        data-works-filter="personal" aria-pressed="false">Personal</button>
+                </div>
+            </div>
+
+            <div class="works-list" data-works-list></div>
+            <p class="works-empty" data-works-empty hidden>該当する作品はありません。</p>
+        </section>
+
+        <section id="gallery-empty" class="gallery-empty" hidden aria-live="polite">
+            <p>準備中</p>
+        </section>
+    </main>
+
+    <div id="gallery-transition" class="gallery-transition" hidden aria-hidden="true">
+        <div class="gallery-transition__fill"></div>
+        <div class="gallery-transition__loading" aria-hidden="true">
+            <span class="gallery-transition__loading-mark"></span>
+            <span class="gallery-transition__loading-text">LOADING</span>
+        </div>
+        <img class="gallery-transition__anime-logo" alt="">
+        <span class="gallery-transition__static-logo" aria-hidden="true">
+            <img class="gallery-transition__static-logo-original" alt="">
+            <span class="gallery-transition__static-logo-tint" aria-hidden="true"></span>
+        </span>
+    </div>
+
+    <footer id="site-footer"></footer>
+</body>
+</html>

@@ -1,0 +1,117 @@
+/* =========================================================
+   Desktop scaffold
+   - 960px mobile composition scales fluidly only up to 720px.
+   - At 1080px+, 160px side banners occupy the full viewport height.
+   ========================================================= */
+
+:root {
+    --site-width: 720px;
+    --gallery-width: 720px;
+    --order-width: 720px;
+    --music-width: 720px;
+    --diary-width: 720px;
+    --profile-width: 720px;
+    --desktop-content-max: 720px;
+    --desktop-content-half: 360px;
+    --desktop-banner-width: 160px;
+    --desktop-banner-gap: 20px;
+}
+
+/* Topだけは元のviewport座標系をquery containerへ移す。 */
+.top-page {
+    position: relative;
+    width: min(100%, var(--desktop-content-max));
+    margin-inline: auto;
+    container-type: inline-size;
+    container-name: top-page;
+}
+
+/* 背景そのものはviewportを覆い、柄だけ中央コンテンツ幅で止める。 */
+body[data-page="top"] .site-bg {
+    background-size: min(100vw, var(--desktop-content-max)) auto;
+}
+
+.desktop-side-banner {
+    position: fixed;
+    z-index: 1500;
+    top: 0;
+    bottom: 0;
+    display: none;
+    width: var(--desktop-banner-width);
+    height: auto;
+    overflow: hidden;
+    color: #000;
+    background: #fff;
+    pointer-events: none;
+}
+
+/* 文字レーンの位置は維持し、外側の余白だけ画面端まで白で埋める。 */
+.desktop-side-banner--left {
+    box-shadow: -100vw 0 0 100vw #fff;
+}
+
+.desktop-side-banner--right {
+    box-shadow: 100vw 0 0 100vw #fff;
+}
+
+.desktop-side-banner__text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 540px;
+    margin: 0;
+    color: #000;
+    font-family: "Yu Gothic Light", "Yu Gothic", YuGothic, sans-serif;
+    font-size: 30px;
+    font-weight: 300;
+    font-style: normal;
+    line-height: 1.45;
+    letter-spacing: 0;
+    font-feature-settings: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: left;
+    white-space: nowrap;
+    transform-origin: center;
+}
+
+.desktop-side-banner__text > span {
+    display: block;
+}
+
+.desktop-side-banner__by {
+    font-size: 0.75em;
+    font-weight: 300;
+}
+
+.desktop-side-banner--right .desktop-side-banner__text {
+    transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.desktop-side-banner--left .desktop-side-banner__text {
+    transform: translate(-50%, -50%) rotate(-90deg);
+}
+
+@media (min-width: 1080px) {
+    .desktop-side-banner {
+        display: block;
+    }
+
+    .desktop-side-banner--left {
+        left: calc(
+            50vw
+            - var(--desktop-content-half)
+            - var(--desktop-banner-gap)
+            - var(--desktop-banner-width)
+        );
+    }
+
+    .desktop-side-banner--right {
+        right: calc(
+            50vw
+            - var(--desktop-content-half)
+            - var(--desktop-banner-gap)
+            - var(--desktop-banner-width)
+        );
+    }
+}

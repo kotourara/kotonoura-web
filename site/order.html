@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ご依頼｜琴ノ裏工房</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Live2D・イラスト制作を行う『琴ノ裏工房』公式サイト。">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <link href="css/site-loader.css" rel="stylesheet">
+    <link href="css/common.css" rel="stylesheet">
+    <script src="js/mobile-assets.js" defer></script>
+    <script src="js/site-loader.js" defer></script>
+    <script src="js/common.js" defer></script>
+    <link href="css/order.css" rel="stylesheet">
+    <link href="css/desktop.css" rel="stylesheet">
+    <script src="js/order-plan-data.js" defer></script>
+    <script src="js/order-availability-data.js" defer></script>
+    <script src="js/order.js" defer></script>
+</head>
+<body class="is-site-loading" data-page="order" data-loader-color="#8F2126" aria-busy="true">
+    <aside class="desktop-side-banner desktop-side-banner--left" aria-hidden="true">
+        <p class="desktop-side-banner__text">
+            <span>PC版webは気が向いたらつくります</span>
+            <span>見づらくてすみません！！　<small class="desktop-side-banner__by">by製作者</small></span>
+        </p>
+    </aside>
+    <aside class="desktop-side-banner desktop-side-banner--right" role="note" aria-label="PC版webは気が向いたらつくります。見づらくてすみません！！ by製作者">
+        <p class="desktop-side-banner__text">
+            <span>PC版webは気が向いたらつくります</span>
+            <span>見づらくてすみません！！　<small class="desktop-side-banner__by">by製作者</small></span>
+        </p>
+    </aside>
+
+    <header id="site-header"></header>
+
+    <main class="order-page">
+        <section class="condition-section" aria-labelledby="condition-title">
+            <h1 id="condition-title" class="visually-hidden">受付状況</h1>
+            <div id="condition-list" class="condition-list"></div>
+        </section>
+
+        <section class="menu-section" aria-labelledby="menu-title">
+            <div class="section-heading">
+                <div class="section-heading__line">
+                    <h2 id="menu-title">お品書き</h2>
+                    <p>Live2D：nizima LIVE限定</p>
+                </div>
+            </div>
+
+            <div id="plan-selector" class="plan-selector">
+                <div id="plan-tabs" class="plan-tabs" aria-label="制作プラン"></div>
+                <section id="plan-panel" class="plan-panel" hidden aria-live="polite"></section>
+            </div>
+        </section>
+
+        <section class="options-section" aria-labelledby="options-title">
+            <div class="section-heading section-heading--simple">
+                <h2 id="options-title">オプション</h2>
+            </div>
+            <div id="options-list" class="options-list"></div>
+        </section>
+
+        <section id="consultation-form" class="consultation-section" aria-labelledby="consultation-title">
+            <div class="section-heading section-heading--simple">
+                <h2 id="consultation-title">制作相談フォーム</h2>
+            </div>
+
+            <form id="production-consultation-form" class="consultation-form" novalidate>
+
+                <nav class="form-pager form-pager--top" aria-label="制作相談フォームの段階">
+                    <button class="form-pager__step is-current" type="button" data-form-step="1" aria-current="step"><span>1</span></button>
+                    <span class="form-pager__line" aria-hidden="true"></span>
+                    <button class="form-pager__step" type="button" data-form-step="2"><span>2</span></button>
+                    <span class="form-pager__line" aria-hidden="true"></span>
+                    <button class="form-pager__step" type="button" data-form-step="3"><span>3</span></button>
+                    <span class="form-pager__line" aria-hidden="true"></span>
+                    <button class="form-pager__step" type="button" data-form-step="4"><span>4</span></button>
+                </nav>
+
+                <p class="consultation-form__required-note"><span aria-hidden="true">＊</span>必須</p>
+
+                <div id="consultation-stage" class="consultation-form__stage">
+                    <section class="form-step is-active" data-form-panel="1" aria-labelledby="form-step-1-title">
+                        <h3 id="form-step-1-title" class="visually-hidden">希望条件</h3>
+
+                        <div class="form-field" data-field="plan">
+                            <label class="form-field__label" for="consultation-plan">希望プラン<span class="required-mark">＊</span></label>
+                            <select id="consultation-plan" name="希望プラン" required>
+                                <option value="">選択してください</option>
+                                <option value="custom">【改】カスタムモデリング</option>
+                                <option value="one">【壱】モデリング</option>
+                                <option value="two">【弐】原画＋フルモデリング</option>
+                                <option value="three">【参】フルプロデュース</option>
+                                <option value="extreme">【極】高密度フルプロデュース</option>
+                                <option value="other">【他】その他のご相談</option>
+                            </select>
+                            <div id="form-plan-summary" class="form-plan-summary" aria-live="polite"></div>
+                            <p class="form-field__error" data-error-for="plan" hidden></p>
+                        </div>
+
+                        <fieldset class="form-field form-field--deadline" data-field="deadline">
+                            <legend class="form-field__label">希望納期<span class="required-mark">＊</span></legend>
+                            <div id="deadline-list" class="deadline-list"></div>
+                            <p class="form-field__error" data-error-for="deadline" hidden></p>
+                        </fieldset>
+
+                        <fieldset class="form-field" data-field="budget">
+                            <legend class="form-field__label">予算<span class="required-mark">＊</span></legend>
+                            <div class="choice-list">
+                                <label class="choice-label"><input type="radio" name="予算" value="掲載している最低価格付近" required><span>掲載している最低価格付近</span></label>
+                                <label class="choice-label"><input type="radio" name="予算" value="内容に応じて追加可能"><span>内容に応じて追加可能</span></label>
+                                <label class="choice-label"><input type="radio" name="予算" value="品質・内容を優先して相談したい"><span>品質・内容を優先して相談したい</span></label>
+                                <label class="choice-label"><input type="radio" name="予算" value="明確な上限がある" data-reveal-target="budget-cap"><span>明確な上限がある</span></label>
+                            </div>
+                            <div id="budget-cap" class="conditional-field" hidden>
+                                <label for="budget-cap-input">上限額</label>
+                                <span class="conditional-field__input-wrap"><input id="budget-cap-input" name="予算上限額" type="number" min="1" step="1" inputmode="numeric"><span>万円程度</span></span>
+                            </div>
+                            <p class="form-field__error" data-error-for="budget" hidden></p>
+                        </fieldset>
+
+                        <fieldset class="form-field" data-field="request-type">
+                            <legend class="form-field__label">ご依頼形態<span class="required-mark">＊</span></legend>
+                            <div class="choice-list">
+                                <label class="choice-label"><input type="radio" name="ご依頼形態" value="個人活動" required><span>個人活動</span></label>
+                                <label class="choice-label"><input type="radio" name="ご依頼形態" value="個人活動・収益化あり"><span>個人活動・収益化あり</span></label>
+                                <label class="choice-label"><input type="radio" name="ご依頼形態" value="事務所・法人所属"><span>事務所・法人所属</span></label>
+                                <label class="choice-label"><input type="radio" name="ご依頼形態" value="法人からの直接依頼"><span>法人からの直接依頼</span></label>
+                            </div>
+                            <p class="form-field__error" data-error-for="request-type" hidden></p>
+                        </fieldset>
+                    </section>
+
+                    <section class="form-step" data-form-panel="2" aria-labelledby="form-step-2-title" hidden>
+                        <h3 id="form-step-2-title" class="visually-hidden">制作条件と素材の状態</h3>
+
+                        <fieldset class="form-field form-field--custom-selection" data-field="custom-selection" hidden>
+                            <legend class="form-field__label">
+                                希望するカスタム<span class="form-field__supplement">[複数選択可]</span>
+                            </legend>
+                            <div id="custom-selection-list" class="custom-selection-list"></div>
+                        </fieldset>
+
+                        <fieldset class="form-field" data-field="options">
+                            <legend class="form-field__label">
+                                追加オプション<span class="form-field__supplement">[複数選択可]</span>
+                            </legend>
+                            <div id="consultation-options" class="choice-list"></div>
+                        </fieldset>
+
+                        <fieldset class="form-field" data-field="environment">
+                            <legend class="form-field__label">使用予定環境<span class="required-mark" data-environment-required>＊</span></legend>
+                            <div class="choice-list">
+                                <label class="choice-label"><input type="radio" name="使用予定環境" value="nizima LIVE"><span>nizima LIVE（推奨・正式対応）</span></label>
+                                <label class="choice-label"><input type="radio" name="使用予定環境" value="VTube Studio"><span>VTube Studio</span></label>
+                                <label class="choice-label"><input type="radio" name="使用予定環境" value="その他" data-reveal-target="environment-other"><span>その他</span></label>
+                            </div>
+                            <div id="environment-other" class="conditional-field" hidden>
+                                <label for="environment-other-input">使用予定ソフト</label>
+                                <input id="environment-other-input" name="使用予定ソフト" type="text" autocomplete="off">
+                            </div>
+                            <div id="environment-warning" class="form-notice" hidden>
+                                <p>nizima LIVEでの使用を前提に制作・動作確認を行います。<br>VTube Studioなど、nizima LIVE以外の環境でも使用できる場合がありますが、動作確認・設定案内・互換性に関するサポートは対象外です。</p>
+                                <label class="choice-label choice-label--confirm"><input type="checkbox" name="対応環境確認" value="確認済み"><span>対応環境とサポート範囲を確認しました</span></label>
+                            </div>
+                            <p class="form-field__error" data-error-for="environment" hidden></p>
+                        </fieldset>
+
+                        <fieldset class="form-field" data-field="model-state">
+                            <legend class="form-field__label">現在のモデル状態<span class="required-mark" data-model-state-required>＊</span></legend>
+                            <div id="model-state-list" class="choice-list"></div>
+                            <div id="model-state-other" class="conditional-field" hidden>
+                                <label for="model-state-other-input">現在の状態</label>
+                                <input id="model-state-other-input" name="モデル状態その他" type="text" autocomplete="off">
+                            </div>
+                            <p class="form-field__error" data-error-for="model-state" hidden></p>
+                        </fieldset>
+
+                        <fieldset class="form-field" data-field="art-permission" hidden>
+                            <legend class="form-field__label">加筆許諾<span class="required-mark">＊</span></legend>
+                            <div class="choice-list">
+                                <label class="choice-label"><input type="radio" name="加筆許諾" value="加筆・調整の許諾を取得済み"><span>加筆・調整の許諾を取得済み</span></label>
+                                <label class="choice-label"><input type="radio" name="加筆許諾" value="これから確認する"><span>これから確認する</span></label>
+                                <label class="choice-label"><input type="radio" name="加筆許諾" value="元イラストレーターへ追加発注できる" data-reveal-target="art-permission-note"><span>元イラストレーターへ追加発注できる</span></label>
+                                <label class="choice-label"><input type="radio" name="加筆許諾" value="自身で制作した原画"><span>自身で制作した原画</span></label>
+                                <label class="choice-label"><input type="radio" name="加筆許諾" value="確認・追加発注が難しい"><span>確認・追加発注が難しい</span></label>
+                            </div>
+                            <p id="art-permission-note" class="conditional-note" hidden>当方から連絡や進行を代行する場合、別途手数料が発生します。</p>
+                            <p class="form-field__error" data-error-for="art-permission" hidden></p>
+                        </fieldset>
+
+                        <fieldset class="form-field" data-field="model-permission" hidden>
+                            <legend class="form-field__label">モデリング許諾<span class="required-mark">＊</span></legend>
+                            <div class="choice-list">
+                                <label class="choice-label"><input type="radio" name="モデリング許諾" value="許諾済み"><span>許諾済み</span></label>
+                                <label class="choice-label"><input type="radio" name="モデリング許諾" value="これから確認する"><span>これから確認する</span></label>
+                                <label class="choice-label"><input type="radio" name="モデリング許諾" value="自身で制作したモデル"><span>自身で制作したモデル</span></label>
+                                <label class="choice-label"><input type="radio" name="モデリング許諾" value="確認が難しい"><span>確認が難しい</span></label>
+                            </div>
+                            <p class="form-field__error" data-error-for="model-permission" hidden></p>
+                        </fieldset>
+                    </section>
+
+                    <section class="form-step" data-form-panel="3" aria-labelledby="form-step-3-title" hidden>
+                        <h3 id="form-step-3-title" class="visually-hidden">連絡先と確認事項</h3>
+
+                        <div class="form-field" data-field="name">
+                            <label class="form-field__label" for="consultation-name">お名前 / 活動名<span class="required-mark">＊</span></label>
+                            <input id="consultation-name" name="お名前・活動名" type="text" autocomplete="name" required>
+                            <p class="form-field__error" data-error-for="name" hidden></p>
+                        </div>
+
+                        <div class="form-field" data-field="email">
+                            <label class="form-field__label" for="consultation-email">返信用メールアドレス<span class="required-mark">＊</span></label>
+                            <input id="consultation-email" name="返信用メールアドレス" type="email" inputmode="email" autocomplete="email" required>
+                            <p class="form-field__error" data-error-for="email" hidden></p>
+                        </div>
+
+                        <div class="form-field" data-field="activity-url">
+                            <label class="form-field__label" for="consultation-url">活動先URL / Xアカウント<span class="required-mark">＊</span></label>
+                            <input id="consultation-url" name="活動先URL・Xアカウント" type="text" inputmode="url" autocomplete="url" required>
+                            <p class="form-field__note">仮設アカウントでも問題ありません。</p>
+                            <p class="form-field__error" data-error-for="activity-url" hidden></p>
+                        </div>
+
+                        <fieldset class="form-field" data-field="age-group">
+                            <legend class="form-field__label">年齢区分<span class="required-mark">＊</span></legend>
+                            <div class="choice-list">
+                                <label class="choice-label"><input type="radio" name="年齢区分" value="成年" required><span>成年</span></label>
+                                <label class="choice-label"><input type="radio" name="年齢区分" value="未成年" data-reveal-target="guardian-confirmation"><span>未成年</span></label>
+                            </div>
+                            <div id="guardian-confirmation" class="conditional-field conditional-field--block" hidden>
+                                <label class="choice-label choice-label--confirm"><input type="checkbox" name="親権者同意" value="同意取得済み"><span>親権者または法定代理人の同意を得ています</span></label>
+                            </div>
+                            <p class="form-field__error" data-error-for="age-group" hidden></p>
+                        </fieldset>
+
+                        <fieldset class="form-field form-field--confirmation" data-field="rights-confirmation">
+                            <legend class="form-field__label">素材の権利について<span class="required-mark">＊</span></legend>
+                            <p class="form-indent">第三者が制作した原画・モデル・素材等を使用する場合、<br>必要な許諾を得る責任は依頼者にあります。</p>
+                            <label class="choice-label choice-label--confirm"><input type="checkbox" name="素材権利確認" value="確認済み" required><span>必要な許諾を確認した上で相談します</span></label>
+                            <p class="form-field__error" data-error-for="rights-confirmation" hidden></p>
+                        </fieldset>
+
+                        <fieldset class="form-field form-field--confirmation" data-field="reply-confirmation">
+                            <legend class="form-field__label">返信・依頼枠について<span class="required-mark">＊</span></legend>
+                            <p class="form-indent">
+                                相談受付後、<strong class="form-emphasis form-emphasis--underline">3〜5日以内</strong>にメールでご連絡します。<br>
+                                当方からの返信後<strong class="form-emphasis form-emphasis--underline">7日以上ご連絡がない場合</strong>は、<br>
+                                <strong class="form-emphasis">依頼枠の仮確保を解除</strong>し、
+                                <strong class="form-emphasis">ご相談を終了扱い</strong>とします。<br>
+                                その後に再度ご連絡いただいた場合は、<br>その時点の受付状況に応じてご案内します。
+                            </p>
+                            <label class="choice-label choice-label--confirm"><input type="checkbox" name="返信期限確認" value="確認済み" required><span>上記の返信期限と依頼枠の扱いを確認しました</span></label>
+                            <p class="form-field__error" data-error-for="reply-confirmation" hidden></p>
+                        </fieldset>
+
+                        <fieldset class="form-field form-field--confirmation" data-field="policy-confirmation">
+                            <legend class="form-field__label">制作規約・プライバシーポリシー<span class="required-mark">＊</span></legend>
+                            <button id="open-policy-dialog" class="policy-open-button" type="button">制作規約・プライバシーポリシー</button>
+                            <div class="choice-list choice-list--policy">
+                                <label class="choice-label choice-label--confirm"><input type="checkbox" name="制作規約確認" value="確認済み" required><span>制作規約を確認しました</span></label>
+                                <label class="choice-label choice-label--confirm"><input type="checkbox" name="プライバシーポリシー確認" value="確認済み" required><span>プライバシーポリシーを確認しました</span></label>
+                            </div>
+                            <p class="form-field__error" data-error-for="policy-confirmation" hidden></p>
+                        </fieldset>
+                    </section>
+                </div>
+
+                <nav class="form-pager form-pager--bottom" aria-label="制作相談フォームの前後移動">
+                    <button class="form-pager__arrow form-pager__arrow--prev" type="button" data-form-prev aria-label="前の段階へ"><span aria-hidden="true">＜</span></button>
+                    <button class="form-pager__arrow form-pager__arrow--next" type="button" data-form-next aria-label="次の段階へ"><span aria-hidden="true">＞</span></button>
+                </nav>
+
+                <section id="consultation-notes" class="consultation-notes" aria-labelledby="consultation-notes-title">
+                    <div class="form-field" data-field="message">
+                        <label id="consultation-notes-title" class="form-field__label" for="consultation-message">ご相談内容</label>
+                        <p class="form-indent">制作物のアイデアや活動の方向性など、自由にご記入ください。</p>
+                        <p class="form-indent">ご希望のイメージや細かなこだわりまでお書きいただけると、制作との相性や必要な工程を判断しやすくなります。</p>
+                        <textarea id="consultation-message" name="ご相談内容" rows="11"></textarea>
+                    </div>
+                </section>
+
+                <div class="card-connector card-connector--arrow consultation-submit__connector" aria-hidden="true">▼</div>
+
+                <div class="consultation-submit">
+                    <button id="consultation-submit-button" class="consultation-submit__button" type="submit">制作相談を送る</button>
+                    <p id="consultation-submit-status" class="consultation-submit__status" role="status" aria-live="polite"></p>
+                </div>
+
+                <input class="form-honeypot" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+                <input id="consultation-request-id" type="hidden" name="request_id" value="">
+                <input id="consultation-submitted-at" type="hidden" name="submitted_at" value="">
+            </form>
+
+            <iframe id="consultation-submit-frame" class="visually-hidden" name="consultation-submit-frame" title="制作相談送信結果"></iframe>
+        </section>
+    </main>
+
+    <footer id="site-footer"></footer>
+
+    <dialog id="card-dialog" class="detail-dialog" aria-labelledby="dialog-title">
+        <div class="detail-dialog__window">
+            <button class="detail-dialog__close" type="button" aria-label="詳細を閉じる">×</button>
+            <h2 id="dialog-title" class="detail-dialog__title"></h2>
+            <div id="dialog-body" class="detail-dialog__body"></div>
+        </div>
+    </dialog>
+
+    <dialog id="policy-dialog" class="policy-dialog" aria-labelledby="policy-dialog-title">
+        <div class="policy-dialog__window">
+            <header class="policy-dialog__header">
+                <h2 id="policy-dialog-title">制作規約・プライバシーポリシー</h2>
+                <button class="policy-dialog__close" type="button" aria-label="規約を閉じる">×</button>
+            </header>
+            <div class="policy-dialog__tabs" role="tablist" aria-label="表示する文書">
+                <button class="policy-dialog__tab is-active" type="button" role="tab" aria-selected="true" data-policy-tab="terms">制作規約</button>
+                <button class="policy-dialog__tab" type="button" role="tab" aria-selected="false" data-policy-tab="privacy">プライバシーポリシー</button>
+            </div>
+            <div class="policy-dialog__body">
+                <article class="policy-dialog__pane is-active" data-policy-pane="terms">
+                    <h1>琴ノ裏工房 制作規約</h1>
+<p>制定日：2026年7月13日</p>
+<p>本規約は、琴ノ裏工房（以下「当方」といいます）が提供する制作サービスの利用条件を定めるものです。依頼者は、本規約の内容を確認し、同意した上で相談および依頼を行うものとします。</p>
+<h2>第1条　適用範囲</h2>
+<ol>
+<li>本規約は、当方が提供する次の制作および関連サービスに適用します。</li>
+</ol>
+<ul>
+<li>Live2Dモデリング</li>
+<li>Live2D用原画およびパーツ分け</li>
+<li>カスタムモデリング</li>
+<li>ロゴおよびアニメーションロゴ</li>
+<li>設定画</li>
+<li>キービジュアルおよびイラスト</li>
+<li>実装サポート</li>
+<li>SNS運用相談</li>
+<li>その他、当方が受注する制作および関連業務</li>
+</ul>
+<ol start="2">
+<li><p>見積書、仕様確認書、契約書、メール、Discordその他の方法で個別に合意した内容と本規約が異なる場合は、個別に合意した内容を優先します。</p>
+</li>
+<li><p>本規約は、日本国内外の個人、法人および事務所からの依頼に適用します。</p>
+</li>
+</ol>
+<h2>第2条　未成年者からの依頼</h2>
+<ol>
+<li><p>未成年者が相談または依頼を行う場合は、事前に親権者その他の法定代理人の同意を得るものとします。</p>
+</li>
+<li><p>相談フォームでは、成年または未成年の別を申告するものとします。</p>
+</li>
+<li><p>当方は、必要に応じて法定代理人の同意を確認することがあります。</p>
+</li>
+<li><p>未成年者が法定代理人の同意を得ずに虚偽の申告を行った場合、当方は相談の終了、制作の停止または契約の解除を行うことがあります。</p>
+</li>
+</ol>
+<h2>第3条　相談の受付</h2>
+<ol>
+<li><p>相談フォームの送信は、制作に関する相談の受付を目的とするものであり、発注、契約または依頼枠の確定を意味しません。</p>
+</li>
+<li><p>当方は、相談内容を確認した後、原則として受付日から3〜5日以内に、次の内容をメールで連絡します。</p>
+</li>
+</ol>
+<ul>
+<li>制作可否</li>
+<li>概算料金</li>
+<li>納期の目安</li>
+<li>追加の確認事項</li>
+<li>その他、制作判断に必要な事項</li>
+</ul>
+<ol start="3">
+<li><p>当方からの返信後、依頼者から7日以上連絡がない場合は、依頼枠の仮確保を解除し、相談を終了扱いとします。</p>
+</li>
+<li><p>相談終了後に再度連絡があった場合は、その時点の受付状況、料金および納期に基づいて改めて案内します。</p>
+</li>
+</ol>
+<h2>第4条　受注の判断</h2>
+<p>当方は、次のいずれかに該当する場合、相談または依頼を断り、制作を停止し、または契約を解除できるものとします。</p>
+<ul>
+<li>依頼内容が当方の対応範囲外である場合</li>
+<li>予算または納期が制作条件と合わない場合</li>
+<li>必要な素材、情報または権利許諾を確認できない場合</li>
+<li>依頼内容に虚偽または重大な説明不足がある場合</li>
+<li>連絡が著しく滞る場合</li>
+<li>暴言、威圧、過剰な要求その他、信頼関係を維持できない行為がある場合</li>
+<li>違法行為または公序良俗に反する目的で使用されるおそれがある場合</li>
+<li>第三者に対する誹謗中傷、差別、権利侵害その他の加害行為に利用されるおそれがある場合</li>
+<li>政治活動または宗教活動への利用を目的とする場合</li>
+<li>反社会的勢力との関係があると判断した場合</li>
+<li>その他、当方が制作の継続を困難と判断する合理的な事情がある場合</li>
+</ul>
+<h2>第5条　見積もり</h2>
+<ol>
+<li><p>当方は、相談内容、制作範囲、素材の状態、納期、利用目的、実績公開条件その他の条件を確認した上で見積もりを提示します。</p>
+</li>
+<li><p>ウェブサイトに掲載する価格は、特別な記載がない限り税込の最低価格です。</p>
+</li>
+<li><p>正式な料金は、依頼内容を確認した後に決定します。</p>
+</li>
+<li><p>見積もりの有効期限は、提示日から14日間とします。</p>
+</li>
+<li><p>有効期限を過ぎた場合は、その時点の受付状況、料金および納期を再確認した上で、改めて見積もりを提示します。</p>
+</li>
+<li><p>実績公開不可、法人利用、グッズ販売、有料コンテンツその他の条件により、追加料金が発生する場合があります。</p>
+</li>
+<li><p>当初の見積もりに含まれない作業が必要になった場合は、追加料金および納期への影響を案内します。最初の支払いが確認できている場合は、依頼者の承認を得た上で追加作業と既存工程を並行して進めることがあります。</p>
+</li>
+</ol>
+<h2>第6条　仕様の確定</h2>
+<ol>
+<li><p>制作内容および仕様は、見積書ならびにメール、Discordその他の記録に残る方法で双方が確認した内容をもって確定します。</p>
+</li>
+<li><p>依頼者は、制作開始前に、制作内容、使用目的、希望する表現、納期、利用範囲その他の重要事項を正確に伝えるものとします。</p>
+</li>
+<li><p>依頼者から共有されていない要望、または確定後に追加された要望は、当初の仕様に含まれません。</p>
+</li>
+</ol>
+<h2>第7条　依頼枠と契約成立</h2>
+<ol>
+<li><p>依頼者が見積内容を承諾した時点で、依頼枠を仮確保します。</p>
+</li>
+<li><p>仮確保は、契約成立または制作枠の最終確定を意味しません。</p>
+</li>
+<li><p>契約は、次の条件をすべて満たした時点で成立します。</p>
+</li>
+</ol>
+<ul>
+<li>依頼者が見積内容および仕様に同意していること</li>
+<li>当方が指定する料金の入金を確認していること</li>
+<li>当方が依頼者へ受注確定の連絡を送信していること</li>
+</ul>
+<ol start="4">
+<li>入金確認前に行う相談、資料確認、構想整理またはアイデア出しは、契約上の制作着手を意味するものではありません。</li>
+</ol>
+<h2>第8条　支払い</h2>
+<ol>
+<li><p>支払方法は、当方が指定する銀行口座への振込みとします。</p>
+</li>
+<li><p>支払いは、特別な合意がない限り全額前払いとします。</p>
+</li>
+<li><p>支払期限は、見積書または当方からの案内に記載します。</p>
+</li>
+<li><p>振込手数料その他支払いに必要な費用は、依頼者の負担とします。</p>
+</li>
+<li><p>支払期限までに入金を確認できない場合、当方は次の対応を行うことがあります。</p>
+</li>
+</ol>
+<ul>
+<li>制作開始または納品の停止</li>
+<li>依頼枠の解除</li>
+<li>料金または納期の再設定</li>
+<li>相談または契約の終了</li>
+</ul>
+<h2>第9条　制作開始</h2>
+<ol>
+<li><p>制作は、原則として契約成立後に開始します。</p>
+</li>
+<li><p>制作開始には、次の情報または資料が必要となる場合があります。</p>
+</li>
+</ol>
+<ul>
+<li>制作に必要な原画、モデルおよび設定資料</li>
+<li>確定した仕様</li>
+<li>第三者が制作した素材に関する許諾</li>
+<li>その他、当方が制作上必要と判断する情報</li>
+</ul>
+<ol start="3">
+<li>必要な資料または許諾が揃っていない場合、制作開始または進行を停止することがあります。</li>
+</ol>
+<h2>第10条　制作工程と確認</h2>
+<ol>
+<li>制作内容に応じて、主に次の段階で確認を行います。</li>
+</ol>
+<ul>
+<li>原画ラフ</li>
+<li>原画清書</li>
+<li>モデルの動作確認</li>
+<li>納品前の最終確認</li>
+</ul>
+<ol start="2">
+<li><p>制作内容によっては、一部の確認工程を省略し、または別の確認工程を設ける場合があります。</p>
+</li>
+<li><p>依頼者は、確認依頼を受けた場合、内容を確認した上で承認または修正指示を行うものとします。</p>
+</li>
+<li><p>承認済みの工程へ戻る修正、または工程の巻き戻しを伴う変更には、追加料金および納期の再設定が発生する場合があります。</p>
+</li>
+</ol>
+<h2>第11条　修正</h2>
+<ol>
+<li><p>当初の合意内容との相違、当方の制作上の誤り、または当初仕様の範囲内における軽微な修正は、合理的な範囲で無償対応します。</p>
+</li>
+<li><p>次の内容は、当初仕様に含まれない追加要望または方向転換として扱い、追加料金が発生する場合があります。</p>
+</li>
+</ol>
+<ul>
+<li>確定後のデザインまたは方向性の変更</li>
+<li>承認済み工程の大幅な修正</li>
+<li>新しい表情、機能、差分または演出の追加</li>
+<li>依頼者から後に提示された資料に基づく変更</li>
+<li>お任せとして制作した箇所の完成後の方向転換</li>
+<li>その他、当初の合意内容を超える作業</li>
+</ul>
+<ol start="3">
+<li><p>清書後の修正は、軽微な変更を除き、必要工数に応じた追加料金を案内します。</p>
+</li>
+<li><p>無償修正の回数は一律に定めず、修正内容、制作工程および当初仕様との関係に基づいて判断します。</p>
+</li>
+</ol>
+<h2>第12条　納期</h2>
+<ol>
+<li><p>掲載または案内する納期は、制作開始から納品までの目安です。</p>
+</li>
+<li><p>次の期間は、当初の納期計算に含まれません。</p>
+</li>
+</ol>
+<ul>
+<li>依頼者からの返信待ち</li>
+<li>資料、素材または許諾の提出待ち</li>
+<li>追加仕様の確認待ち</li>
+<li>入金待ち</li>
+<li>依頼者側の事情による制作停止期間</li>
+</ul>
+<ol start="3">
+<li><p>依頼者側の返信遅延、資料不足または仕様変更が発生した場合、納期を再設定することがあります。</p>
+</li>
+<li><p>公開日、デビュー日、イベント日その他の特定日程について、当方は確実な完成または公開を保証しません。</p>
+</li>
+<li><p>特定日程がある場合は、相談時に申告するものとします。</p>
+</li>
+<li><p>当方は、原則として特急対応を行いません。</p>
+</li>
+</ol>
+<h2>第13条　連絡の途絶</h2>
+<ol>
+<li><p>契約成立後、制作上必要な確認に対して依頼者から14日以上返信がない場合、当方は制作を停止し、または契約を終了できるものとします。</p>
+</li>
+<li><p>契約を終了する場合は、実施済みの作業および確保済みの費用を精算し、未実施分に相当する金額がある場合は返金します。</p>
+</li>
+<li><p>連絡途絶によって制作を再開する場合、当初の依頼枠および納期は保証せず、その時点の制作状況に応じて再設定します。</p>
+</li>
+</ol>
+<h2>第14条　依頼者都合のキャンセル</h2>
+<ol>
+<li><p>契約成立後に依頼者がキャンセルを希望する場合は、速やかに当方へ連絡するものとします。</p>
+</li>
+<li><p>キャンセル時は、次の費用を受領済み料金から差し引きます。</p>
+</li>
+</ol>
+<ul>
+<li>キャンセル時点までに実施した作業に相当する費用</li>
+<li>制作のために既に発生した外注費、購入費その他の実費</li>
+<li>当該依頼のために確保し、取消しができない費用</li>
+</ul>
+<ol start="3">
+<li><p>前項の費用を差し引いた未実施分に相当する金額がある場合は返金します。</p>
+</li>
+<li><p>返金時に発生する振込手数料は、返金額から差し引くことがあります。</p>
+</li>
+</ol>
+<h2>第15条　当方都合による中止</h2>
+<ol>
+<li><p>病気、事故、機材故障その他の事情により、当方が制作を継続できない場合は、速やかに依頼者へ連絡します。</p>
+</li>
+<li><p>制作を中止する場合は、実施済み作業および発生済み費用を精算し、未実施分に相当する金額を返金します。</p>
+</li>
+<li><p>中止時点で完成しているデータがあり、権利上および技術上引渡し可能な場合は、当該データを依頼者へ引き渡します。</p>
+</li>
+<li><p>他の制作者への引継ぎは、個別に合意した場合を除き、当方の義務には含まれません。</p>
+</li>
+</ol>
+<h2>第16条　納品</h2>
+<ol>
+<li><p>Live2Dモデルについては、nizima LIVE上で使用するために必要な書き出し済みデータを納品します。</p>
+</li>
+<li><p>次の編集用データおよび制作途中データは、個別に合意した場合を除き納品しません。</p>
+</li>
+</ol>
+<ul>
+<li>パーツ分けPSD</li>
+<li>Live2D Cubism Editor用編集データ</li>
+<li>制作途中ファイル</li>
+<li>その他、再編集を目的とする元データ</li>
+</ul>
+<ol start="3">
+<li><p>ロゴ、設定画、キービジュアルその他の納品物は、各プランの説明または個別の見積内容に従います。</p>
+</li>
+<li><p>納品は、原則としてGoogle Driveを使用します。</p>
+</li>
+<li><p>依頼者は、納品後速やかにデータをダウンロードし、自身の責任で保管するものとします。</p>
+</li>
+</ol>
+<h2>第17条　検収</h2>
+<ol>
+<li><p>依頼者は、納品日から30日以内に納品物を確認し、不備がある場合は当方へ連絡するものとします。</p>
+</li>
+<li><p>当方の制作上の誤りまたは合意した仕様との差異が確認された場合は、合理的な範囲で無償修正します。</p>
+</li>
+<li><p>依頼者都合による変更、追加要望、第三者による改変後の不具合、または使用環境に起因する問題は、有償対応またはサポート対象外となります。</p>
+</li>
+<li><p>納品日から30日以内に連絡がない場合は、検収が完了したものとして扱います。ただし、法令上当方が負う責任を除きます。</p>
+</li>
+</ol>
+<h2>第18条　対応環境と納品後サポート</h2>
+<ol>
+<li><p>Live2Dモデルは、nizima LIVEを正式対応環境とし、同環境を基準に制作および動作確認を行います。</p>
+</li>
+<li><p>VTube Studioその他の環境における動作確認、設定案内および互換性の保証は、個別に合意した場合を除きサポート対象外です。</p>
+</li>
+<li><p>納品後の継続的な無償サポートは、原則として行いません。</p>
+</li>
+<li><p>ソフトウェアの更新、仕様変更、機能追加その他の理由による調整およびアップデートは、有償対応となります。</p>
+</li>
+</ol>
+<h2>第19条　著作権</h2>
+<ol>
+<li><p>納品物の著作権その他の知的財産権は、個別に著作権譲渡を合意した場合を除き、当方または正当な権利者に帰属します。</p>
+</li>
+<li><p>料金の支払いおよび契約の履行を条件として、依頼者には、本規約および個別に合意した範囲内で納品物を使用する権利を許諾します。</p>
+</li>
+<li><p>利用許諾は、個別に合意した場合を除き、依頼者本人または契約上指定された活動者に対する、非独占的かつ譲渡不能のものとします。</p>
+</li>
+<li><p>当方は著作者人格権を放棄しません。ただし、許諾された利用に必要な範囲で、画像のサイズ変更、トリミング、文字入れその他の軽微な加工を認めます。</p>
+</li>
+<li><p>Live2Dモデル、原画その他の制作データそのものを改変する行為は、前項の軽微な加工には含まれません。</p>
+</li>
+</ol>
+<h2>第20条　許可される利用</h2>
+<p>依頼者は、個別に定める範囲で、納品物を次の用途に使用できます。</p>
+<ul>
+<li>配信活動</li>
+<li>YouTubeその他の動画配信サービスにおける収益化</li>
+<li>SNSへの投稿</li>
+<li>動画およびサムネイルへの使用</li>
+<li>自身の活動に関する広告</li>
+<li>イベント出演</li>
+<li>その他、個別に合意した活動上の利用</li>
+</ul>
+<h2>第21条　別途許可または見積もりが必要な利用</h2>
+<p>次の利用には、事前の連絡、許可または追加見積もりが必要です。</p>
+<ul>
+<li>グッズ販売</li>
+<li>有料コンテンツへの使用</li>
+<li>法人または事務所による利用</li>
+<li>契約時に指定した活動者の変更</li>
+<li>個人活動から事務所または法人への移管</li>
+<li>他のモデラーへの引継ぎ</li>
+<li>成人向け活動への利用</li>
+<li>その他、当初合意した利用範囲を超える商用利用</li>
+</ul>
+<h2>第22条　禁止事項</h2>
+<p>依頼者は、次の行為を行ってはなりません。</p>
+<ul>
+<li>制作データの無断改変</li>
+<li>第三者への無断の修正依頼</li>
+<li>納品物または利用権の売却、譲渡、貸与または再許諾</li>
+<li>素材または制作データの再配布</li>
+<li>テンプレート、素材集その他の再利用可能な形式での販売または配布</li>
+<li>AI学習への利用</li>
+<li>生成AIサービスへの入力</li>
+<li>NFTその他これに類する技術または商品への利用</li>
+<li>政治活動または宗教活動への利用</li>
+<li>公序良俗に反する活動への利用</li>
+<li>誹謗中傷、差別、嫌がらせその他の加害行為への利用</li>
+<li>違法行為または犯罪を助長する行為への利用</li>
+<li>当方または第三者の信用、名誉または権利を侵害する行為</li>
+<li>その他、個別の許諾範囲を超える利用</li>
+</ul>
+<h2>第23条　クレジット</h2>
+<ol>
+<li><p>制作者名の表記は、非商用利用では可能な範囲で推奨します。</p>
+</li>
+<li><p>収益化を伴う配信または動画、広告、イベント、法人利用その他の商用利用では、クレジット表記を必須とします。</p>
+</li>
+<li><p>クレジットは、原則として「琴ノ裏工房」と表記してください。</p>
+</li>
+<li><p>表記可能な媒体では、当方が指定するウェブサイトまたはSNSへのリンクを併記することを推奨します。</p>
+</li>
+</ol>
+<h2>第24条　持込み素材と第三者の権利</h2>
+<ol>
+<li><p>依頼者が原画、既存モデルその他第三者が制作した素材を提供する場合、依頼者は、制作、加筆、改変、モデリングおよび利用に必要な許諾を取得するものとします。</p>
+</li>
+<li><p>当方は、必要に応じて許諾内容の提示または権利者への確認を求めることがあります。</p>
+</li>
+<li><p>権利許諾を確認できない場合、当方は制作を開始せず、または制作を停止できます。</p>
+</li>
+<li><p>持込み素材に関して第三者との紛争が生じた場合、依頼者は自己の責任と費用で対応するものとします。</p>
+</li>
+<li><p>前項の問題により当方に直接かつ通常の損害が生じた場合、依頼者は法令上認められる範囲で当該損害を負担するものとします。</p>
+</li>
+</ol>
+<h2>第25条　制作実績の公開</h2>
+<ol>
+<li><p>当方は、依頼者と合意した範囲および時期において、完成作品および既に公開された情報を制作実績として使用できるものとします。</p>
+</li>
+<li><p>制作実績は、主に次の媒体へ掲載します。</p>
+</li>
+</ol>
+<ul>
+<li>当方のウェブサイト</li>
+<li>X</li>
+<li>YouTube</li>
+</ul>
+<ol start="3">
+<li><p>実績公開の時期および内容は、依頼者と個別に協議します。</p>
+</li>
+<li><p>実績公開不可の依頼は、受注を断る場合があります。</p>
+</li>
+<li><p>実績公開不可で受注する場合は、追加料金が発生します。</p>
+</li>
+</ol>
+<h2>第26条　秘密保持</h2>
+<ol>
+<li><p>当方は、公開前の設定資料、制作物、活動情報その他、依頼者から秘密として提供された情報を、制作および契約履行に必要な範囲を超えて公開しません。</p>
+</li>
+<li><p>公開時期が定められている情報は、合意した公開日まで秘密として扱います。</p>
+</li>
+<li><p>次の情報は秘密情報に含まれません。</p>
+</li>
+</ol>
+<ul>
+<li>提供時点で公知となっていた情報</li>
+<li>当方の責任によらず公知となった情報</li>
+<li>正当な権限を有する第三者から取得した情報</li>
+<li>法令または公的機関の要請により開示が必要となった情報</li>
+</ul>
+<h2>第27条　外部協力者</h2>
+<ol>
+<li><p>アニメーションロゴに使用する音源その他、制作上必要な一部業務を外部協力者へ委託する場合があります。</p>
+</li>
+<li><p>依頼者の非公開情報または制作資料を外部協力者へ共有する必要がある場合は、原則として事前に依頼者の同意を得ます。</p>
+</li>
+<li><p>外部協力者へ共有する情報は、業務に必要な範囲に限定します。</p>
+</li>
+<li><p>当方は、外部協力者に対して秘密保持および適切な情報管理を求めます。</p>
+</li>
+</ol>
+<h2>第28条　生成AI等の利用</h2>
+<ol>
+<li><p>当方は、一般的なアイデア出し、文章整理およびウェブサイトのコード処理等に生成AIその他の補助ツールを使用する場合があります。</p>
+</li>
+<li><p>依頼者から提供された原画、モデル、設定資料その他の非公開制作資料を、生成AIサービスへ直接入力しません。</p>
+</li>
+<li><p>納品物または依頼者の資料を、AI学習用データとして利用しません。</p>
+</li>
+</ol>
+<h2>第29条　免責</h2>
+<p>当方は、次の事項について、当方に故意または重大な過失がある場合を除き、責任を負いません。</p>
+<ul>
+<li>nizima LIVE、Live2D Cubism、OS、配信ソフトその他外部サービスの更新または仕様変更による不具合</li>
+<li>正式対応外の環境で発生した不具合</li>
+<li>依頼者の誤操作、保存不備または利用環境に起因する問題</li>
+<li>依頼者または第三者による改変後に発生した問題</li>
+<li>依頼者側で発生したデータの消失または破損</li>
+<li>納品物の利用による視聴者数、売上、登録者数、SNS上の成果、オーディション結果または事務所所属等</li>
+<li>第三者サービスの停止、障害または仕様変更</li>
+<li>依頼者が必要な権利許諾を得ていなかったことにより生じた問題</li>
+</ul>
+<h2>第30条　不可抗力</h2>
+<p>天災、停電、通信障害、感染症、機材故障、外部サービスの停止その他、当方が合理的に制御できない事情により制作が遅延または困難となった場合、当方はその責任を負わず、依頼者と納期または契約内容を再協議します。</p>
+<h2>第31条　損害賠償</h2>
+<ol>
+<li><p>当方の責任により依頼者に損害が生じた場合、当方が負う損害賠償の総額は、法令上許される範囲で、当該契約について当方が受領した料金を上限とします。</p>
+</li>
+<li><p>前項の上限は、当方に故意または重大な過失がある場合には適用しません。</p>
+</li>
+<li><p>当方は、特別な事情から生じた損害、間接損害、逸失利益その他の予見困難な損害について、法令上責任を負う場合を除き責任を負いません。</p>
+</li>
+</ol>
+<h2>第32条　規約違反</h2>
+<ol>
+<li><p>依頼者が本規約に違反した場合、当方は利用の停止、許諾の取消し、制作の停止または契約の解除を求めることがあります。</p>
+</li>
+<li><p>契約を解除する場合は、実施済み作業および発生済み費用を精算し、未実施分に相当する金額がある場合は返金します。</p>
+</li>
+<li><p>規約違反によって当方または第三者に損害が生じた場合、違反した依頼者は法令上認められる範囲でその損害を負担するものとします。</p>
+</li>
+</ol>
+<h2>第33条　規約の変更</h2>
+<ol>
+<li><p>当方は、法令の変更、サービス内容の変更その他合理的な必要がある場合、本規約を変更することがあります。</p>
+</li>
+<li><p>変更後の規約は、当方ウェブサイトへの掲載によって告知します。</p>
+</li>
+<li><p>個別に別段の合意がない限り、契約成立済みの案件には契約成立時点の規約を適用します。</p>
+</li>
+</ol>
+<h2>第34条　準拠法および管轄</h2>
+<ol>
+<li><p>本規約および当方との契約には、日本法を適用します。</p>
+</li>
+<li><p>本規約または契約に関する問題が生じた場合、当方と依頼者は誠実に協議し、解決を図るものとします。</p>
+</li>
+<li><p>協議によって解決しない場合は、当方の事業所在地を管轄する地方裁判所または簡易裁判所を、第一審の専属的合意管轄裁判所とします。</p>
+</li>
+<li><p>日本語以外の言語で本規約を表示した場合、日本語版を正文とします。</p>
+</li>
+</ol>
+<h2>第35条　問い合わせ先</h2>
+<p>琴ノ裏工房
+メールアドレス：<a href="mailto:koto989urara@gmail.com">koto989urara@gmail.com</a></p>
+
+                </article>
+                <article class="policy-dialog__pane" data-policy-pane="privacy" hidden>
+                    <h1>琴ノ裏工房 プライバシーポリシー</h1>
+<p>制定日：2026年7月13日</p>
+<p>琴ノ裏工房（以下「当方」といいます）は、制作相談、契約、制作、納品その他のサービス提供に伴って取得する個人情報を、次の方針に基づいて取り扱います。</p>
+<h2>1．事業者情報</h2>
+<p>事業者名：琴ノ裏工房
+事業形態：個人事業
+問い合わせ先：<a href="mailto:koto989urara@gmail.com">koto989urara@gmail.com</a></p>
+<p>運営者の氏名および所在地は、本人からの請求に応じて遅滞なく開示します。</p>
+<h2>2．取得する情報</h2>
+<p>当方は、相談、契約、制作およびサービス提供に必要な範囲で、次の情報を取得することがあります。</p>
+<ul>
+<li>氏名</li>
+<li>活動名</li>
+<li>メールアドレス</li>
+<li>Xアカウント</li>
+<li>活動先URL</li>
+<li>法人名または事務所名</li>
+<li>担当者名</li>
+<li>請求および契約に関する情報</li>
+<li>振込名義その他の支払いに関する情報</li>
+<li>相談内容</li>
+<li>予算</li>
+<li>希望納期</li>
+<li>希望する制作内容および利用目的</li>
+<li>原画、モデル、設定資料その他の制作資料</li>
+<li>メール、Discordその他の方法による通信内容</li>
+<li>通話による打ち合わせ内容</li>
+<li>当方へ提出されたファイルおよび共有URL</li>
+<li>その他、相談、契約または制作のために依頼者が提供する情報</li>
+</ul>
+<p>当方は、通話内容を無断で録音または録画しません。録音または録画が必要となる場合は、事前に目的を説明し、同意を得ます。</p>
+<h2>3．公開情報の確認</h2>
+<p>当方は、依頼者から提示されたX、YouTube、ウェブサイトその他の公開ページについて、次の目的で公開情報を確認することがあります。</p>
+<ul>
+<li>活動状況および活動内容の確認</li>
+<li>制作可否の判断</li>
+<li>作風、雰囲気および依頼内容との適合確認</li>
+<li>制作方針および提案内容の検討</li>
+<li>不正、虚偽申告または迷惑行為の防止</li>
+</ul>
+<p>公開情報を確認する場合も、本ポリシーに定める利用目的の範囲内で取り扱います。</p>
+<h2>4．利用目的</h2>
+<p>取得した個人情報は、次の目的で利用します。</p>
+<ul>
+<li>制作相談への返信</li>
+<li>本人および活動状況の確認</li>
+<li>制作可否の判断</li>
+<li>見積もりの作成および提示</li>
+<li>契約手続</li>
+<li>制作内容および仕様の確認</li>
+<li>打ち合わせおよび連絡</li>
+<li>制作、修正、納品および検収</li>
+<li>料金の請求、入金確認および会計処理</li>
+<li>納品後の不具合確認および問い合わせ対応</li>
+<li>制作実績の公開に関する確認</li>
+<li>トラブル、規約違反および権利侵害への対応</li>
+<li>不正、虚偽申告および迷惑行為の防止</li>
+<li>サービス内容および受付方法の改善</li>
+<li>法令上必要な記録および対応</li>
+<li>その他、依頼者との契約を適切に履行するために必要な業務</li>
+</ul>
+<p>当方は、取得した個人情報を、本人の同意なく営業メール、広告配信または宣伝目的に利用しません。</p>
+<h2>5．利用目的の変更</h2>
+<p>取得時に示した利用目的を変更する場合は、変更前の目的と合理的な関連性を有する範囲に限定し、必要に応じて当方ウェブサイトへの掲載その他の方法で通知します。</p>
+<h2>6．個人情報を扱う外部サービス</h2>
+<p>当方は、相談、連絡、契約、制作および情報管理のため、次の外部サービスを利用します。</p>
+<ul>
+<li>Gmail</li>
+<li>Google Drive</li>
+<li>Googleスプレッドシート</li>
+<li>Discord</li>
+<li>GitHub</li>
+<li>ファイル転送サービス</li>
+<li>独自の相談フォーム</li>
+<li>その他、制作および業務管理に必要なクラウドサービス</li>
+</ul>
+<p>これらのサービスでは、サービス提供事業者のサーバー上に情報が保存または処理される場合があります。</p>
+<p>国外に所在する事業者が提供するサービスを利用する場合は、各サービスの利用規約およびプライバシーポリシーを確認し、業務上必要な範囲で利用します。</p>
+<h2>7．業務委託</h2>
+<ol>
+<li><p>当方は、アニメーションロゴ用音源の制作その他、業務の一部を外部協力者へ委託する場合があります。</p>
+</li>
+<li><p>依頼者の個人情報または非公開資料を外部協力者へ共有する必要がある場合は、原則として事前に本人の同意を得ます。</p>
+</li>
+<li><p>委託先へ共有する情報は、委託業務に必要な範囲に限定します。</p>
+</li>
+<li><p>当方は、委託先に対して秘密保持および適切な情報管理を求めます。</p>
+</li>
+</ol>
+<h2>8．第三者提供</h2>
+<p>当方は、次の場合を除き、本人の同意なく個人データを第三者へ提供しません。</p>
+<ul>
+<li>法令に基づく場合</li>
+<li>人の生命、身体または財産の保護のために必要であり、本人の同意を得ることが困難な場合</li>
+<li>公的機関から適法な開示要請を受けた場合</li>
+<li>トラブル、権利侵害または法的紛争への対応のため、弁護士その他の専門家へ相談する必要がある場合</li>
+<li>利用目的の達成に必要な範囲で業務を委託する場合</li>
+<li>その他、法令により認められる場合</li>
+</ul>
+<h2>9．第三者が制作した素材</h2>
+<p>依頼者から提供された原画、モデルその他の制作資料に第三者の権利が含まれる場合、当方は制作および権利確認に必要な範囲で当該情報を取り扱います。</p>
+<p>必要に応じて、依頼者の同意を得た上で、素材の制作者または権利者へ許諾内容を確認することがあります。</p>
+<h2>10．生成AI等への入力</h2>
+<ol>
+<li><p>当方は、一般的なアイデア出し、文章整理およびウェブサイトのコード処理等に生成AIその他の補助ツールを使用する場合があります。</p>
+</li>
+<li><p>依頼者から提供された原画、モデル、設定資料、個人情報その他の非公開資料を、生成AIサービスへ直接入力しません。</p>
+</li>
+<li><p>取得した情報および納品物を、生成AIの学習用データとして利用しません。</p>
+</li>
+</ol>
+<h2>11．安全管理措置</h2>
+<p>当方は、個人情報の漏えい、紛失、改ざん、不正アクセスその他の事故を防止するため、取扱状況に応じて次の措置を講じます。</p>
+<ul>
+<li>Googleアカウントその他の重要なアカウントへの二段階認証</li>
+<li>PCおよびスマートフォンへのパスコード設定</li>
+<li>ストレージの暗号化</li>
+<li>個人情報および制作資料へのアクセス権限の制限</li>
+<li>必要なデータのバックアップ</li>
+<li>ウイルス、不正アクセスおよび不正ソフトウェアへの対策</li>
+<li>外部協力者への秘密保持および適切な情報管理の要請</li>
+<li>不要となった情報の削除またはアクセス制限</li>
+<li>利用する外部サービスおよび共有設定の定期的な確認</li>
+</ul>
+<p>安全管理上の理由により、措置の詳細すべてを公開しない場合があります。</p>
+<h2>12．保存期間</h2>
+<p>当方は、取得した情報を、利用目的および法令上必要な範囲で保存します。</p>
+<h3>相談が契約に至らなかった場合</h3>
+<p>相談内容および関連情報は、原則として相談終了から1年間保存します。</p>
+<h3>契約が成立した場合</h3>
+<p>契約書、見積書、請求情報、入金記録その他の契約および会計に関する情報は、法令上必要な期間保存します。</p>
+<h3>制作資料および制作データ</h3>
+<p>原画、モデル、設定資料、納品データその他の制作関連情報は、原則として納品から3年間保存します。</p>
+<p>ただし、保存期間内であっても、保管状況、データ容量、外部サービスの終了その他の事情により、すべての制作データの継続保管または再納品を保証するものではありません。</p>
+<h3>紛争等がある場合</h3>
+<p>トラブル、権利関係、未払いその他の問題が継続している場合は、解決および法的対応に必要な期間保存することがあります。</p>
+<h2>13．削除</h2>
+<ol>
+<li><p>保存期間を経過し、利用目的上不要となった個人情報は、合理的な方法で削除または廃棄します。</p>
+</li>
+<li><p>本人から削除の請求があった場合は、法令上または契約上保存が必要な情報を除き、内容を確認した上で対応します。</p>
+</li>
+<li><p>バックアップ、会計記録、紛争対応その他の事情により、直ちにすべての情報を削除できない場合があります。</p>
+</li>
+</ol>
+<h2>14．開示、訂正、利用停止等</h2>
+<p>本人は、当方が保有する本人の個人情報について、法令に基づき次の請求を行うことができます。</p>
+<ul>
+<li>利用目的の通知</li>
+<li>個人情報の開示</li>
+<li>内容の訂正、追加または削除</li>
+<li>利用の停止または消去</li>
+<li>第三者提供の停止</li>
+<li>第三者提供記録の開示</li>
+</ul>
+<p>請求する場合は、本ポリシー末尾の問い合わせ先へメールで連絡してください。</p>
+<h2>15．本人確認</h2>
+<p>開示、訂正、削除、利用停止その他の請求を受けた場合、当方は次の方法等により本人確認を行うことがあります。</p>
+<ul>
+<li>登録または相談時に使用したメールアドレスからの連絡</li>
+<li>当方が保有する情報との照合</li>
+<li>請求対象を特定するために必要な情報の確認</li>
+<li>その他、本人または正当な代理人であることを確認できる合理的な方法</li>
+</ul>
+<p>本人確認のために、必要以上の情報を求めないよう配慮します。</p>
+<h2>16．請求への対応</h2>
+<ol>
+<li><p>請求内容を確認し、法令に従って合理的な期間内に対応します。</p>
+</li>
+<li><p>次の場合は、請求の全部または一部に応じられないことがあります。</p>
+</li>
+</ol>
+<ul>
+<li>本人または正当な代理人であることを確認できない場合</li>
+<li>他者の権利利益を害するおそれがある場合</li>
+<li>当方の業務の適正な実施に著しい支障を及ぼす場合</li>
+<li>法令上保存が必要な場合</li>
+<li>その他、法令により請求へ応じる義務がない場合</li>
+</ul>
+<ol start="3">
+<li>請求に応じない場合または請求と異なる対応を行う場合は、可能な範囲で理由を説明します。</li>
+</ol>
+<h2>17．漏えい等への対応</h2>
+<p>個人情報の漏えい、紛失、毀損その他の事故が発生した場合、当方は状況に応じて次の対応を行います。</p>
+<ul>
+<li>事実関係および影響範囲の調査</li>
+<li>被害拡大の防止</li>
+<li>再発防止策の実施</li>
+<li>法令上必要な場合の本人への連絡</li>
+<li>法令上必要な場合の個人情報保護委員会その他の関係機関への報告</li>
+</ul>
+<h2>18．アクセス解析</h2>
+<p>当方は、現時点ではGoogle Analyticsを使用していません。</p>
+<p>Google Analyticsその他のアクセス解析サービスを導入する場合は、取得する情報、利用目的、Cookie等の使用および外部事業者への情報送信について本ポリシーへ追記し、当方ウェブサイト上で告知します。</p>
+<h2>19．プライバシーポリシーの変更</h2>
+<ol>
+<li><p>当方は、法令の改正、使用サービスの変更、業務内容の変更その他の必要に応じて、本ポリシーを変更することがあります。</p>
+</li>
+<li><p>変更した場合は、当方ウェブサイト上へ掲載して告知します。</p>
+</li>
+<li><p>重要な変更がある場合は、必要に応じて個別に通知します。</p>
+</li>
+</ol>
+<h2>20．問い合わせ先</h2>
+<p>個人情報の取扱い、開示等の請求、苦情その他の問い合わせは、次の窓口へ連絡してください。</p>
+<p>琴ノ裏工房
+メールアドレス：<a href="mailto:koto989urara@gmail.com">koto989urara@gmail.com</a></p>
+
+                </article>
+            </div>
+        </div>
+    </dialog>
+</body>
+</html>

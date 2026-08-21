@@ -1,0 +1,2573 @@
+@font-face {
+    font-family: "Togarite Thin";
+    src: url("../fonts/Togarite-Thin.woff2?v=2") format("woff2");
+    font-weight: 100;
+    font-style: normal;
+    font-display: swap;
+}
+
+@property --plan-color {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #8f2126;
+}
+
+:root {
+    --order-width: 960px;
+    --section-pad: 4.6cqw;
+    --rail-width: 13.8cqw;
+}
+
+body.is-dialog-open {
+    overflow: hidden;
+}
+
+.order-page {
+    width: min(100%, var(--order-width));
+    min-height: 100vh;
+    margin-inline: auto;
+    overflow-x: clip;
+    container-type: inline-size;
+    container-name: order-page;
+}
+
+/* =========================================================
+   Condition
+   ========================================================= */
+
+.condition-section {
+    padding: 0.1cqw 8cqw 4cqw;
+}
+
+.condition-list {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 1.7cqw;
+}
+
+.condition-item {
+    min-width: 0;
+    margin: 0;
+    text-align: center;
+}
+
+.condition-item__month {
+    margin: 0 0 -1cqw;
+    font-size: 4.5cqw;
+    font-weight: 750;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.condition-item__image {
+    width: 100%;
+    aspect-ratio: 1.42 / 1;
+    object-fit: contain;
+}
+
+/* =========================================================
+   Shared section heading
+   ========================================================= */
+
+.section-heading {
+    padding-inline: var(--section-pad);
+}
+
+.section-heading__line,
+.section-heading--simple {
+    display: flex;
+    align-items: baseline;
+    gap: 2.4cqw;
+}
+
+.section-heading__line {
+    position: relative;
+}
+
+.section-heading__line::after {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: calc(var(--section-pad) * -1);
+    height: 0.8cqw;
+    content: "";
+    background: #000;
+}
+
+.section-heading--simple {
+    border-bottom: 0.5cqw solid #000;
+}
+.section-heading h2 {
+    margin: 0;
+    font-size: 6cqw;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.section-heading p {
+    margin: 0;
+    font-size: 2.7cqw;
+    white-space: nowrap;
+}
+
+.section-heading--simple {
+    padding-inline: 0;
+}
+
+/* =========================================================
+   Plan selector
+   ========================================================= */
+
+.plan-selector {
+    margin-top: 3.6cqw;
+}
+
+.plan-tabs {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 1.4cqw;
+    padding-inline: var(--section-pad);
+    transition: gap 460ms cubic-bezier(.2, .72, .2, 1);
+}
+
+.plan-tab {
+    position: relative;
+    display: grid;
+    grid-template-rows: 14.5cqw 1.9cqw 151cqw;
+    min-width: 0;
+    min-height: 0;
+    padding: 0;
+    color: var(--plan-color);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    transition: grid-template-rows 460ms cubic-bezier(.2, .72, .2, 1);
+}
+
+.plan-tab:focus-visible {
+    outline: 0.5cqw solid #000;
+    outline-offset: 0.4cqw;
+}
+
+.plan-tab::after {
+    grid-row: 2;
+    align-self: center;
+    width: 100%;
+    height: .5px;
+    content: "";
+    background: var(--plan-color);
+    transform-origin: center;
+    transition:
+        opacity 280ms ease,
+        transform 440ms cubic-bezier(.2, .72, .2, 1);
+}
+
+.plan-tab__mark {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 14.5cqw;
+    color: var(--plan-color);
+    background: transparent;
+    font-size: 7cqw;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.08em;
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    white-space: nowrap;
+    opacity: 0;
+    animation: tabReveal 520ms ease forwards;
+    animation-delay: var(--tab-delay);
+    transition:
+        color 420ms ease,
+        background-color 420ms ease,
+        transform 420ms cubic-bezier(.2, .72, .2, 1);
+}
+
+.plan-tab__content {
+    position: relative;
+    grid-row: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
+    min-height: 151cqw;
+    padding: 3.2cqw 1.3cqw 2.4cqw;
+    overflow: hidden;
+    color: #fff;
+    background: var(--plan-color);
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    opacity: 0;
+    animation: tabReveal 620ms ease forwards;
+    animation-delay: calc(var(--tab-delay) + 180ms);
+    transform-origin: top center;
+    transition:
+        min-height 460ms cubic-bezier(.2, .72, .2, 1),
+        padding 460ms cubic-bezier(.2, .72, .2, 1),
+        opacity 260ms ease,
+        transform 460ms cubic-bezier(.2, .72, .2, 1);
+}
+
+.plan-tab__name {
+    flex: 0 0 auto;
+    font-size: 5cqw;
+    font-weight: 600;
+    line-height: 1.22;
+    letter-spacing: 0.07em;
+    white-space: nowrap;
+}
+
+.plan-tab__description {
+    flex: 0 1 auto;
+    margin-block-start: 1.5cqw;
+    font-size: 2.8cqw;
+    line-height: 1.65;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    font-feature-settings: "palt" 0;
+}
+
+/* =========================================================
+   プラン選択後のタブ表示
+   ========================================================= */
+
+/* =========================================================
+   プラン選択後のタブ表示
+   ========================================================= */
+
+.plan-selector.has-selection {
+    /* 【改】【壱】など、札本体の縦幅 */
+    --selected-tab-height: 17cqw;
+
+    /* 札の下端から展開後プランボックスまでの距離 */
+    --selected-tab-panel-gap: 2.5cqw;
+
+    /* 選択していない札の下に残す接続線の太さ */
+    --inactive-tab-foot-height: 1.8px;
+
+    /* 選択していない接続線とプランボックス上端の空白 */
+    --inactive-tab-foot-gap: 0.8cqw;
+}
+
+.plan-selector.has-selection .plan-tabs {
+    /* 札同士の横方向の間隔 */
+    gap: 3.1cqw;
+
+    /*
+       札と展開後プランボックスの間隔。
+       この領域内へ接続部分を下向きに伸ばす
+    */
+    padding-bottom: var(--selected-tab-panel-gap);
+}
+
+.plan-selector.has-selection .plan-tab {
+    /*
+       1段目：札本体
+       2段目：展開前の横線
+       3段目：展開前のプラン名・説明短冊
+
+       選択後は札本体以外のグリッド領域を畳む
+    */
+    grid-template-rows:
+        var(--selected-tab-height)
+        0
+        0;
+}
+
+.plan-selector.has-selection .plan-tab::after {
+    /*
+       展開前に表示していた横線。
+       選択後は使用しない
+    */
+    opacity: 0;
+    transform: scaleX(0);
+}
+
+.plan-selector.has-selection .plan-tab__mark {
+    /* 札本体を1段目の高さに合わせる */
+    height: 100%;
+}
+
+.plan-selector.has-selection .plan-tab.is-active .plan-tab__mark {
+    /* 選択中の札 */
+    color: #fff;
+    background: var(--plan-color);
+    transform: translateY(0);
+}
+
+.plan-selector.has-selection .plan-tab__content {
+    /*
+       展開前の短冊を、選択後は接続部として再利用する。
+
+       animationを停止しないと、
+       tabRevealのopacity・transformが残って
+       高さ指定を妨げる
+    */
+    min-height: 0;
+    padding: 0;
+    overflow: hidden;
+    opacity: 1;
+    animation: none;
+    pointer-events: none;
+}
+
+/* 短冊内に残っているプラン名・説明文だけを非表示 */
+.plan-selector.has-selection .plan-tab__content > * {
+    opacity: 0;
+}
+
+/*
+   選択していない札の接続部。
+
+   細い色線をプランボックスの上端まで下げる。
+   文字や札本体の大きさには影響しない
+*/
+.plan-selector.has-selection
+.plan-tab:not(.is-active)
+.plan-tab__content {
+    height: var(--inactive-tab-foot-height);
+    transform: translateY(
+        calc(
+            var(--selected-tab-panel-gap) -
+            var(--inactive-tab-foot-height) -
+            var(--inactive-tab-foot-gap)
+        )
+    );
+}
+
+/*
+   選択中の札の接続部。
+
+   札から下のプランボックスまで、
+   プランカラーで連続させる
+*/
+.plan-selector.has-selection
+.plan-tab.is-active
+.plan-tab__content {
+    height: var(--selected-tab-panel-gap);
+    transform: translateY(0);
+}
+
+@keyframes tabReveal {
+    from {
+        opacity: 0;
+        transform: translateY(1.25cqw);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =========================================================
+   Expanded plan panel
+   ========================================================= */
+
+.plan-panel {
+    --plan-color: #8f2126;
+    --rail-width: 17.2cqw;
+    --rail-line-right: 2.4cqw;
+
+    --panel-top-line-top: 1.8cqw;
+    --panel-top-line-left: 0cqw;
+    --panel-top-line-right: 0.25cqw;
+    --panel-top-line-size: .2cqw;
+
+    --panel-side-line-top: 2.1cqw;
+    --panel-side-line-right: 2.4cqw;
+    --panel-side-line-bottom: 0;
+    --panel-side-line-size: 0.55cqw;
+
+    /* 最終カードまたは制作相談の下に確保する余白 */
+    --panel-content-bottom-gap: 12cqw;
+
+    margin-inline: 2.8cqw 1.4cqw;
+    touch-action: pan-y;
+    color: #fff;
+    background: var(--plan-color);
+    opacity: 0;
+    transform: translateY(1.875cqw);
+    transition:
+        --plan-color 520ms ease,
+        background-color 520ms ease,
+        opacity 360ms ease,
+        transform 520ms cubic-bezier(.2, .7, .2, 1);
+}
+
+.plan-panel.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.plan-panel__surface {
+    position: relative;
+    min-height: 0;
+    transition: none;
+}
+
+.plan-panel__line {
+    position: absolute;
+    z-index: 30;
+    display: block;
+    background: #fff;
+    pointer-events: none;
+}
+
+.plan-panel__line--top {
+    top: var(--panel-top-line-top);
+    right: var(--panel-top-line-right);
+    left: var(--panel-top-line-left);
+    height: var(--panel-top-line-size);
+}
+
+.plan-panel__line--side {
+    top: var(--panel-side-line-top);
+    right: var(--panel-side-line-right);
+    bottom: var(--panel-side-line-bottom);
+    width: var(--panel-side-line-size);
+}
+
+.plan-panel__main {
+    min-width: 0;
+    min-height: 0;
+    padding-right: var(--rail-width);
+    overflow: visible;
+    transition:
+        opacity 260ms ease,
+        transform 420ms cubic-bezier(.2, .72, .2, 1);
+}
+
+.plan-panel__main.is-mobile-card-switching {
+    opacity: 0.18;
+    transform: none;
+    transition-duration: 120ms;
+}
+
+.plan-panel__main.is-main-leaving {
+    opacity: 0;
+    transform: translateX(7cqw);
+}
+
+.plan-panel__main.is-main-entering {
+    animation: planMainEnter 520ms cubic-bezier(.18, .78, .28, 1) both;
+}
+
+@keyframes planMainEnter {
+    from {
+        opacity: 0;
+        transform: translateX(-7cqw);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.plan-includes {
+    min-height: 35cqw;
+    padding: 5.3cqw 4.8cqw 3.2cqw;
+}
+
+.plan-includes__inner {
+    min-height: 25.5cqw;
+    padding-bottom: 2.6cqw;
+    border-bottom: 0.35cqw solid rgb(0 0 0 / 50%);
+    transition: opacity 260ms ease, transform 420ms cubic-bezier(.2, .72, .2, 1);
+}
+
+.cards-plan.is-reflowing .plan-includes__inner {
+    opacity: 0.35;
+    transform: translateY(-0.8cqw);
+}
+
+.plan-includes__flow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.4cqw 0.8cqw;
+    margin: 0;
+    font-size: 3cqw;
+    line-height: 1.55;
+}
+
+.plan-includes__arrow {
+    display: inline-block;
+    font-size: 0.9em;
+    transform: translateY(-0.04em);
+}
+
+.plan-includes__extra {
+    display: grid;
+    gap: 0.05cqw;
+    margin: 0.7cqw 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 3cqw;
+    line-height: 1.48;
+}
+
+.plan-includes__extra li::before {
+    content: "・";
+}
+
+.plan-rail {
+    position: absolute;
+    z-index: 20;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: var(--rail-width);
+    color: #fff;
+    background: var(--plan-color);
+    transition: none;
+}
+
+.plan-rail__head {
+    position: absolute;
+    z-index: 2;
+    top: 4.8cqw;
+    right: calc(var(--rail-line-right) + 1.1cqw);
+    left: 0;
+    min-height: 0;
+}
+
+.plan-rail__title-stack {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 7.6cqw;
+    gap: 0;
+    writing-mode: horizontal-tb;
+}
+
+.plan-rail__title,
+.plan-rail__summary,
+.plan-rail__meta-label,
+.plan-rail__meta-value,
+.plan-rail__consult {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+}
+
+.plan-rail__title {
+    width: 100%;
+    min-height: 0;
+    margin: 0;
+    line-height: 1;
+    white-space: nowrap;
+    word-break: keep-all;
+}
+
+.plan-rail__title > .plan-tab__name {
+    display: block;
+    margin: 0;
+    font-size: 6.1cqw;
+    font-weight: 700;
+    line-height: 1.08;
+    letter-spacing: 0.05em;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    white-space: nowrap;
+}
+
+.plan-rail__summary {
+    position: absolute;
+    top: 0;
+    right: 8.3cqw;
+    width: 5.8cqw;
+    min-height: 0;
+    margin: 0;
+    white-space: nowrap;
+    word-break: keep-all;
+}
+
+.plan-rail__summary > .plan-tab__description {
+    display: block;
+    margin: 0;
+    font-size: 2.75cqw;
+    line-height: 1.55;
+    letter-spacing: 0.04em;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    white-space: nowrap;
+}
+
+.plan-rail__meta-list {
+    /*
+       label/value自体の幅を狭めて文字中央を維持し、
+       ボックス全体だけを白い縦線側へ移動する。
+       右側へ幅を延長しないため、左右差が生まれない。
+    */
+    --rail-meta-width: 6.4cqw;
+    --rail-meta-shift-x: 1.1cqw;
+
+    position: relative;
+    left: var(--rail-meta-shift-x);
+    display: flex;
+    flex-direction: column;
+    align-self: flex-end;
+    width: var(--rail-meta-width);
+    margin-top: 14cqw;
+    gap: 0.65cqw;
+    box-sizing: border-box;
+    writing-mode: horizontal-tb;
+}
+
+.plan-rail__meta {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 0;
+    box-sizing: border-box;
+    writing-mode: horizontal-tb;
+}
+
+.plan-rail__meta-label,
+.plan-rail__meta-value {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    box-sizing: border-box;
+
+    /*
+     * 色変化は親の--plan-colorへ一本化。
+     * 子側でもtransitionすると遅れて追従して見える
+     */
+    transition: none;
+}
+
+.plan-rail__meta-label {
+    min-height: 17cqw;
+    margin-top: 2cqw;
+    padding-top: 0.8cqw;
+    padding-right: 0.15cqw;
+    padding-bottom: 0.8cqw;
+    padding-left: 0.15cqw;
+    color: var(--plan-color);
+    background: #fff;
+    font-size: 2.8cqw;
+    font-weight: 600;
+}
+
+.plan-rail__meta-value {
+    min-height: 17.5cqw;
+    margin-top: 1cqw;
+    padding-top: 0.8cqw;
+    padding-right: 0.15cqw;
+    padding-bottom: 0.8cqw;
+    padding-left: 0.15cqw;
+    color: #fff;
+    background: var(--plan-color);
+    font-size: 2.8cqw;
+    font-weight: 600;
+}
+
+.plan-rail__digits {
+    text-combine-upright: all;
+    -webkit-text-combine: horizontal;
+    letter-spacing: 0;
+    white-space: nowrap;
+}
+
+.plan-rail__consult {
+    position: relative;
+    left: 1.1cqw;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5em;
+    width: 100%;
+    min-height: 35cqw;
+    margin-top: 0.65cqw;
+    padding: 2.2cqw 1.4cqw;
+    color: #000;
+    background: #fff;
+    font-size: 4cqw;
+    font-weight: 700;
+    line-height: 1.1;
+    text-decoration: none;
+}
+
+.plan-rail__consult[hidden] {
+    display: none;
+}
+
+/* =========================================================
+   Process cards
+   ========================================================= */
+
+.process-stack {
+    --card-collapsed-h: 11.5cqw;
+    --card-expanded-h: 26cqw;
+    --card-icon-w: 20.6cqw;
+    --card-edge-w: 1.8cqw;
+    --card-heading-top: 7.7cqw;
+    --card-summary-top: 15cqw;
+
+    /* カードアイコンの調整
+       展開中のカード高・グリッド幅から寸法計算を切り離す */
+    --card-icon-width: 24.69cqw;
+    --card-icon-height: 26cqw;
+    /* 展開後の20.6cqw列 × 52%と同じ最終位置を固定 */
+    --card-icon-x: 10.7cqw;
+    --card-icon-bottom: 0;
+
+    position: relative;
+    padding: 4.2cqw 0 var(--panel-content-bottom-gap) 0;
+    transition: height 160ms ease-out;
+}
+
+.process-card-slot {
+    position: relative;
+    min-width: 0;
+    transform-origin: center;
+}
+
+.process-card-slot.is-removing {
+    z-index: 10;
+    pointer-events: none;
+}
+
+.process-card-slot.is-added-placeholder .process-card {
+    opacity: 0;
+    transform: translateX(-78%) rotate(-4deg);
+}
+
+.process-card-slot.is-added-entering .process-card {
+    animation: cardEnter 620ms cubic-bezier(.18, .78, .28, 1) both;
+    animation-delay: var(--card-delay);
+}
+
+.process-card {
+    position: relative;
+    height: var(--card-collapsed-h);
+    color: #000;
+    outline: none;
+    cursor: pointer;
+    transform-origin: center;
+    transition:
+        height 520ms cubic-bezier(.2, .72, .2, 1),
+        filter 220ms ease,
+        opacity 300ms ease,
+        transform 420ms cubic-bezier(.2, .72, .2, 1);
+    backface-visibility: hidden;
+}
+
+.process-card.is-expanded,
+.plan-panel[data-plan="one"] .process-card,
+.plan-panel[data-plan="two"] .process-card {
+    height: var(--card-expanded-h);
+    filter: drop-shadow(0 1.2cqw 3cqw rgb(0 0 0 / 16%));
+}
+
+.process-card:focus-visible {
+    outline: 0.6cqw solid #000;
+    outline-offset: 0.35cqw;
+}
+
+.process-card.is-flip-out {
+    animation: cardFlipOut 240ms cubic-bezier(.55, 0, .85, .35) both;
+}
+
+.process-card.is-flip-in {
+    animation: cardFlipIn 360ms cubic-bezier(.15, .72, .25, 1) both;
+}
+
+@keyframes cardEnter {
+    from {
+        opacity: 0;
+        transform: translateX(-82%) rotate(-5deg);
+    }
+
+    72% {
+        opacity: 1;
+        transform: translateX(2%) rotate(1deg);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0) rotate(0);
+    }
+}
+
+@keyframes cardFlipOut {
+    from {
+        opacity: 1;
+        transform: perspective(90cqw) rotateY(0deg);
+    }
+
+    to {
+        opacity: 0;
+        transform: perspective(90cqw) rotateY(90deg);
+    }
+}
+
+@keyframes cardFlipIn {
+    from {
+        opacity: 0;
+        transform: perspective(90cqw) rotateY(-90deg);
+    }
+
+    to {
+        opacity: 1;
+        transform: perspective(90cqw) rotateY(0deg);
+    }
+}
+
+.process-card__edge {
+    position: absolute;
+    z-index: 5;
+    top: 0;
+    bottom: 0;
+    left: calc(var(--card-edge-w) * -1);
+    width: var(--card-edge-w);
+    background: var(--plan-color);
+    transition: none;
+}
+
+.process-card__body {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: 0 minmax(0, 1fr);
+    min-width: 0;
+    overflow: visible;
+    background: #fff;
+    transform-origin: center;
+    transition: grid-template-columns 520ms cubic-bezier(.2, .72, .2, 1);
+}
+
+.process-card.is-expanded .process-card__body,
+.plan-panel[data-plan="one"] .process-card__body,
+.plan-panel[data-plan="two"] .process-card__body {
+    grid-template-columns: var(--card-icon-w) minmax(0, 1fr);
+}
+
+.process-card__icon-box {
+    position: relative;
+    min-width: 0;
+    height: 100%;
+    overflow: visible;
+    color: var(--plan-color);
+    background: #fff;
+    opacity: 0;
+    transition:
+        color 520ms ease,
+        opacity 180ms ease;
+}
+
+.process-card.is-expanded .process-card__icon-box,
+.plan-panel[data-plan="one"] .process-card__icon-box,
+.plan-panel[data-plan="two"] .process-card__icon-box {
+    opacity: 1;
+}
+
+.process-card__icon-image {
+    position: absolute;
+    inset: auto;
+    left: var(--card-icon-x);
+    bottom: var(--card-icon-bottom);
+
+    display: block;
+    width: var(--card-icon-width);
+    height: var(--card-icon-height);
+    max-width: none;
+    max-height: none;
+
+    background-color: var(--plan-color);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+
+    opacity: 0;
+    transform: translate(-50%, 14%);
+    transform-origin: center bottom;
+    transition:
+        opacity 340ms ease 150ms,
+        transform 520ms cubic-bezier(.2, .75, .2, 1);
+}
+
+
+
+
+.process-card.is-expanded .process-card__icon-image,
+.plan-panel[data-plan="one"] .process-card__icon-image,
+.plan-panel[data-plan="two"] .process-card__icon-image {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+.process-card__content {
+    position: relative;
+    min-width: 0;
+    height: 100%;
+    overflow: visible;
+}
+
+.process-card__flavor {
+    position: absolute;
+    z-index: 3;
+    top: -2.2cqw;
+    right: 0;
+    left: auto;
+    width: max-content;
+    max-width: none;
+    margin: 0;
+    color: var(--plan-color);
+    font-family: "Togarite Thin", var(--font-flavor);
+    font-weight: 100;
+    line-height: 1;
+    text-align: right;
+    white-space: nowrap;
+    pointer-events: none;
+    letter-spacing: 0.025em;
+    opacity: 0;
+    transform: translateY(1.2cqw);
+    transition:
+        color 520ms ease,
+        opacity 260ms ease 100ms,
+        transform 360ms cubic-bezier(.2, .75, .2, 1) 80ms;
+}
+
+.process-card.is-expanded .process-card__flavor,
+.plan-panel[data-plan="one"] .process-card__flavor,
+.plan-panel[data-plan="two"] .process-card__flavor {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.process-card__flavor ruby {
+    ruby-position: over;
+}
+
+.process-card__flavor rt {
+    color: #fff;
+    font-size: 0.32em;
+    line-height: 1;
+    letter-spacing: 0;
+    text-shadow:
+        0 0 0.22cqw var(--plan-color),
+        0 0 0.22cqw var(--plan-color);
+}
+
+.flavor {
+    display: inline;
+    white-space: nowrap;
+}
+
+.flavor--max { font-size: 5.2cqw; }
+.flavor--large { font-size: 4cqw; }
+.flavor--medium { font-size: 3cqw; }
+.flavor--small { font-size: 2cqw; }
+
+.process-card__heading {
+    position: absolute;
+    z-index: 4;
+    top: 50%;
+    right: 3cqw;
+    left: 3.8cqw;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    height: 6.4cqw;
+    transform: translateY(-50%);
+    transition:
+        top 520ms cubic-bezier(.2, .72, .2, 1),
+        right 520ms cubic-bezier(.2, .72, .2, 1),
+        left 520ms cubic-bezier(.2, .72, .2, 1),
+        transform 520ms cubic-bezier(.2, .72, .2, 1);
+}
+
+.process-card.is-expanded .process-card__heading,
+.plan-panel[data-plan="one"] .process-card__heading,
+.plan-panel[data-plan="two"] .process-card__heading {
+    top: var(--card-heading-top);
+    right: 2.8cqw;
+    left: 4.2cqw;
+    transform: none;
+}
+
+.process-card__heading::after {
+    position: absolute;
+    right: 0;
+    bottom: 1px;
+    left: 0;
+    height: 0.3px;
+    content: "";
+    background: var(--plan-color);
+    opacity: 0;
+    transform: scaleX(0.15);
+    transform-origin: left center;
+    transition:
+        background-color 520ms ease,
+        opacity 220ms ease 100ms,
+        transform 360ms cubic-bezier(.2, .75, .2, 1) 80ms;
+}
+
+.process-card.is-expanded .process-card__heading::after,
+.plan-panel[data-plan="one"] .process-card__heading::after,
+.plan-panel[data-plan="two"] .process-card__heading::after {
+    opacity: 1;
+    transform: scaleX(1);
+}
+
+.process-card__number {
+    flex: 0 0 auto;
+    margin-right: 1.4cqw;
+    color: var(--plan-color);
+    font-size: 5.4cqw;
+    line-height: 1;
+    white-space: nowrap;
+    transition: color 520ms ease;
+}
+
+.process-card__name {
+    min-width: 0;
+    margin: 0;
+    color: #000;
+    font-size: 4.8cqw;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    transition: none;
+}
+
+.process-card__detail {
+    flex: 0 0 auto;
+    margin-left: 2.5cqw;
+    padding: 0;
+    color: #777;
+    background: transparent;
+    border: 0;
+    font-size: 2.7cqw;
+    line-height: 1;
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 220ms ease 120ms;
+}
+
+/* 展開したカードでは「詳細」を表示 */
+.process-card.is-expanded .process-card__detail {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.process-card__summary {
+    position: absolute;
+    top: var(--card-summary-top);
+    right: .5cqw;
+    left: 8cqw;
+    margin: 0;
+    font-size: 3cqw;
+    line-height: 1.55;
+    opacity: 0;
+    transform: translateY(1.2cqw);
+    transition:
+        opacity 250ms ease 120ms,
+        transform 360ms cubic-bezier(.2, .75, .2, 1) 100ms;
+}
+
+.process-card.is-expanded .process-card__summary,
+.plan-panel[data-plan="one"] .process-card__summary,
+.plan-panel[data-plan="two"] .process-card__summary {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.card-connector {
+    display: grid;
+    place-items: center;
+    height: 10cqw;
+    color: #fff;
+    font-size: 6.3cqw;
+    line-height: 1;
+    opacity: 1;
+    transition: opacity 240ms ease, transform 360ms cubic-bezier(.2, .72, .2, 1);
+}
+
+.cards-plan.is-reflowing .card-connector {
+    opacity: 0;
+    transform: scaleY(0.2);
+}
+
+.card-connector--arrow {
+    font-size: 4.8cqw;
+}
+
+.process-card-slot:last-child .card-connector {
+    display: none;
+}
+
+/*
+   plan-railは同じDOMの内容だけを書き換え、
+   JSのFLIP移動で配置変化を連続させる。
+*/
+
+
+/* =========================================================
+   Custom modeling
+   960pxカンプを基準に、1cqw = 9.6pxとして配置
+   ========================================================= */
+
+.custom-stage {
+    /* 人物素材は本体・影とも2048 × 1762で同一基準 */
+    --custom-model-width: 320cqw;
+    --custom-model-left: -58cqw;
+    --custom-model-top: 5cqw;
+
+    /* 3アイコンの円軌道 */
+    --custom-orbit-size: 39cqw;
+    --custom-orbit-left: 0cqw;
+    --custom-orbit-top: 61.5cqw;
+    --custom-orbit-item-size: 21cqw;
+    --custom-orbit-radius: -59%;
+
+    /* 動画とメニューは別々の左端を持つ */
+    --custom-content-top: 114cqw;
+    --custom-video-left: 6cqw;
+    --custom-video-width: 76cqw;
+    --custom-menu-left: 8cqw;
+    --custom-menu-width: 79cqw;
+    --custom-content-bottom: 4cqw;
+
+    position: relative;
+    min-height: 0;
+    overflow: visible;
+    background: var(--plan-color);
+    isolation: isolate;
+}
+
+/* カスタム時はレール背景を透過し、背面の詳細表を見せる */
+.plan-panel[data-plan="custom"] .plan-rail {
+    background: transparent;
+}
+
+/* カスタムは動画・メニューの実高に合わせて下端を決める */
+.plan-panel[data-plan="custom"] .plan-panel__surface,
+.plan-panel[data-plan="custom"] .plan-panel__main {
+    min-height: 0;
+}
+
+/* カスタム時だけ、制作相談ボタンの左・下へプラン色の縁を出す */
+.plan-panel[data-plan="custom"] .plan-rail__consult {
+    box-shadow:
+        -1.1cqw 0 0 var(--plan-color),
+        0 1.1cqw 0 var(--plan-color),
+        -1.1cqw 1.1cqw 0 var(--plan-color);
+}
+
+/* ---------------------------------------------------------
+   背景面
+   custom-stageの高さはメニュー内容に追従する。
+   斜面の頂点はcqw固定にして、内容量で傾斜位置が変わらないようにする。
+   --------------------------------------------------------- */
+
+.custom-stage__shape {
+    position: absolute;
+    inset: 0 0 auto;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.custom-stage__shape--white {
+    z-index: 0;
+    background: #fff;
+    clip-path: polygon(
+        0 27.3cqw,
+        100% 44cqw,
+        100% 100%,
+        0 100%
+    );
+}
+
+.custom-stage__shape--cyan {
+    z-index: 1;
+    background: #7ab7bc;
+    clip-path: polygon(
+        0 99cqw,
+        100% 77.5cqw,
+        100% 173cqw,
+        0 150.5cqw
+    );
+}
+
+/* ---------------------------------------------------------
+   フレーバーテキスト
+   人物より背面、背景面より前面に置く。
+   --------------------------------------------------------- */
+
+.custom-flavor {
+    position: absolute;
+    z-index: auto;
+    inset: 0 auto auto 0;
+    width: 100%;
+    height: 56cqw;
+    pointer-events: none;
+}
+
+/* 直下の各文節だけを絶対配置する。内側の「自」は通常フローのまま */
+.custom-flavor > span {
+    position: absolute;
+    z-index: 2;
+    display: block;
+    margin: 0;
+    line-height: 1;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateY(0.85em) scaleY(0.25);
+    transform-origin: center bottom;
+    animation: customTextGrow 680ms cubic-bezier(.18, .82, .25, 1) forwards;
+}
+
+/* 「今」：游明朝 Demibold、白 */
+.custom-flavor__now {
+    top: 5.5cqw;
+    left: 3cqw;
+    color: #fff;
+    font-family: "Yu Mincho", "游明朝", YuMincho, serif;
+    font-size: 13cqw;
+    font-weight: 600;
+    animation-delay: 300ms !important;
+}
+
+/* 「の自分がいちばん」：游明朝 Light、白 */
+.custom-flavor__line {
+    top: 11cqw;
+    left: 18cqw;
+    color: #fff;
+    font-family: "Yu Mincho", "游明朝", YuMincho, serif;
+    font-size: 7cqw;
+    font-weight: 200;
+    animation-delay: 540ms !important;
+}
+
+/* 「好き。」：游明朝 Light、白 */
+.custom-flavor__favorite {
+    top: 19cqw;
+    left: 6cqw;
+    color: #fff;
+    font-family: "Yu Mincho", "游明朝", YuMincho, serif;
+    font-size: 8cqw;
+    font-weight: 300;
+    animation-delay: 540ms !important;
+}
+
+/* 「だからこそ」：游明朝 Demibold、白 */
+.custom-flavor__because {
+    top: 29cqw;
+    left: 20cqw;
+    color: #fff;
+    font-family: "Yu Mincho", "游明朝", YuMincho, serif;
+    font-size: 5cqw;
+    font-weight: 600;
+    animation-delay: 1000ms !important;
+}
+
+/* 「もっと」：游明朝、プラン背景色 */
+.custom-flavor__more {
+    top: 33.2cqw;
+    left: 0;
+    color: var(--plan-color);
+    font-family: "Yu Mincho", "游明朝", YuMincho, serif;
+    font-size: 8cqw;
+    font-weight: 400;
+    animation-delay: 1000ms !important;
+}
+
+/*
+   「自分らしく。」だけ人物の手前。
+   游明朝 Demibold、先頭の「自」だけプラン背景色。
+*/
+.custom-flavor__self {
+    z-index: 4 !important;
+    top: 40.5cqw;
+    left: 22cqw;
+    color: #fff;
+    font-family: "Yu Mincho", "游明朝", YuMincho, serif;
+    font-size: 9cqw;
+    font-weight: 600;
+    animation-delay: 1400ms !important;
+}
+
+.custom-flavor__self-accent {
+    color: var(--plan-color);
+}
+
+.custom-flavor__self-base,
+.custom-flavor__self-small {
+    color: #fff;
+}
+
+/* 「らしく」だけ小さくする */
+.custom-flavor__self-small {
+    display: inline-block;
+    font-size: 0.72em;
+}
+
+@keyframes customTextGrow {
+    to {
+        opacity: 1;
+        transform: translateY(0) scaleY(1);
+    }
+}
+
+/* ---------------------------------------------------------
+   目元・口元・髪質アイコン
+   選択中は円軌道の中央上部（12時方向）へ移動し、拡大する。
+   --------------------------------------------------------- */
+
+.custom-orbit {
+    position: absolute;
+    z-index: 12;
+    top: var(--custom-orbit-top);
+    left: var(--custom-orbit-left);
+    width: var(--custom-orbit-size);
+    aspect-ratio: 1 / 1;
+    pointer-events: none;
+}
+
+.custom-orbit__item {
+    --orbit-angle: 0deg;
+    --orbit-counter-angle: 0deg;
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: var(--custom-orbit-item-size);
+    aspect-ratio: 212 / 256;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    pointer-events: auto;
+    touch-action: manipulation;
+    transform:
+        translate(-50%, -50%)
+        rotate(var(--orbit-angle))
+        translateY(var(--custom-orbit-radius))
+        rotate(var(--orbit-counter-angle))
+        scale(0.92);
+    transition:
+        transform 680ms cubic-bezier(.2, .75, .2, 1),
+        filter 260ms ease;
+}
+
+.custom-orbit__item:nth-child(2) {
+    --orbit-angle: 120deg;
+    --orbit-counter-angle: -120deg;
+}
+
+.custom-orbit__item:nth-child(3) {
+    --orbit-angle: 240deg;
+    --orbit-counter-angle: -240deg;
+}
+
+.custom-orbit__item.is-active {
+    z-index: 3;
+    filter: drop-shadow(0 0.55cqw 0.85cqw rgb(0 0 0 / 16%));
+    transform:
+        translate(-50%, -50%)
+        rotate(var(--orbit-angle))
+        translateY(var(--custom-orbit-radius))
+        rotate(var(--orbit-counter-angle))
+        scale(1.16);
+}
+
+.custom-orbit__item img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* 選択中の「目元カスタム」など */
+.custom-current-name {
+    position: absolute;
+    z-index: 8;
+    top: 103.5cqw;
+    left: 2.8cqw;
+    margin: 0;
+    color: #fff;
+    font-size: 5.5cqw;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    text-shadow: 0 0.1cqw 0.2cqw rgb(0 0 0 / 18%);
+    opacity: 0;
+    transform: translateY(1cqw);
+    transition:
+        opacity 300ms ease,
+        transform 440ms cubic-bezier(.2, .75, .2, 1);
+}
+
+.custom-stage.is-active .custom-current-name {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ---------------------------------------------------------
+   人物本体・影
+   画像内の透過余白を含め、同じ座標・同じ幅で重ねる。
+   --------------------------------------------------------- */
+
+.custom-media-clip {
+    position: absolute;
+    z-index: 3;
+    inset: 0;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.custom-model {
+    position: absolute;
+    top: var(--custom-model-top);
+    left: var(--custom-model-left);
+    width: var(--custom-model-width);
+    max-width: none;
+    height: auto;
+    opacity: 0;
+    transform-origin: center;
+    transition:
+        opacity 500ms ease,
+        transform 900ms cubic-bezier(.18, .78, .22, 1);
+}
+
+.custom-model--shadow {
+    z-index: 0;
+    transform: translate3d(5cqw, 3cqw, 0);
+}
+
+.custom-model--front {
+    z-index: 1;
+    transform: translate3d(8cqw, 0, 0);
+}
+
+.custom-stage.is-active .custom-model {
+    opacity: 1;
+}
+
+.custom-stage.is-active .custom-model--shadow {
+    transform: translate3d(var(--custom-shadow-x, 0px), 2.2cqw, 0);
+}
+
+.custom-stage.is-active .custom-model--front {
+    transform: translate3d(var(--custom-front-x, 0px), 0, 0);
+}
+
+/* ---------------------------------------------------------
+   動画・詳細メニュー
+   custom-contentを通常フローへ置き、メニュー量に応じてstage下端を伸縮させる。
+   --------------------------------------------------------- */
+
+.custom-content {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    padding-top: var(--custom-content-top);
+    padding-bottom: var(--custom-content-bottom);
+    pointer-events: none;
+}
+
+.custom-video,
+.custom-menu,
+.custom-consult-button {
+    pointer-events: auto;
+}
+
+.custom-video {
+    position: relative;
+    width: var(--custom-video-width);
+    margin-left: var(--custom-video-left);
+    aspect-ratio: var(--custom-video-aspect, 16 / 9);
+    overflow: hidden;
+    box-sizing: border-box;
+    background: transparent;
+    border: 0;
+    box-shadow: 0 0 0 1cqw var(--plan-color);
+    transform-origin: left center;
+}
+
+.custom-video__player {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    object-fit: contain;
+}
+
+.custom-video__loading {
+    position: absolute;
+    z-index: 3;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    background: rgb(0 0 0 / 48%);
+    font-size: 2.4cqw;
+    letter-spacing: 0.18em;
+    pointer-events: none;
+}
+
+.custom-video__loading[hidden] {
+    display: none;
+}
+
+.custom-menu {
+    position: relative;
+    width: var(--custom-menu-width);
+    min-height: 0;
+    margin-top: 4cqw;
+    margin-left: var(--custom-menu-left);
+    padding: 1.4cqw 2.4cqw 2cqw;
+    color: #006d75;
+    background: rgb(255 255 255 / 78%);
+    border: 0.65cqw solid var(--plan-color);
+    transform-origin: top;
+}
+
+.custom-menu.is-changing {
+    animation: customMenuGrow 520ms cubic-bezier(.2, .75, .2, 1);
+}
+
+@keyframes customMenuGrow {
+    from {
+        opacity: 0.2;
+        transform: scaleY(0.2);
+    }
+
+    to {
+        opacity: 1;
+        transform: scaleY(1);
+    }
+}
+
+/* 見出しは上部のcustom-current-nameへ一本化 */
+.custom-menu h3 {
+    display: none;
+}
+
+.custom-menu__empty {
+    display: grid;
+    place-items: center;
+    min-height: 22cqw;
+    color: #4d8589;
+    font-size: 2.7cqw;
+}
+
+.custom-menu__rows {
+    display: grid;
+    gap: 1.1cqw;
+}
+
+.custom-menu__row {
+    padding: 0.55cqw 0.8cqw 0.8cqw;
+    border-bottom: 0;
+}
+
+.custom-menu__row-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: baseline;
+    column-gap: 2cqw;
+    padding-right: 4cqw;
+    color: var(--plan-color);
+}
+
+.custom-menu__row-head strong {
+    font-size: 2.75cqw;
+    font-weight: 600;
+}
+
+.custom-menu__row-head span {
+    flex: 0 0 auto;
+    font-size: 2.35cqw;
+}
+
+.custom-menu__row p {
+    margin: 0.35cqw 0 0;
+    font-size: 1.8cqw;
+    line-height: 1.45;
+}
+
+/* 制作相談は右レールにあるため、下部の重複ボタンは非表示 */
+.custom-consult-button {
+    display: none;
+}
+
+/* =========================================================
+   Other plan
+   ========================================================= */
+
+.other-plan {
+    min-height: 0;
+    padding: 9cqw 8.5cqw var(--panel-content-bottom-gap);
+}
+
+.other-plan p {
+    margin: 0 0 2cqw;
+    font-size: 3.6cqw;
+    line-height: 2;
+}
+
+.other-plan__lead {
+    padding-bottom: 5.5cqw;
+    border-bottom: 0.35cqw solid rgb(0 0 0 / 50%);
+    font-size: 5.2cqw !important;
+}
+
+.other-plan__button {
+    display: inline-grid;
+    place-items: center;
+    min-width: 58%;
+    min-height: 10cqw;
+    margin-top: 1cqw;
+    color: #000;
+    background: #fff;
+    font-size: 5cqw;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+/* =========================================================
+   Options / form
+   ========================================================= */
+
+.options-section,
+.consultation-section {
+    padding-inline: var(--section-pad);
+}
+
+.options-section {
+    margin-top: 14cqw;
+}
+
+.options-list {
+    width: 91%;
+    margin: 5.5cqw 0 0 3cqw;
+}
+
+.option-row {
+    position: relative;
+    display: grid;
+    grid-template-columns: 52% 48%;
+    min-height: 11cqw;
+    border: 0;
+    font-size: 3.4cqw;
+}
+
+.option-row[hidden] {
+    display: none;
+}
+
+.option-row__label,
+.option-row__price {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    padding: 1cqw 2.8cqw;
+}
+
+.option-row__label {
+    color: #fff;
+    background: #7a7a7a;
+    box-shadow: inset 0 -0.35cqw 0 #fff;
+}
+
+.option-row__price {
+    color: #777;
+    background: #fff;
+    box-shadow: inset 0 -0.35cqw 0 #777;
+}
+
+.consultation-section {
+    --form-accent: #6d6d6d;
+    --form-error: #a51f2b;
+    --form-error-bg: #fff0f1;
+    --form-radio-size: 3cqw;
+    margin-top: 15cqw;
+}
+
+.consultation-form {
+    position: relative;
+    padding-top: 6cqw;
+    color: #111;
+}
+
+.consultation-form__required-note {
+    margin: 0 0 1.8cqw;
+    color: #f00;
+    font-size: 2.5cqw;
+    text-align: left;
+}
+
+.consultation-form__required-note span,
+.required-mark {
+    color: #f00;
+    font-weight: 700;
+}
+
+/* ---------------------------------------------------------
+   Form pager
+   --------------------------------------------------------- */
+
+.form-pager {
+    display: grid;
+    align-items: center;
+}
+
+.form-pager--top {
+    grid-template-columns: 6.2cqw 1fr 6.2cqw 1fr 6.2cqw 1fr 6.2cqw;
+    width: 80%;
+    margin: 0 auto 7cqw;
+}
+
+.form-pager__step {
+    display: grid;
+    place-items: center;
+    width: 6.2cqw;
+    aspect-ratio: 1 / 1;
+    padding: 0;
+    color: var(--form-accent);
+    background: #fff;
+    border: 0.45cqw solid currentColor;
+    border-radius: 50%;
+    font-size: 3.25cqw;
+    line-height: 1;
+    cursor: pointer;
+    transition: color 180ms ease, background-color 180ms ease, transform 180ms ease;
+}
+
+.form-pager__step.is-current {
+    color: #fff;
+    background: var(--form-accent);
+}
+
+.form-pager__step:focus-visible,
+.form-pager__arrow:focus-visible {
+    outline: 0.55cqw solid #000;
+    outline-offset: 0.5cqw;
+}
+
+.form-pager__line {
+    height: 0.5cqw;
+    background: var(--form-accent);
+}
+
+.form-pager--bottom {
+    grid-template-columns: 1fr 1fr;
+    gap: 9cqw;
+    width: 64%;
+    margin: 9cqw auto 0;
+}
+
+.form-pager__arrow {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    min-height: 10.5cqw;
+    padding: 0;
+    color: var(--form-accent);
+    background: #fff;
+    border: 0.55cqw solid currentColor;
+    box-shadow: inset 0 0 0 0.65cqw #fff, inset 0 0 0 0.95cqw currentColor;
+    font-size: 6.2cqw;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.form-pager__arrow--next {
+    color: #fff;
+    background: var(--form-accent);
+    box-shadow: inset 0 0 0 0.65cqw var(--form-accent), inset 0 0 0 0.95cqw #fff;
+}
+
+.form-pager__arrow[hidden] {
+    display: none;
+}
+
+.form-pager--bottom.is-first {
+    grid-template-columns: 1fr;
+    width: 28%;
+    margin-left: auto;
+    margin-right: 8%;
+}
+
+.form-pager--bottom.is-last {
+    grid-template-columns: 1fr;
+    width: 28%;
+    margin-left: 8%;
+    margin-right: auto;
+}
+
+/* ---------------------------------------------------------
+   Step and field layout
+   --------------------------------------------------------- */
+
+.form-step[hidden] {
+    display: none;
+}
+
+.form-step.is-entering {
+    animation: formStepReveal 240ms ease both;
+}
+
+@keyframes formStepReveal {
+    from { opacity: 0; transform: translateY(1.4cqw); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.form-field {
+    min-width: 0;
+    margin: 0 2.2cqw 6.2cqw;
+    padding: 0;
+    border: 0;
+}
+
+.form-field__label {
+    display: block;
+    margin: 0 0 2cqw;
+    padding-left: 1.5cqw;
+    border-left: 1.15cqw solid var(--form-accent);
+    font-size: 3.65cqw;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+.form-field__supplement {
+    display: inline-block;
+    margin-left: 1em;
+    font-size: 0.72em;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    vertical-align: 0.08em;
+}
+
+.form-field input[type="text"],
+.form-field input[type="email"],
+.form-field input[type="number"],
+.form-field select,
+.form-field textarea {
+    color: #111;
+    background: #fff;
+    border: 0.4cqw solid #222;
+    border-radius: 0.8cqw;
+}
+
+.form-field input[type="text"],
+.form-field input[type="email"],
+.form-field input[type="number"],
+.form-field select {
+    min-height: 7.7cqw;
+    padding: 0.7cqw 1.5cqw;
+    font-size: 3cqw;
+}
+
+.form-field > input[type="text"],
+.form-field > input[type="email"] {
+    width: min(72%, 70cqw);
+}
+
+.form-field select {
+    width: min(64%, 61cqw);
+}
+
+#consultation-plan {
+    width: min(72%, 68cqw);
+    min-height: 8.8cqw;
+    padding: 0.9cqw 4.5cqw 0.9cqw 1.8cqw;
+
+    /* 閉じた選択ボックス内の現在値だけを小さくする */
+    font-size: 3.5cqw;
+    line-height: 1.35;
+}
+
+/* ネイティブの展開リストでcqwが極端に小さく解釈される場合の下限 */
+.form-field select option,
+.form-field select optgroup {
+    font-family: inherit;
+    font-size: 16px;
+    line-height: 1.4;
+}
+
+.form-field textarea {
+    width: 100%;
+    min-height: 48cqw;
+    padding: 1.7cqw;
+    resize: vertical;
+    font-size: 3.15cqw;
+    line-height: 1.7;
+}
+
+.form-field input:focus-visible,
+.form-field select:focus-visible,
+.form-field textarea:focus-visible,
+.policy-open-button:focus-visible {
+    outline: 0.5cqw solid var(--form-accent);
+    outline-offset: 0.45cqw;
+}
+
+.form-field__note,
+.form-field--confirmation > p,
+.consultation-notes p,
+.form-notice p,
+.conditional-note {
+    margin: 1.4cqw 0 0;
+    font-size: 2.65cqw;
+    line-height: 1.72;
+}
+
+.form-field__note {
+    color: #555;
+}
+
+.form-indent {
+    display: block;
+    padding-inline-start: 0.8em;
+}
+
+.form-emphasis {
+    font-weight: 700;
+}
+
+.form-emphasis--underline {
+    text-decoration-line: underline;
+    text-decoration-color: var(--form-accent);
+    text-decoration-thickness: 0.12em;
+    text-underline-offset: 0.18em;
+}
+
+.choice-list {
+    display: grid;
+    gap: 0.9cqw;
+}
+
+.custom-selection-list {
+    display: grid;
+    gap: 3.4cqw;
+    margin-top: 0.6cqw;
+}
+
+.custom-selection-group {
+    min-width: 0;
+    padding: 2.2cqw 2.4cqw;
+    background: #f6f6f6;
+    border-left: 0.7cqw solid var(--form-accent);
+}
+
+.custom-selection-group__title {
+    margin: 0 0 1.2cqw;
+    font-size: 3.1cqw;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.custom-selection-group__choices {
+    gap: 1cqw;
+}
+
+.custom-selection-choice {
+    width: 100%;
+}
+
+.custom-selection-choice__body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: 2cqw;
+    width: 100%;
+}
+
+.custom-selection-choice__name {
+    min-width: 0;
+}
+
+.custom-selection-choice__price {
+    white-space: nowrap;
+    font-size: 0.92em;
+    font-weight: 600;
+}
+
+.choice-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.1cqw;
+    width: fit-content;
+    max-width: 100%;
+    padding: 0.25cqw 0.6cqw;
+    border-radius: 0.8cqw;
+    font-size: 2.9cqw;
+    line-height: 1.55;
+    cursor: pointer;
+}
+
+.choice-label input[type="radio"],
+.choice-label input[type="checkbox"] {
+    flex: 0 0 auto;
+    width: 2.5cqw;
+    height: 2.5cqw;
+    margin: 0.78cqw 0 0;
+    padding: 0;
+    appearance: none;
+    background: #fff;
+    border: 0.35cqw solid #777;
+}
+
+.choice-label input[type="radio"] {
+    width: var(--form-radio-size);
+    height: var(--form-radio-size);
+    margin-top: 0.55cqw;
+    border-radius: 50%;
+}
+
+.choice-label input[type="checkbox"] {
+    border-radius: 0.25cqw;
+}
+
+.choice-label input[type="radio"]:checked {
+    border-color: var(--form-accent);
+    background:
+        radial-gradient(circle at center, var(--form-accent) 0 42%, transparent 46%),
+        #fff;
+}
+
+.choice-label input[type="checkbox"]:checked {
+    border-color: var(--form-accent);
+    background: var(--form-accent);
+    box-shadow: inset 0 0 0 0.55cqw #fff;
+}
+
+.choice-label input:focus-visible {
+    outline: 0.45cqw solid #000;
+    outline-offset: 0.35cqw;
+}
+
+.choice-label:has(input:disabled) {
+    color: #aaa;
+    cursor: not-allowed;
+}
+
+.choice-label input:disabled {
+    background: #eee;
+    border-color: #bbb;
+}
+
+.choice-label--confirm {
+    margin-top: 1.2cqw;
+}
+
+.choice-list--policy {
+    margin-top: 2.3cqw;
+}
+
+.conditional-field {
+    display: flex;
+    align-items: center;
+    gap: 1.5cqw;
+    margin: 2cqw 0 0 3.7cqw;
+    padding: 1.6cqw 2cqw;
+    background: #f4f4f4;
+    border-left: 0.7cqw solid var(--form-accent);
+    font-size: 2.9cqw;
+}
+
+.conditional-field[hidden],
+.conditional-note[hidden],
+.form-notice[hidden] {
+    display: none;
+}
+
+.conditional-field input[type="text"] {
+    flex: 1 1 auto;
+    width: auto;
+}
+
+.conditional-field input[type="number"] {
+    width: 20cqw;
+}
+
+.conditional-field__input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 1.2cqw;
+}
+
+.conditional-field--block {
+    display: block;
+}
+
+.conditional-note {
+    margin-left: 3.7cqw;
+    padding: 1.3cqw 1.8cqw;
+    background: #f4f4f4;
+    border-left: 0.7cqw solid var(--form-accent);
+}
+
+.form-notice {
+    margin-top: 2.3cqw;
+    padding: 2cqw 2.2cqw;
+    background: #f3f3f3;
+    border-left: 0.7cqw solid var(--form-accent);
+}
+
+/* ---------------------------------------------------------
+   Plan and deadline
+   --------------------------------------------------------- */
+
+.form-plan-summary {
+    min-height: 0;
+    margin-top: 1.5cqw;
+    padding-left: 4cqw;
+    font-size: 2.7cqw;
+    line-height: 1.55;
+}
+
+.form-plan-summary:empty {
+    display: none;
+}
+
+.form-plan-summary p {
+    margin: 0;
+}
+
+.form-plan-summary ul {
+    margin: 0.7cqw 0 0;
+    padding-left: 1.2em;
+}
+
+.deadline-list {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 1.4cqw;
+}
+
+.deadline-choice {
+    display: grid;
+    grid-template-columns: calc(var(--form-radio-size) + 0.2cqw) minmax(0, 1fr);
+    align-items: start;
+    min-width: 0;
+    padding: 0.4cqw;
+    border-radius: 0.7cqw;
+    cursor: pointer;
+}
+
+.deadline-choice input {
+    width: var(--form-radio-size);
+    height: var(--form-radio-size);
+    margin: 0.4cqw 0 0;
+    appearance: none;
+    background: #fff;
+    border: 0.35cqw solid #777;
+    border-radius: 50%;
+}
+
+.deadline-choice input:checked {
+    border-color: var(--form-accent);
+    background:
+        radial-gradient(circle at center, var(--form-accent) 0 42%, transparent 46%),
+        #fff;
+}
+
+.deadline-choice__body {
+    min-width: 0;
+    text-align: center;
+}
+
+.deadline-choice .condition-item__month {
+    font-size: 3.4cqw;
+}
+
+.deadline-choice .condition-item__image {
+    margin-top: 0.4cqw;
+}
+
+.deadline-choice--after {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    width: fit-content;
+    margin-top: 1cqw;
+    font-size: 2.9cqw;
+}
+
+/* ---------------------------------------------------------
+   Error states
+   --------------------------------------------------------- */
+
+.form-field__error {
+    margin: 1.1cqw 0 0;
+    color: var(--form-error);
+    font-size: 2.6cqw;
+    font-weight: 600;
+    line-height: 1.45;
+}
+
+.form-field.is-invalid input[type="text"],
+.form-field.is-invalid input[type="email"],
+.form-field.is-invalid input[type="number"],
+.form-field.is-invalid select,
+.form-field.is-invalid textarea,
+.form-field.is-invalid .choice-label,
+.form-field.is-invalid .deadline-choice,
+.form-field.is-invalid .conditional-field,
+.form-field.is-invalid .form-notice {
+    background-color: var(--form-error-bg);
+}
+
+.form-pager__step.has-error::after {
+    position: absolute;
+    top: -1.2cqw;
+    right: -1.2cqw;
+    width: 2.4cqw;
+    aspect-ratio: 1 / 1;
+    content: "";
+    background: var(--form-error);
+    border: 0.35cqw solid #fff;
+    border-radius: 50%;
+}
+
+.form-pager__step {
+    position: relative;
+}
+
+/* ---------------------------------------------------------
+   Notes and submit
+   --------------------------------------------------------- */
+
+.consultation-notes {
+    margin-top: 7cqw;
+}
+
+.consultation-notes .form-field {
+    margin-bottom: 0;
+}
+
+.consultation-notes p + p {
+    margin-top: 1.2cqw;
+}
+
+.consultation-notes textarea {
+    margin-top: 2cqw;
+}
+
+.consultation-submit__connector {
+    height: 8cqw;
+    margin-top: 1cqw;
+    color: var(--form-accent);
+}
+
+.consultation-submit {
+    display: grid;
+    justify-items: center;
+    margin-top: 0;
+}
+
+.consultation-submit__button {
+    position: relative;
+    min-width: 52%;
+    min-height: 12cqw;
+    padding: 1.2cqw 4cqw;
+    color: #fff;
+    background: var(--form-accent);
+    border: 0;
+    box-shadow: inset 0 0 0 0.65cqw var(--form-accent), inset 0 0 0 0.95cqw #fff;
+    font-size: 4cqw;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.consultation-submit__button:disabled {
+    cursor: default;
+    opacity: 0.58;
+}
+
+.consultation-submit__button.is-sending {
+    cursor: wait;
+}
+
+.consultation-submit__status {
+    min-height: 1.6em;
+    margin: 2cqw 0 0;
+    font-size: 2.8cqw;
+    line-height: 1.65;
+    text-align: center;
+    white-space: pre-line;
+}
+
+.consultation-submit__status.is-error {
+    color: var(--form-error);
+}
+
+.consultation-submit__status.is-success {
+    color: #205c2a;
+}
+
+.form-honeypot {
+    position: absolute !important;
+    left: -9999px !important;
+    width: 1px !important;
+    height: 1px !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* ---------------------------------------------------------
+   Policy dialog
+   --------------------------------------------------------- */
+
+.policy-open-button {
+    min-height: 8.5cqw;
+    padding: 1cqw 2.4cqw;
+    color: #fff;
+    background: var(--form-accent);
+    border: 0;
+    font-size: 2.9cqw;
+    cursor: pointer;
+}
+
+.policy-dialog {
+    width: min(calc(100% - 24px), 820px);
+    max-height: 90vh;
+    padding: 0;
+    color: #111;
+    background: transparent;
+    border: 0;
+}
+
+.policy-dialog::backdrop {
+    background: rgb(0 0 0 / 66%);
+    backdrop-filter: blur(2px);
+}
+
+.policy-dialog__window {
+    display: grid;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    max-height: 90vh;
+    background: #fff;
+    border: 1.1cqw solid var(--form-accent, #000);
+}
+
+.policy-dialog__header {
+    position: relative;
+    padding: 4.5cqw 11cqw 2.5cqw 4cqw;
+}
+
+.policy-dialog__header h2 {
+    margin: 0;
+    font-size: 4.6cqw;
+    line-height: 1.35;
+}
+
+.policy-dialog__close {
+    position: absolute;
+    top: 2.5cqw;
+    right: 2.5cqw;
+    display: grid;
+    place-items: center;
+    width: 7cqw;
+    aspect-ratio: 1 / 1;
+    padding: 0;
+    color: #fff;
+    background: #000;
+    border: 0;
+    border-radius: 50%;
+    font-size: 4.5cqw;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.policy-dialog__tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-top: 0.35cqw solid #222;
+    border-bottom: 0.35cqw solid #222;
+}
+
+.policy-dialog__tab {
+    min-height: 9cqw;
+    padding: 1cqw;
+    color: #111;
+    background: #fff;
+    border: 0;
+    font-size: 3cqw;
+    cursor: pointer;
+}
+
+.policy-dialog__tab + .policy-dialog__tab {
+    border-left: 0.35cqw solid #222;
+}
+
+.policy-dialog__tab.is-active {
+    color: #fff;
+    background: var(--form-accent, #000);
+}
+
+.policy-dialog__body {
+    min-height: 0;
+    padding: 4cqw 4.5cqw 7cqw;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.policy-dialog__pane[hidden] {
+    display: none;
+}
+
+.policy-dialog__pane h1 {
+    margin: 0 0 1.4em;
+    padding-bottom: 0.55em;
+    border-bottom: 0.45cqw solid #111;
+    font-size: 4.6cqw;
+    line-height: 1.35;
+}
+
+.policy-dialog__pane h2 {
+    margin: 2em 0 0.75em;
+    font-size: 3.65cqw;
+    line-height: 1.45;
+}
+
+.policy-dialog__pane p,
+.policy-dialog__pane li {
+    font-size: 2.8cqw;
+    line-height: 1.8;
+}
+
+.policy-dialog__pane p {
+    margin: 0.7em 0;
+}
+
+.policy-dialog__pane ul,
+.policy-dialog__pane ol {
+    margin: 0.7em 0;
+    padding-left: 1.6em;
+}
+
+.policy-dialog__pane a {
+    color: inherit;
+    overflow-wrap: anywhere;
+}
+
+/* =========================================================
+   Detail dialog
+   ========================================================= */
+
+.detail-dialog {
+    container-type: inline-size;
+    container-name: detail-dialog;
+    width: min(calc(100% - 28px), 760px);
+    max-height: min(88vh, 980px);
+    padding: 0;
+    color: #000;
+    background: transparent;
+    border: 0;
+}
+
+.detail-dialog::backdrop {
+    background: rgb(0 0 0 / 62%);
+    backdrop-filter: blur(2px);
+}
+
+.detail-dialog__window {
+    position: relative;
+    max-height: min(88vh, 980px);
+    padding: 7cqw 5.5cqw;
+    overflow-y: auto;
+    background: #fff;
+    border: 1.2cqw solid var(--plan-color, #000);
+}
+
+.detail-dialog__close {
+    position: sticky;
+    z-index: 2;
+    top: 0;
+    float: right;
+    display: grid;
+    place-items: center;
+    width: 2.15em;
+    aspect-ratio: 1 / 1;
+    margin: calc(2cqw * -1) calc(2cqw * -1) 0 0;
+    color: #fff;
+    background: #000;
+    border: 0;
+    border-radius: 50%;
+    font-size: 5cqw;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.detail-dialog__title {
+    margin: 0 0 6cqw;
+    padding-bottom: 2.5cqw;
+    border-bottom: 2px solid #000;
+    font-size: 6cqw;
+    line-height: 1.35;
+}
+
+.detail-dialog__body section + section {
+    margin-top: 7cqw;
+}
+
+.detail-dialog__body h3 {
+    margin: 0 0 0.55em;
+    font-size: 4.5cqw;
+}
+
+.detail-dialog__body p,
+.detail-dialog__body li {
+    font-size: 3.8cqw;
+    line-height: 1.8;
+}
+
+.detail-dialog__body p {
+    margin: 0;
+}
+
+.detail-dialog__body ul {
+    margin: 0;
+    padding-left: 1.4em;
+}
+
+/* =========================================================
+   Future wide-layout hook
+   ========================================================= */
+
+@media (min-width: 1100px) {
+    .order-page,
+    .site-header__frame,
+    .site-footer__frame {
+        max-width: var(--order-width);
+    }
+}
+
+@media (max-width: 1099px), (hover: none), (pointer: coarse) {
+    /*
+     * モバイルでもカード固有のアニメーションは維持する。
+     * plan-main全体の軽量化だけを残し、カード内の展開・再配置は通常定義を使う。
+     */
+    .plan-panel__main.is-mobile-card-switching {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+}
+
