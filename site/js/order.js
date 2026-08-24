@@ -1780,7 +1780,7 @@
             const value = toMonthKey(year, month);
             return `
                 <label class="deadline-choice">
-                    <input type="radio" name="希望納期" value="${value}" required>
+                    <input type="radio" name="希望納期" value="${value}" data-availability-status="${statusKey}" required>
                     <span class="deadline-choice__body">
                         <span class="condition-item__month">${month}月中</span>
                         <img class="condition-item__image" src="${status.src}" alt="${status.label}">
@@ -2215,6 +2215,17 @@
         if (!FORM_ENDPOINT || FORM_ENDPOINT.includes("PASTE_GOOGLE_APPS_SCRIPT")) {
             setSubmitStatus("送信先が未設定です。order.jsのFORM_ENDPOINTへGoogle Apps ScriptのウェブアプリURLを設定してください。", "error");
             return;
+        }
+
+        const selectedDeadline = refs.deadlineList.querySelector('input[name="希望納期"]:checked');
+        if (selectedDeadline?.dataset.availabilityStatus === "closed") {
+            const shouldSubmit = window.confirm(
+                "選択した納期は現在「停止中」です。\n制作時期について個別相談となりますが、この内容で送信しますか？"
+            );
+            if (!shouldSubmit) {
+                setSubmitStatus("送信を中止しました。希望納期を変更できます。", "");
+                return;
+            }
         }
 
         state.formSubmitting = true;

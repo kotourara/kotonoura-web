@@ -1,11 +1,20 @@
 const ALLOWED_METHODS = "POST, OPTIONS";
 const ALLOWED_HEADERS = "authorization, x-client-info, apikey, content-type";
 
+// 正式公開ドメインはコード側でも常時許可する。
+// ALLOWED_ORIGINS は localhost / preview URL など追加環境の管理に使う。
+const BUILT_IN_ALLOWED_ORIGINS = [
+  "https://kotonoura-kobo.com",
+  "https://www.kotonoura-kobo.com",
+];
+
 function getAllowedOriginRules(): string[] {
-  return (Deno.env.get("ALLOWED_ORIGINS") ?? "")
+  const configured = (Deno.env.get("ALLOWED_ORIGINS") ?? "")
     .split(",")
     .map((value: string) => value.trim())
     .filter((value: string) => value.length > 0);
+
+  return [...new Set([...BUILT_IN_ALLOWED_ORIGINS, ...configured])];
 }
 
 function originMatchesRule(origin: string, rule: string): boolean {

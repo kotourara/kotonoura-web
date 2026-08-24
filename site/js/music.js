@@ -475,6 +475,8 @@
         pendingSeekRatio: null,
         playIntent: null,
         playRequestToken: 0,
+        audioActuallyPlaying: false,
+        audioBuffering: false,
         favBySlug: new Map(),
         favRevisionBySlug: new Map(),
         coverSort: "newest",
@@ -492,7 +494,7 @@
 
     const refs = {};
     const audio = new Audio();
-    audio.preload = "metadata";
+    audio.preload = "auto";
     audio.playsInline = true;
 
     let audioContext = null;
@@ -739,8 +741,10 @@
                 throw timeoutError;
             }
             if (error instanceof TypeError && !Number.isFinite(error.status)) {
-                error.code = "network_error";
-                error.status = 0;
+                const networkError = new Error("通信できませんでした。少し時間を空けて再度お試しください。");
+                networkError.code = "network_error";
+                networkError.status = 0;
+                throw networkError;
             }
             throw error;
         } finally {
@@ -1160,7 +1164,26 @@
         });
     }
 
-    async function loadAudioForTrack(track, {
+    function syncPlayerLoading() {
+        if (!refs.playerLoading || !refs.player) return;
+        const visible = state.originalMode === "player" && (state.transitioning || state.audioBuffering);
+        refs.playerLoading.hidden = !visible;
+        refs.playerLoading.setAttribute("aria-hidden", String(!visible));
+        refs.player.classList.toggle("is-audio-loading", visible);
+    }
+
+    function setAudioBuffering(buffering) {
+        state.audioBuffering = Boolean(buffering);
+        syncPlayerLoading();
+    }
+
+    function playbackShouldContinue() {
+        return state.playIntent === true
+            || state.audioActuallyPlaying
+            || (!audio.paused && !audio.ended);
+    }
+
+    function beginAudioLoadForTrack(track, {
         reset = true,
         preserveRatio = null
     } = {}) {
@@ -1171,22 +1194,38 @@
             && audio.currentSrc.endsWith(path);
 
         if (sameSource) {
-            if (reset) audio.currentTime = 0;
-            return;
+            if (Number.isFinite(preserveRatio)) {
+                state.pendingSeekRatio = clamp(preserveRatio, 0, 1);
+                if (Number.isFinite(audio.duration) && audio.duration > 0) {
+                    applySeekRatio(state.pendingSeekRatio);
+                }
+            } else if (reset && Number.isFinite(audio.duration)) {
+                audio.currentTime = 0;
+            }
+            return false;
         }
 
         audio.pause();
+        state.audioActuallyPlaying = false;
+        state.pendingSeekRatio = Number.isFinite(preserveRatio)
+            ? clamp(preserveRatio, 0, 1)
+            : null;
         audio.src = path;
         audio.load();
         state.audioTrackSlug = track.slug;
         state.audioVariant = variant;
-        await waitForMetadata();
+        setAudioBuffering(true);
+        syncPlayerProgress();
+        return true;
+    }
 
-        if (Number.isFinite(preserveRatio) && Number.isFinite(audio.duration) && audio.duration > 0) {
-            audio.currentTime = clamp(preserveRatio, 0, 1) * audio.duration;
-        } else if (reset) {
-            audio.currentTime = 0;
+    async function loadAudioForTrack(track, options = {}) {
+        const changed = beginAudioLoadForTrack(track, options);
+        if (changed || !Number.isFinite(audio.duration) || audio.duration <= 0) {
+            await waitForMetadata();
         }
+        if (Number.isFinite(state.pendingSeekRatio)) applySeekRatio(state.pendingSeekRatio);
+        if (audio.paused && state.playIntent !== true) setAudioBuffering(false);
         syncPlayerProgress();
     }
 
@@ -1196,16 +1235,28 @@
         state.playIntent = true;
         syncPlayerControls();
         const track = activeTrack();
+
         try {
             if (state.audioTrackSlug !== track.slug || state.audioVariant !== currentVariantFor(track)) {
-                await loadAudioForTrack(track, { reset: false });
+                beginAudioLoadForTrack(track, { reset: false });
+            } else if (audio.readyState < HTMLMediaElement.HAVE_FUTURE_DATA) {
+                setAudioBuffering(true);
             }
+
             if (token !== state.playRequestToken || state.playIntent !== true) return;
-            await ensureAudioGraph();
+
+            // iOS Safariのユーザー操作権を失わないよう、metadataや演出を待たずplay()を先に呼ぶ。
+            const playPromise = audio.play();
+            await playPromise;
             if (token !== state.playRequestToken || state.playIntent !== true) return;
-            await audio.play();
+
+            // Visualizer初期化は実再生開始を妨げないよう後段で行う。
+            void ensureAudioGraph().then(() => {
+                if (state.audioActuallyPlaying) startPlayerFrame();
+            });
         } catch (error) {
-            console.info("ブラウザにより自動再生が保留されました。", error);
+            setAudioBuffering(false);
+            console.info("ブラウザにより再生が保留されました。", error);
         } finally {
             if (token === state.playRequestToken) {
                 state.playIntent = null;
@@ -1217,6 +1268,8 @@
     function pauseAudio() {
         state.playRequestToken += 1;
         state.playIntent = false;
+        state.audioActuallyPlaying = false;
+        setAudioBuffering(false);
         syncPlayerControls();
         audio.pause();
         state.playIntent = null;
@@ -1224,7 +1277,7 @@
     }
 
     async function toggleAudio() {
-        const intendedPlaying = state.playIntent === true || (state.playIntent === null && !audio.paused);
+        const intendedPlaying = playbackShouldContinue();
         if (!intendedPlaying) await playAudio();
         else pauseAudio();
     }
@@ -1268,7 +1321,7 @@
         if (!metrics) return;
         const { context, width, height } = metrics;
         context.clearRect(0, 0, width, height);
-        if (!analyser || !analyserData || audio.paused) return;
+        if (!analyser || !analyserData || !state.audioActuallyPlaying) return;
 
         analyser.getByteFrequencyData(analyserData);
         const centerX = width / 2;
@@ -1301,13 +1354,13 @@
         const delta = Math.min(64, now - state.lastPlayerFrameTime);
         state.lastPlayerFrameTime = now;
 
-        if (!audio.paused && !state.seeking) {
+        if (state.audioActuallyPlaying && !state.seeking) {
             state.discRotation = (state.discRotation + delta * 0.0038) % 360;
         }
         syncPlayerProgress();
         drawVisualizer(now);
 
-        if (!audio.paused || state.playIntent === true || state.seeking) {
+        if (state.audioActuallyPlaying || state.audioBuffering || state.playIntent === true || state.seeking) {
             state.playerFrame = requestAnimationFrame(playerFrame);
         } else {
             state.lastPlayerFrameTime = 0;
@@ -1507,8 +1560,14 @@
     function renderPlayerContent() {
         const track = activeTrack();
         const count = ORIGINAL_TRACKS.length;
-        const previousIndex = (state.activeTrackIndex - 1 + count) % count;
-        const nextIndex = (state.activeTrackIndex + 1) % count;
+        let previousIndex = (state.activeTrackIndex - 1 + count) % count;
+        let nextIndex = (state.activeTrackIndex + 1) % count;
+        if (state.shuffle && count > 1) {
+            const queuedNext = state.shuffleQueue[0];
+            const historyPrevious = state.history[state.history.length - 1];
+            if (Number.isInteger(queuedNext)) nextIndex = queuedNext;
+            if (Number.isInteger(historyPrevious)) previousIndex = historyPrevious;
+        }
         const variant = currentVariantFor(track);
 
         refs.playerTitle.textContent = track.playerTitle || track.title;
@@ -1539,8 +1598,7 @@
 
     function syncPlayerControls() {
         if (!refs.progressIcon) return;
-        const intendedPlaying = state.playIntent === true
-            || (state.playIntent === null && !audio.paused);
+        const intendedPlaying = playbackShouldContinue();
         refs.progressIcon.classList.toggle("is-alt-icon", intendedPlaying);
         refs.progressButton.classList.toggle("is-selected", intendedPlaying);
         refs.progressButton.setAttribute("aria-pressed", String(intendedPlaying));
@@ -1578,6 +1636,14 @@
         refs.progressButton.disabled = !audioControlAvailable;
         refs.progressButton.setAttribute("aria-disabled", String(!audioControlAvailable));
 
+        [refs.adjacentPrev, refs.adjacentNext].forEach((container) => {
+            const button = container?.querySelector("button");
+            if (!button) return;
+            button.disabled = state.transitioning;
+            button.setAttribute("aria-disabled", String(state.transitioning));
+        });
+
+        syncPlayerLoading();
         syncPlayerProgress();
     }
 
@@ -1647,21 +1713,25 @@
 
         const toRect = refs.discHost.getBoundingClientRect();
         refs.player.classList.remove("is-preparing");
-        const audioPromise = loadAudioForTrack(activeTrack(), {
-            reset: state.audioTrackSlug !== activeTrack().slug
-        });
+        syncPlayerLoading();
+
+        // ユーザー操作直後に音源準備／再生要求を開始し、視覚演出の完了を待たせない。
+        const audioPromise = autoplay
+            ? playAudio()
+            : loadAudioForTrack(activeTrack(), {
+                reset: state.audioTrackSlug !== activeTrack().slug
+            });
 
         if (animate) await animateShellFlight(shell, fromRect, toRect, { toPlayer: true });
         refs.discHost.append(shell);
         clearShellFlightStyles(shell);
         shell.style.setProperty("--disc-rotation", `${state.discRotation}deg`);
-        await audioPromise;
+        await audioPromise.catch(() => undefined);
 
-        startPlayerFrame();
         syncPlayerControls();
         if (updateUrl) writeUrl({ mode: "replace" });
         state.transitioning = false;
-        if (autoplay) await playAudio();
+        syncPlayerLoading();
     }
 
     async function collapsePlayer({ animate = true, updateUrl = true } = {}) {
@@ -1738,17 +1808,38 @@
         await animation.finished.catch(() => undefined);
     }
 
-    async function switchPlayerTrack(index, { direction = 1, useHistory = true } = {}) {
+    async function switchPlayerTrack(index, {
+        direction = 1,
+        useHistory = true,
+        resumePlayback = null
+    } = {}) {
         if (state.transitioning || index === state.activeTrackIndex) return;
+        const shouldResume = typeof resumePlayback === "boolean"
+            ? resumePlayback
+            : playbackShouldContinue();
+
         state.transitioning = true;
+        syncPlayerLoading();
         closeInterpretation();
         closeDiaryWindow();
-        const wasPlaying = !audio.paused;
         const previousIndex = state.activeTrackIndex;
         const oldShell = refs.discHost.querySelector(".music-jacket-shell");
         pauseAudio();
 
         if (useHistory) state.history.push(previousIndex);
+
+        /*
+         * 次曲の音源準備を視覚演出より先に開始する。
+         * shouldResume時はplay()も先に呼び、iOS Safariで操作権が切れた後に
+         * 再生要求を出す構造を避ける。ローダーは切替完了まで表示する。
+         */
+        state.activeTrackIndex = index;
+        state.discRotation = 0;
+        syncListActiveUi();
+        renderPlayerContent();
+        beginAudioLoadForTrack(activeTrack(), { reset: true });
+        const playbackPromise = shouldResume ? playAudio() : loadAudioForTrack(activeTrack(), { reset: true });
+
         if (oldShell && !prefersReducedMotion() && typeof oldShell.animate === "function") {
             const distance = direction >= 0 ? "-20cqw" : "20cqw";
             await oldShell.animate([
@@ -1761,29 +1852,32 @@
         }
 
         await restoreShellToCard(previousIndex);
-        state.activeTrackIndex = index;
-        state.discRotation = 0;
-        syncListActiveUi();
-        renderPlayerContent();
-        await loadAudioForTrack(activeTrack(), { reset: true });
         await moveNextShellIntoPlayer(index, direction);
+        await playbackPromise.catch(() => undefined);
         state.transitioning = false;
-        if (wasPlaying) await playAudio();
+        syncPlayerLoading();
+        syncPlayerControls();
     }
 
     async function toggleInstrumental() {
         const track = activeTrack();
         if (!track.instrumental || state.transitioning) return;
         state.transitioning = true;
-        const wasPlaying = !audio.paused;
+        syncPlayerLoading();
+        const wasPlaying = playbackShouldContinue();
         const ratio = progressRatio();
         pauseAudio();
         const nextVariant = currentVariantFor(track) === "instrumental" ? "vocal" : "instrumental";
         state.variantBySlug.set(track.slug, nextVariant);
         renderPlayerContent();
-        await loadAudioForTrack(track, { reset: false, preserveRatio: ratio });
+        beginAudioLoadForTrack(track, { reset: false, preserveRatio: ratio });
+        const playbackPromise = wasPlaying
+            ? playAudio()
+            : loadAudioForTrack(track, { reset: false, preserveRatio: ratio });
+        await playbackPromise.catch(() => undefined);
         state.transitioning = false;
-        if (wasPlaying) await playAudio();
+        syncPlayerLoading();
+        syncPlayerControls();
     }
 
     /* =========================================================
@@ -1808,25 +1902,35 @@
             : (state.activeTrackIndex + 1) % ORIGINAL_TRACKS.length;
     }
 
-    async function skipNext({ applyShuffle = true, useHistory = true } = {}) {
+    async function skipNext({
+        applyShuffle = true,
+        useHistory = true,
+        resumePlayback = null
+    } = {}) {
         const next = state.shuffle && applyShuffle
             ? nextShuffleIndex()
             : (state.activeTrackIndex + 1) % ORIGINAL_TRACKS.length;
-        const direction = next === 0 && state.activeTrackIndex === ORIGINAL_TRACKS.length - 1 ? 1 : 1;
-        await switchPlayerTrack(next, { direction, useHistory });
+        await switchPlayerTrack(next, { direction: 1, useHistory, resumePlayback });
     }
 
-    async function skipPrevious({ applyShuffle = true } = {}) {
+    async function skipPrevious({
+        applyShuffle = true,
+        resumePlayback = null
+    } = {}) {
         if (state.shuffle && applyShuffle) {
             const previous = state.history.pop();
             const target = Number.isInteger(previous)
                 ? previous
                 : nextShuffleIndex();
-            await switchPlayerTrack(target, { direction: -1, useHistory: false });
+            await switchPlayerTrack(target, {
+                direction: -1,
+                useHistory: false,
+                resumePlayback
+            });
             return;
         }
         const previous = (state.activeTrackIndex - 1 + ORIGINAL_TRACKS.length) % ORIGINAL_TRACKS.length;
-        await switchPlayerTrack(previous, { direction: -1, useHistory: true });
+        await switchPlayerTrack(previous, { direction: -1, useHistory: true, resumePlayback });
     }
 
     function cycleRepeatMode() {
@@ -1842,7 +1946,8 @@
         state.shuffle = !state.shuffle;
         if (state.shuffle) resetShuffleQueue();
         else state.shuffleQueue = [];
-        syncPlayerControls();
+        if (state.originalMode === "player") renderPlayerContent();
+        else syncPlayerControls();
     }
 
     function moveAudioBy(seconds) {
@@ -1853,17 +1958,38 @@
     }
 
     async function handleAudioEnded() {
+        state.audioActuallyPlaying = false;
+
         if (state.repeatMode === "one") {
             audio.currentTime = 0;
             await playAudio();
             return;
         }
-        if (state.repeatMode === "off") {
+
+        if (state.shuffle) {
+            // Repeat OFFでは、現在のシャッフル巡回を使い切ったところで停止する。
+            if (state.repeatMode === "off" && !state.shuffleQueue.length) {
+                audio.currentTime = 0;
+                pauseAudio();
+                return;
+            }
+            await skipNext({ applyShuffle: true, useHistory: true, resumePlayback: true });
+            return;
+        }
+
+        const isLastTrack = state.activeTrackIndex === ORIGINAL_TRACKS.length - 1;
+        if (state.repeatMode === "off" && isLastTrack) {
             audio.currentTime = 0;
             pauseAudio();
             return;
         }
-        await skipNext({ applyShuffle: true, useHistory: true });
+
+        const nextIndex = isLastTrack ? 0 : state.activeTrackIndex + 1;
+        await switchPlayerTrack(nextIndex, {
+            direction: 1,
+            useHistory: true,
+            resumePlayback: true
+        });
     }
 
     /* =========================================================
@@ -2716,12 +2842,13 @@
                 return;
             }
             const adjacent = event.target.closest("[data-player-adjacent-index]");
-            if (adjacent) {
-                const index = Number(adjacent.dataset.playerAdjacentIndex);
-                const direction = index === (state.activeTrackIndex - 1 + ORIGINAL_TRACKS.length) % ORIGINAL_TRACKS.length
-                    ? -1
-                    : 1;
-                void switchPlayerTrack(index, { direction, useHistory: true });
+            if (adjacent && !state.transitioning) {
+                const container = adjacent.closest(".music-player__adjacent");
+                if (container?.classList.contains("music-player__adjacent--prev")) {
+                    void skipPrevious({ applyShuffle: true });
+                } else {
+                    void skipNext({ applyShuffle: true });
+                }
             }
         });
 
@@ -2806,10 +2933,35 @@
         });
 
         audio.addEventListener("play", () => {
+            if (!state.audioActuallyPlaying) setAudioBuffering(true);
+            syncPlayerControls();
+        });
+        audio.addEventListener("playing", () => {
+            state.audioActuallyPlaying = true;
+            setAudioBuffering(false);
             syncPlayerControls();
             startPlayerFrame();
         });
+        audio.addEventListener("waiting", () => {
+            if (audio.paused) return;
+            state.audioActuallyPlaying = false;
+            setAudioBuffering(true);
+            syncPlayerControls();
+            startPlayerFrame();
+        });
+        audio.addEventListener("stalled", () => {
+            if (audio.paused) return;
+            state.audioActuallyPlaying = false;
+            setAudioBuffering(true);
+            syncPlayerControls();
+        });
+        audio.addEventListener("canplay", () => {
+            if (audio.paused && state.playIntent !== true) setAudioBuffering(false);
+            syncPlayerControls();
+        });
         audio.addEventListener("pause", () => {
+            state.audioActuallyPlaying = false;
+            if (!state.transitioning) setAudioBuffering(false);
             syncPlayerControls();
             stopPlayerFrame();
             syncPlayerProgress();
@@ -2817,14 +2969,28 @@
         });
         audio.addEventListener("loadedmetadata", () => {
             if (Number.isFinite(state.pendingSeekRatio)) applySeekRatio(state.pendingSeekRatio);
+            if (audio.paused && state.playIntent !== true) setAudioBuffering(false);
             syncPlayerControls();
         });
-        audio.addEventListener("loadstart", syncPlayerControls);
-        audio.addEventListener("emptied", syncPlayerControls);
+        audio.addEventListener("loadstart", () => {
+            setAudioBuffering(true);
+            syncPlayerControls();
+        });
+        audio.addEventListener("emptied", () => {
+            state.audioActuallyPlaying = false;
+            if (state.audioTrackSlug) setAudioBuffering(true);
+            syncPlayerControls();
+        });
         audio.addEventListener("durationchange", syncPlayerControls);
         audio.addEventListener("timeupdate", syncPlayerProgress);
-        audio.addEventListener("ended", () => void handleAudioEnded());
+        audio.addEventListener("ended", () => {
+            state.audioActuallyPlaying = false;
+            setAudioBuffering(false);
+            void handleAudioEnded();
+        });
         audio.addEventListener("error", () => {
+            state.audioActuallyPlaying = false;
+            setAudioBuffering(false);
             syncPlayerControls();
             console.warn("音源を読み込めませんでした。", audio.currentSrc);
         });
@@ -2849,6 +3015,7 @@
         refs.playerVariant = document.querySelector("[data-player-variant]");
         refs.discStage = document.querySelector("[data-player-disc-stage]");
         refs.discHost = document.querySelector("[data-player-disc-host]");
+        refs.playerLoading = document.querySelector("[data-player-loading]");
         refs.visualizer = document.querySelector("[data-player-visualizer]");
         refs.progressButton = document.querySelector("[data-player-progress-button]");
         refs.progressIcon = document.querySelector("[data-player-progress-icon]");

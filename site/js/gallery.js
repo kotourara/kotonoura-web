@@ -3530,8 +3530,10 @@
                 throw timeoutError;
             }
             if (error instanceof TypeError && !Number.isFinite(error.status)) {
-                error.code = "network_error";
-                error.status = 0;
+                const networkError = new Error("通信できませんでした。少し時間を空けて再度お試しください。");
+                networkError.code = "network_error";
+                networkError.status = 0;
+                throw networkError;
             }
             throw error;
         } finally {
@@ -4806,7 +4808,7 @@
 
             await Promise.all(uiAnimations);
             await iroSyncSharedCopyLayout("work");
-            iroApplyWorkData(work, { resetComment: false });
+            iroApplyWorkData(work, { resetComment: true });
             iroUpdateUrl(work.slug, true);
         } finally {
             iroState.transitioning = false;
