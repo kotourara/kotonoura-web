@@ -307,7 +307,8 @@
         planTransitioning: false,
         pendingPlanId: "",
         detailPointerOpened: false,
-        detailReturnCard: null
+        detailReturnCard: null,
+        artAdjustmentAutoSelected: false
     };
 
     const refs = {};
@@ -1840,13 +1841,25 @@
 
     function syncForcedConsultationOptions() {
         const artAdjustment = refs.consultationOptions.querySelector('input[data-option-key="art-adjustment"]');
-        if (!artAdjustment) return;
+        if (!artAdjustment) {
+            state.artAdjustmentAutoSelected = false;
+            return;
+        }
 
         const forced = refs.consultationPlan.value === "one" && getCheckedValue("現在のモデル状態") === "unseparated";
         const labelText = artAdjustment.closest("label")?.querySelector("span");
 
+        if (forced) {
+            if (!artAdjustment.checked) {
+                artAdjustment.checked = true;
+                state.artAdjustmentAutoSelected = true;
+            }
+        } else if (state.artAdjustmentAutoSelected) {
+            artAdjustment.checked = false;
+            state.artAdjustmentAutoSelected = false;
+        }
+
         artAdjustment.dataset.forced = forced ? "true" : "false";
-        if (forced) artAdjustment.checked = true;
         if (labelText) labelText.textContent = forced ? "原画調整（未分け原画のため必須）" : "原画調整";
     }
 
@@ -2349,7 +2362,13 @@
             if (target.name === "追加利用範囲") updateAdditionalUseConditional();
             if (target.name === "使用予定環境") updateEnvironmentConditional();
             if (target.name === "現在のモデル状態") updateModelStateConditional();
-            if (target.name === "追加オプション" && target.dataset.forced === "true" && !target.checked) target.checked = true;
+            if (target.name === "追加オプション" && target.dataset.optionKey === "art-adjustment") {
+                if (target.dataset.forced === "true" && !target.checked) {
+                    target.checked = true;
+                } else if (target.dataset.forced !== "true") {
+                    state.artAdjustmentAutoSelected = false;
+                }
+            }
             if (target.name === "加筆許諾") updateArtPermissionConditional();
             if (target.name === "年齢区分") updateAgeConditional();
 
