@@ -67,6 +67,7 @@ function validateSubmission(parameters) {
   requireValue(getFirst(parameters, "希望納期"), "希望納期");
   requireValue(budget, "予算");
   requireValue(getFirst(parameters, "ご依頼形態"), "ご依頼形態");
+  requireValue(getFirst(parameters, "制作実績公開"), "制作実績の公開条件");
   requireValue(getFirst(parameters, "お名前・活動名"), "お名前・活動名");
   requireValue(email, "返信用メールアドレス");
   requireValue(getFirst(parameters, "活動先URL・Xアカウント"), "活動先URL・Xアカウント");
@@ -103,10 +104,20 @@ function validateSubmission(parameters) {
 
   if (planId === "one") {
     requireValue(getFirst(parameters, "加筆許諾"), "加筆許諾");
+    if (modelState === "unseparated" && getAll(parameters, "追加オプション").indexOf("原画調整") === -1) {
+      throw new Error("未分け原画の場合は原画調整が必要です。");
+    }
   }
 
   if (planId === "custom") {
     requireValue(getFirst(parameters, "モデリング許諾"), "モデリング許諾");
+    if (getAll(parameters, "希望カスタム").length === 0) {
+      throw new Error("希望するカスタムが未選択です。");
+    }
+  }
+
+  if (getAll(parameters, "追加利用範囲").indexOf("その他") !== -1) {
+    requireValue(getFirst(parameters, "追加利用範囲その他"), "その他の利用内容");
   }
 
   if (ageGroup === "未成年") {
@@ -119,6 +130,7 @@ function buildMailBody(parameters, planLabel) {
   const modelStateLabel = MODEL_STATE_LABELS[modelStateKey] || modelStateKey;
   const customSelections = getAll(parameters, "希望カスタム");
   const options = getAll(parameters, "追加オプション");
+  const additionalUse = getAll(parameters, "追加利用範囲");
   const lines = [
     "琴ノ裏工房の制作相談フォームから送信されました。",
     "",
@@ -130,12 +142,15 @@ function buildMailBody(parameters, planLabel) {
     `予算：${displayValue(getFirst(parameters, "予算"))}`,
     `予算上限額：${appendUnit(getFirst(parameters, "予算上限額"), "万円程度")}`,
     `ご依頼形態：${displayValue(getFirst(parameters, "ご依頼形態"))}`,
+    `制作実績の公開：${displayValue(getFirst(parameters, "制作実績公開"))}`,
     "",
     "────────────────────────",
     "■ 制作条件・素材",
     "────────────────────────",
     `希望カスタム：${customSelections.length ? customSelections.join("、") : "なし"}`,
     `追加オプション：${options.length ? options.join("、") : "なし"}`,
+    `追加利用範囲：${additionalUse.length ? additionalUse.join("、") : "なし"}`,
+    `追加利用範囲（その他）：${displayValue(getFirst(parameters, "追加利用範囲その他"))}`,
     `使用予定環境：${displayValue(getFirst(parameters, "使用予定環境"))}`,
     `使用予定ソフト：${displayValue(getFirst(parameters, "使用予定ソフト"))}`,
     `対応環境確認：${checkedLabel(parameters, "対応環境確認")}`,

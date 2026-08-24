@@ -2,6 +2,14 @@ project 直下のターミナル（PowerShell）で
 
 git status
 
-git add .
-git commit -m "Add favicon"
-git push
+git diff
+
+git add -A
+
+git diff --cached
+
+git commit -m "Update site"
+
+git push origin HEAD
+
+git status

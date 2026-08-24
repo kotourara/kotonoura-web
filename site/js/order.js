@@ -175,8 +175,7 @@
         { label: "表情差分追加", price: "5,000円〜/点" },
         { label: "特殊ギミック追加", price: "10,000円〜" },
         { label: "実装サポート（通話）", price: "15,000円〜", hideFor: ["one", "two", "three", "extreme"] },
-        { label: "SNS運用相談", price: "15,000円〜", hideFor: ["three", "extreme"] },
-        { label: "商用・法人案件", price: "要相談" }
+        { label: "SNS運用相談", price: "15,000円〜", hideFor: ["three", "extreme"] }
     ];
 
     const DETAIL_DATA = {
@@ -247,8 +246,7 @@
         { key: "expression", label: "表情差分追加" },
         { key: "special-gimmick", label: "特殊ギミック追加", hideFor: ["custom"] },
         { key: "setup", label: "実装サポート", showFor: ["custom"] },
-        { key: "sns", label: "SNS運用相談", hideFor: ["three", "extreme"] },
-        { key: "commercial", label: "商用・法人案件" }
+        { key: "sns", label: "SNS運用相談", hideFor: ["three", "extreme"] }
     ];
 
     const MODEL_STATE_DATA = {
@@ -274,7 +272,9 @@
         deadline: 1,
         budget: 1,
         "request-type": 1,
+        "portfolio-publication": 1,
         "custom-selection": 2,
+        "additional-use": 2,
         environment: 2,
         "model-state": 2,
         "art-permission": 2,
@@ -1832,10 +1832,22 @@
             .filter((option) => isOptionVisible(option, planId))
             .map((option) => `
                 <label class="choice-label" data-consultation-option="${option.key}">
-                    <input type="checkbox" name="追加オプション" value="${option.label}"${checked.has(option.label) ? " checked" : ""}>
+                    <input type="checkbox" name="追加オプション" value="${option.label}" data-option-key="${option.key}"${checked.has(option.label) ? " checked" : ""}>
                     <span>${option.label}</span>
                 </label>
             `).join("");
+    }
+
+    function syncForcedConsultationOptions() {
+        const artAdjustment = refs.consultationOptions.querySelector('input[data-option-key="art-adjustment"]');
+        if (!artAdjustment) return;
+
+        const forced = refs.consultationPlan.value === "one" && getCheckedValue("現在のモデル状態") === "unseparated";
+        const labelText = artAdjustment.closest("label")?.querySelector("span");
+
+        artAdjustment.dataset.forced = forced ? "true" : "false";
+        if (forced) artAdjustment.checked = true;
+        if (labelText) labelText.textContent = forced ? "原画調整（未分け原画のため必須）" : "原画調整";
     }
 
     function getAllowedModelStates(planId) {
@@ -1926,6 +1938,7 @@
         updatePlanSummary(planId);
         renderConsultationOptions(planId);
         renderModelStates(planId || "other");
+        syncForcedConsultationOptions();
 
         const isOther = planId === "other";
         refs.environmentRequiredMarks.forEach((mark) => { mark.hidden = isOther; });
@@ -1936,6 +1949,7 @@
         setFormFieldVisibility("model-permission", planId === "custom");
 
         updateBudgetConditional();
+        updateAdditionalUseConditional();
         updateEnvironmentConditional();
         updateModelStateConditional();
         updateArtPermissionConditional();
@@ -1951,6 +1965,11 @@
         setConditionalFieldVisibility(refs.budgetCap, visible);
     }
 
+    function updateAdditionalUseConditional() {
+        const hasOther = Boolean(refs.consultationFormElement.querySelector('input[name="追加利用範囲"][value="その他"]:checked'));
+        setConditionalFieldVisibility(refs.additionalUseOther, hasOther);
+    }
+
     function updateEnvironmentConditional() {
         const value = getCheckedValue("使用予定環境");
         setConditionalFieldVisibility(refs.environmentOther, value === "その他");
@@ -1960,6 +1979,7 @@
     function updateModelStateConditional() {
         const value = getCheckedValue("現在のモデル状態");
         setConditionalFieldVisibility(refs.modelStateOther, value === "other");
+        syncForcedConsultationOptions();
     }
 
     function updateArtPermissionConditional() {
@@ -2121,6 +2141,15 @@
             }
             case "request-type":
                 return getCheckedValue("ご依頼形態") ? "" : "ご依頼形態を選択してください。";
+            case "portfolio-publication":
+                return getCheckedValue("制作実績公開") ? "" : "制作実績の公開条件を選択してください。";
+            case "custom-selection":
+                return planId === "custom" && !refs.consultationFormElement.querySelector('input[name="希望カスタム"]:checked') ? "希望するカスタムを1つ以上選択してください。" : "";
+            case "additional-use": {
+                const hasOther = Boolean(refs.consultationFormElement.querySelector('input[name="追加利用範囲"][value="その他"]:checked'));
+                if (hasOther && !refs.additionalUseOtherInput.value.trim()) return "その他の利用内容を入力してください。";
+                return "";
+            }
             case "environment": {
                 const environment = getCheckedValue("使用予定環境");
                 if (planId !== "other" && !environment) return "使用予定環境を選択してください。";
@@ -2317,8 +2346,10 @@
             if (!(target instanceof HTMLInputElement || target instanceof HTMLSelectElement || target instanceof HTMLTextAreaElement)) return;
 
             if (target.name === "予算") updateBudgetConditional();
+            if (target.name === "追加利用範囲") updateAdditionalUseConditional();
             if (target.name === "使用予定環境") updateEnvironmentConditional();
             if (target.name === "現在のモデル状態") updateModelStateConditional();
+            if (target.name === "追加オプション" && target.dataset.forced === "true" && !target.checked) target.checked = true;
             if (target.name === "加筆許諾") updateArtPermissionConditional();
             if (target.name === "年齢区分") updateAgeConditional();
 
@@ -2440,6 +2471,8 @@
         refs.deadlineList = document.getElementById("deadline-list");
         refs.consultationOptions = document.getElementById("consultation-options");
         refs.customSelectionList = document.getElementById("custom-selection-list");
+        refs.additionalUseOther = document.getElementById("additional-use-other");
+        refs.additionalUseOtherInput = document.getElementById("additional-use-other-input");
         refs.modelStateList = document.getElementById("model-state-list");
         refs.budgetCap = document.getElementById("budget-cap");
         refs.budgetCapInput = document.getElementById("budget-cap-input");

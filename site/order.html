@@ -151,6 +151,17 @@
                             </div>
                             <p class="form-field__error" data-error-for="request-type" hidden></p>
                         </fieldset>
+
+                        <fieldset class="form-field" data-field="portfolio-publication">
+                            <legend class="form-field__label">制作実績の公開<span class="required-mark">＊</span></legend>
+                            <div class="choice-list">
+                                <label class="choice-label"><input type="radio" name="制作実績公開" value="公開可能" required><span>公開可能</span></label>
+                                <label class="choice-label"><input type="radio" name="制作実績公開" value="公開時期は相談したい"><span>公開時期は相談したい</span></label>
+                                <label class="choice-label"><input type="radio" name="制作実績公開" value="公開不可"><span>公開不可</span></label>
+                            </div>
+                            <p class="form-field__note">公開時期や掲載範囲は、制作内容に応じて個別に調整できます。</p>
+                            <p class="form-field__error" data-error-for="portfolio-publication" hidden></p>
+                        </fieldset>
                     </section>
 
                     <section class="form-step" data-form-panel="2" aria-labelledby="form-step-2-title" hidden>
@@ -158,9 +169,10 @@
 
                         <fieldset class="form-field form-field--custom-selection" data-field="custom-selection" hidden>
                             <legend class="form-field__label">
-                                希望するカスタム<span class="form-field__supplement">[複数選択可]</span>
+                                希望するカスタム<span class="required-mark">＊</span><span class="form-field__supplement">[複数選択可]</span>
                             </legend>
                             <div id="custom-selection-list" class="custom-selection-list"></div>
+                            <p class="form-field__error" data-error-for="custom-selection" hidden></p>
                         </fieldset>
 
                         <fieldset class="form-field" data-field="options">
@@ -168,6 +180,23 @@
                                 追加オプション<span class="form-field__supplement">[複数選択可]</span>
                             </legend>
                             <div id="consultation-options" class="choice-list"></div>
+                        </fieldset>
+
+                        <fieldset class="form-field" data-field="additional-use">
+                            <legend class="form-field__label">
+                                追加利用範囲<span class="form-field__supplement">[該当する場合のみ・複数選択可]</span>
+                            </legend>
+                            <div class="choice-list">
+                                <label class="choice-label"><input type="checkbox" name="追加利用範囲" value="グッズ販売"><span>グッズ販売</span></label>
+                                <label class="choice-label"><input type="checkbox" name="追加利用範囲" value="有料コンテンツ"><span>有料コンテンツ</span></label>
+                                <label class="choice-label"><input type="checkbox" name="追加利用範囲" value="広告・プロモーション"><span>広告・プロモーション</span></label>
+                                <label class="choice-label"><input type="checkbox" name="追加利用範囲" value="その他" data-reveal-target="additional-use-other"><span>その他</span></label>
+                            </div>
+                            <div id="additional-use-other" class="conditional-field" hidden>
+                                <label for="additional-use-other-input">利用内容</label>
+                                <input id="additional-use-other-input" name="追加利用範囲その他" type="text" autocomplete="off">
+                            </div>
+                            <p class="form-field__error" data-error-for="additional-use" hidden></p>
                         </fieldset>
 
                         <fieldset class="form-field" data-field="environment">
