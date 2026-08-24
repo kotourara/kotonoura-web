@@ -15,8 +15,9 @@
      * positions の position=1 が「表示中の1番目の月」に対応します。
      *
      * 例（8/15以降に【極】5〜8か月を表示する場合）:
-     * 1番目=2月 / 2番目=3月 / 3番目=4月 / 4番目=5月
-     * → positions の1〜4が、それぞれ2〜5月へ適用されます。
+     * 最短の5か月先を起点に5件表示します。
+     * 1番目=2月 / 2番目=3月 / 3番目=4月 / 4番目=5月 / 5番目=6月
+     * → positions の1〜5が、それぞれ2〜6月へ適用されます。
      *
      * positions:
      *   通常運用の基本状態。原則ここだけ更新します。
@@ -29,14 +30,15 @@
      *
      * fallbackStatus:
      * positions に指定のない位置へ適用する状態です。
-     * fallbackDisplayCount:
-     * 「要相談」など納期目安を数値化できないプランの表示件数です。
+     * displayCount:
+     * 全プラン共通の表示件数です。納期目安の最短位置から、この件数だけ表示します。
+     * 数値化できない「要相談」プランは基準月から表示します。
      *
      * 表示基準月は日本時間で、1〜14日は当月、15日以降は翌月です。
      */
     window.ORDER_AVAILABILITY_DATA = Object.freeze({
         currentMonthThroughDay: 14,
-        fallbackDisplayCount: 5,
+        displayCount: 5,
         fallbackStatus: "open",
 
         positions: Object.freeze([

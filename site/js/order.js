@@ -415,9 +415,11 @@
 
         const source = window.ORDER_AVAILABILITY_DATA || {};
         const availableStatuses = new Set(Object.keys(STATUS_DATA));
-        const fallbackDisplayCount = Number.isInteger(source.fallbackDisplayCount) && source.fallbackDisplayCount > 0
-            ? source.fallbackDisplayCount
-            : 5;
+        const displayCount = Number.isInteger(source.displayCount) && source.displayCount > 0
+            ? source.displayCount
+            : (Number.isInteger(source.fallbackDisplayCount) && source.fallbackDisplayCount > 0
+                ? source.fallbackDisplayCount
+                : 5);
         const currentMonthThroughDay = Number.isInteger(source.currentMonthThroughDay) &&
             source.currentMonthThroughDay >= 1 && source.currentMonthThroughDay <= 28
             ? source.currentMonthThroughDay
@@ -471,7 +473,7 @@
         });
 
         availabilityConfigCache = {
-            fallbackDisplayCount,
+            displayCount,
             currentMonthThroughDay,
             fallbackStatus,
             positionStatuses,
@@ -514,20 +516,13 @@
         };
     }
 
-    function getPlanAvailabilityWindow(planId, fallbackDisplayCount) {
+    function getPlanAvailabilityWindow(planId, displayCount) {
         const range = getPlanLeadTimeRange(planId);
-        if (!range) {
-            return {
-                startOffset: 0,
-                displayCount: fallbackDisplayCount
-            };
-        }
-
-        const startOffset = Math.max(0, Math.floor(range.minMonths + Number.EPSILON));
-        const endOffset = Math.max(startOffset, Math.floor(range.maxMonths + Number.EPSILON));
         return {
-            startOffset,
-            displayCount: endOffset - startOffset + 1
+            startOffset: range
+                ? Math.max(0, Math.floor(range.minMonths + Number.EPSILON))
+                : 0,
+            displayCount
         };
     }
 
@@ -540,7 +535,7 @@
 
     function getDisplayedAvailability(planId = "") {
         const config = getAvailabilityConfig();
-        const windowConfig = getPlanAvailabilityWindow(planId, config.fallbackDisplayCount);
+        const windowConfig = getPlanAvailabilityWindow(planId, config.displayCount);
         const today = getTokyoDateParts();
         const calendarStartOffset = today.day <= config.currentMonthThroughDay ? 0 : 1;
         const calendarStart = shiftYearMonth(today.year, today.month, calendarStartOffset);
