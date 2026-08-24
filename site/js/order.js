@@ -415,8 +415,8 @@
 
         const source = window.ORDER_AVAILABILITY_DATA || {};
         const availableStatuses = new Set(Object.keys(STATUS_DATA));
-        const displayCount = Number.isInteger(source.displayCount) && source.displayCount > 0
-            ? source.displayCount
+        const fallbackDisplayCount = Number.isInteger(source.fallbackDisplayCount) && source.fallbackDisplayCount > 0
+            ? source.fallbackDisplayCount
             : 5;
         const currentMonthThroughDay = Number.isInteger(source.currentMonthThroughDay) &&
             source.currentMonthThroughDay >= 1 && source.currentMonthThroughDay <= 28
@@ -424,93 +424,137 @@
             : 14;
         const fallbackStatus = availableStatuses.has(source.fallbackStatus)
             ? source.fallbackStatus
-            : "ask";
-        const monthStatuses = new Map();
+            : "open";
+        const positionStatuses = new Map();
+        const globalOverrides = new Map();
+        const planOverrides = new Map();
 
-        const applyMonthEntries = (entries, sourceLabel) => {
-            (Array.isArray(entries) ? entries : []).forEach((entry) => {
-                const monthKey = String(entry?.month || "").trim();
-                const statusKey = String(entry?.status || "").trim();
+        const readPosition = (entry, sourceLabel) => {
+            const position = Number(entry?.position);
+            const statusKey = String(entry?.status || "").trim();
 
-                if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(monthKey)) {
-                    console.warn(`[Order availability] ${sourceLabel}: 月は YYYY-MM 形式で指定してください。`, entry);
-                    return;
-                }
-                if (!availableStatuses.has(statusKey)) {
-                    console.warn(`[Order availability] ${sourceLabel}: 未定義の受付状態です。`, entry);
-                    return;
-                }
-                if (monthStatuses.has(monthKey) && sourceLabel === "months") {
-                    console.warn("[Order availability] months内で同じ月が重複しています。後の設定を採用します。", monthKey);
-                }
-                monthStatuses.set(monthKey, statusKey);
-            });
+            if (!Number.isInteger(position) || position < 1) {
+                console.warn(`[Order availability] ${sourceLabel}: position は1以上の整数で指定してください。`, entry);
+                return null;
+            }
+            if (!availableStatuses.has(statusKey)) {
+                console.warn(`[Order availability] ${sourceLabel}: 未定義の受付状態です。`, entry);
+                return null;
+            }
+            return { position, statusKey };
         };
 
-        applyMonthEntries(source.months, "months");
-        applyMonthEntries(source.overrides, "overrides");
+        (Array.isArray(source.positions) ? source.positions : []).forEach((entry) => {
+            const parsed = readPosition(entry, "positions");
+            if (!parsed) return;
+            if (positionStatuses.has(parsed.position)) {
+                console.warn("[Order availability] positions内で同じpositionが重複しています。後の設定を採用します。", parsed.position);
+            }
+            positionStatuses.set(parsed.position, parsed.statusKey);
+        });
+
+        (Array.isArray(source.overrides) ? source.overrides : []).forEach((entry) => {
+            const parsed = readPosition(entry, "overrides");
+            if (!parsed) return;
+
+            const planId = String(entry?.plan || "").trim();
+            if (!planId) {
+                globalOverrides.set(parsed.position, parsed.statusKey);
+                return;
+            }
+            if (!PLAN_DATA[planId]) {
+                console.warn("[Order availability] overrides: 未定義のplanです。", entry);
+                return;
+            }
+            if (!planOverrides.has(planId)) planOverrides.set(planId, new Map());
+            planOverrides.get(planId).set(parsed.position, parsed.statusKey);
+        });
 
         availabilityConfigCache = {
-            displayCount,
+            fallbackDisplayCount,
             currentMonthThroughDay,
             fallbackStatus,
-            monthStatuses
+            positionStatuses,
+            globalOverrides,
+            planOverrides
         };
         return availabilityConfigCache;
     }
 
-    function getPlanAvailabilityDisplayCount(planId, baseDisplayCount) {
-        const term = String(PLAN_DATA[planId]?.term || "");
-        const rangeMatch = term.match(/(\d+(?:\.\d+)?)\s*(?:〜|～|-|~)\s*(\d+(?:\.\d+)?)\s*か月/);
+    function durationToMonths(value, unit) {
+        const numericValue = Number(value);
+        if (!Number.isFinite(numericValue)) return null;
+        return /週/.test(unit) ? numericValue / 4 : numericValue;
+    }
 
-        let maxMonths = 0;
+    function getPlanLeadTimeRange(planId) {
+        const term = String(PLAN_DATA[planId]?.term || "").trim();
+        const rangeMatch = term.match(/(\d+(?:\.\d+)?)\s*(週間|週|か月|ヶ月)?\s*(?:〜|～|-|~)\s*(\d+(?:\.\d+)?)\s*(週間|週|か月|ヶ月)/);
+
         if (rangeMatch) {
-            maxMonths = Number(rangeMatch[2]);
-        } else {
-            const monthValues = [...term.matchAll(/(\d+(?:\.\d+)?)\s*か月/g)]
-                .map((match) => Number(match[1]))
-                .filter(Number.isFinite);
-            if (monthValues.length) maxMonths = Math.max(...monthValues);
+            const minUnit = rangeMatch[2] || rangeMatch[4];
+            const minMonths = durationToMonths(rangeMatch[1], minUnit);
+            const maxMonths = durationToMonths(rangeMatch[3], rangeMatch[4]);
+            if (minMonths !== null && maxMonths !== null) {
+                return {
+                    minMonths: Math.min(minMonths, maxMonths),
+                    maxMonths: Math.max(minMonths, maxMonths)
+                };
+            }
         }
 
-        return Math.max(baseDisplayCount, Math.ceil(maxMonths || 0));
+        const values = [...term.matchAll(/(\d+(?:\.\d+)?)\s*(週間|週|か月|ヶ月)/g)]
+            .map((match) => durationToMonths(match[1], match[2]))
+            .filter((value) => value !== null);
+
+        if (!values.length) return null;
+        return {
+            minMonths: Math.min(...values),
+            maxMonths: Math.max(...values)
+        };
+    }
+
+    function getPlanAvailabilityWindow(planId, fallbackDisplayCount) {
+        const range = getPlanLeadTimeRange(planId);
+        if (!range) {
+            return {
+                startOffset: 0,
+                displayCount: fallbackDisplayCount
+            };
+        }
+
+        const startOffset = Math.max(0, Math.floor(range.minMonths + Number.EPSILON));
+        const endOffset = Math.max(startOffset, Math.floor(range.maxMonths + Number.EPSILON));
+        return {
+            startOffset,
+            displayCount: endOffset - startOffset + 1
+        };
+    }
+
+    function getAvailabilityStatusForPosition(config, planId, position) {
+        return config.planOverrides.get(planId)?.get(position)
+            || config.globalOverrides.get(position)
+            || config.positionStatuses.get(position)
+            || config.fallbackStatus;
     }
 
     function getDisplayedAvailability(planId = "") {
         const config = getAvailabilityConfig();
-        const displayCount = getPlanAvailabilityDisplayCount(planId, config.displayCount);
+        const windowConfig = getPlanAvailabilityWindow(planId, config.fallbackDisplayCount);
         const today = getTokyoDateParts();
         const calendarStartOffset = today.day <= config.currentMonthThroughDay ? 0 : 1;
         const calendarStart = shiftYearMonth(today.year, today.month, calendarStartOffset);
 
-        const createEntry = (offset) => {
-            const target = shiftYearMonth(calendarStart.year, calendarStart.month, offset);
-            const monthKey = toMonthKey(target.year, target.month);
+        return Array.from({ length: windowConfig.displayCount }, (_, index) => {
+            const target = shiftYearMonth(calendarStart.year, calendarStart.month, windowConfig.startOffset + index);
+            const position = index + 1;
             return {
                 ...target,
-                monthKey,
-                statusKey: config.monthStatuses.get(monthKey) || config.fallbackStatus
+                monthKey: toMonthKey(target.year, target.month),
+                position,
+                statusKey: getAvailabilityStatusForPosition(config, planId, position)
             };
-        };
-
-        /*
-         * 古い月から停止が連続した場合、直近の停止月だけを残す。
-         * 例: 9月=停止 / 10月=停止 / 11月=残り僅か
-         *     → 10月 / 11月 / 12月 / 1月 / 2月
-         * fallbackStatus が closed の誤設定でも無限ループしないよう12年分で打ち切る。
-         */
-        let collapsedOffset = 0;
-        if (createEntry(0).statusKey === "closed") {
-            let closedRunLength = 1;
-            while (closedRunLength < 144 && createEntry(closedRunLength).statusKey === "closed") {
-                closedRunLength += 1;
-            }
-            if (closedRunLength >= 2) collapsedOffset = closedRunLength - 1;
-        }
-
-        return Array.from({ length: displayCount }, (_, index) =>
-            createEntry(collapsedOffset + index)
-        );
+        });
     }
 
     function renderConditions(planId = "") {
