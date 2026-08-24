@@ -459,8 +459,26 @@
         return availabilityConfigCache;
     }
 
-    function getDisplayedAvailability() {
+    function getPlanAvailabilityDisplayCount(planId, baseDisplayCount) {
+        const term = String(PLAN_DATA[planId]?.term || "");
+        const rangeMatch = term.match(/(\d+(?:\.\d+)?)\s*(?:〜|～|-|~)\s*(\d+(?:\.\d+)?)\s*か月/);
+
+        let maxMonths = 0;
+        if (rangeMatch) {
+            maxMonths = Number(rangeMatch[2]);
+        } else {
+            const monthValues = [...term.matchAll(/(\d+(?:\.\d+)?)\s*か月/g)]
+                .map((match) => Number(match[1]))
+                .filter(Number.isFinite);
+            if (monthValues.length) maxMonths = Math.max(...monthValues);
+        }
+
+        return Math.max(baseDisplayCount, Math.ceil(maxMonths || 0));
+    }
+
+    function getDisplayedAvailability(planId = "") {
         const config = getAvailabilityConfig();
+        const displayCount = getPlanAvailabilityDisplayCount(planId, config.displayCount);
         const today = getTokyoDateParts();
         const calendarStartOffset = today.day <= config.currentMonthThroughDay ? 0 : 1;
         const calendarStart = shiftYearMonth(today.year, today.month, calendarStartOffset);
@@ -490,13 +508,13 @@
             if (closedRunLength >= 2) collapsedOffset = closedRunLength - 1;
         }
 
-        return Array.from({ length: config.displayCount }, (_, index) =>
+        return Array.from({ length: displayCount }, (_, index) =>
             createEntry(collapsedOffset + index)
         );
     }
 
-    function renderConditions() {
-        refs.conditionList.innerHTML = getDisplayedAvailability().map(({ month, statusKey }) => {
+    function renderConditions(planId = "") {
+        refs.conditionList.innerHTML = getDisplayedAvailability(planId).map(({ month, statusKey }) => {
             const status = STATUS_DATA[statusKey];
 
             return `
@@ -1769,8 +1787,9 @@
         });
     }
 
-    function renderDeadlineChoices() {
-        const months = getDisplayedAvailability();
+    function renderDeadlineChoices(planId = "") {
+        const previousValue = refs.deadlineList.querySelector('input[name="希望納期"]:checked')?.value || "";
+        const months = getDisplayedAvailability(planId);
         const lastMonth = months[months.length - 1];
         const afterMonth = shiftYearMonth(lastMonth.year, lastMonth.month, 1);
         const afterLabel = `${afterMonth.month}月以降`;
@@ -1794,6 +1813,12 @@
                 <span>${afterLabel}</span>
             </label>
         `;
+
+        if (previousValue) {
+            const previousChoice = [...refs.deadlineList.querySelectorAll('input[name="希望納期"]')]
+                .find((input) => input.value === previousValue);
+            if (previousChoice) previousChoice.checked = true;
+        }
     }
 
     function isOptionVisible(option, planId) {
@@ -1949,6 +1974,8 @@
         refs.policyDialog.style.setProperty("--form-accent", color);
 
         updatePlanSummary(planId);
+        renderConditions(planId);
+        renderDeadlineChoices(planId);
         renderConsultationOptions(planId);
         renderModelStates(planId || "other");
         syncForcedConsultationOptions();

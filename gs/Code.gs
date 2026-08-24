@@ -745,8 +745,9 @@ function getAdditionalQuestions(parameters) {
 
 function createReplyDraftSafely(recipient, subject, body) {
   try {
-    const draft = GmailApp.createDraft(recipient, subject, body, {
-      name: `${CONSULTATION_STUDIO_NAME} 制作担当：${CONSULTATION_STAFF_NAME}`
+    const draft = GmailApp.createDraft(recipient, subject, stripDraftEmojiForPlainText(body), {
+      name: `${CONSULTATION_STUDIO_NAME} 制作担当：${CONSULTATION_STAFF_NAME}`,
+      htmlBody: buildDraftHtmlBody(body)
     });
     return {
       ok: true,
@@ -763,6 +764,20 @@ function createReplyDraftSafely(recipient, subject, body) {
       error: safeErrorMessage(error)
     };
   }
+}
+
+
+function stripDraftEmojiForPlainText(body) {
+  return String(body || "").replace(/\uD83D\uDE47/g, "");
+}
+
+function buildDraftHtmlBody(body) {
+  return String(body || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\uD83D\uDE47/g, "&#128583;")
+    .replace(/\r?\n/g, "<br>");
 }
 
 function getMeetingCandidatesSafely() {
