@@ -1,14 +1,10 @@
 project 直下のターミナル（PowerShell）で
 
-git status
-
-git diff
-
 git add -A
 
 git diff --cached
 
-git commit -m "Update site"
+git commit -m "Update order inquiry flow"
 
 git push origin HEAD
 
