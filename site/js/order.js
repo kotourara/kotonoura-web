@@ -2260,6 +2260,7 @@
         }
 
         const selectedDeadline = refs.deadlineList.querySelector('input[name="希望納期"]:checked');
+        refs.deadlineStatusInput.value = selectedDeadline?.dataset.availabilityStatus || "after";
         if (selectedDeadline?.dataset.availabilityStatus === "closed") {
             const shouldSubmit = window.confirm(
                 "選択した納期は現在「停止中」です。\n制作時期について個別相談となりますが、この内容で送信しますか？"
@@ -2517,6 +2518,7 @@
         refs.consultationMessage = document.getElementById("consultation-message");
         refs.consultationSubmitButton = document.getElementById("consultation-submit-button");
         refs.consultationSubmitStatus = document.getElementById("consultation-submit-status");
+        refs.deadlineStatusInput = document.getElementById("consultation-deadline-status");
         refs.requestIdInput = document.getElementById("consultation-request-id");
         refs.submittedAtInput = document.getElementById("consultation-submitted-at");
         refs.openPolicyButton = document.getElementById("open-policy-dialog");
