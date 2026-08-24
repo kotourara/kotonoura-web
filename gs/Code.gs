@@ -501,7 +501,7 @@ function buildReplyDraft(parameters, assessment, meetingCandidates) {
   ];
   const outro = [
     "",
-    "ご確認のほど、よろしくお願いいたします🙇",
+    "ご確認のほど、よろしくお願いいたします" + "\uD83D\uDE47",
     "",
     CONSULTATION_STUDIO_NAME,
     `制作担当：${CONSULTATION_STAFF_NAME}`
