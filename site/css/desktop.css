@@ -14,7 +14,7 @@
     --desktop-content-max: 720px;
     --desktop-content-half: 360px;
     --desktop-banner-width: 160px;
-    --desktop-banner-gap: 20px;
+    --desktop-banner-gap: 80px;
 }
 
 /* Topだけは元のviewport座標系をquery containerへ移す。 */
@@ -92,14 +92,14 @@ body[data-page="top"] .site-bg {
     transform: translate(-50%, -50%) rotate(-90deg);
 }
 
-@media (min-width: 1080px) {
+@media (min-width: 1200px) {
     .desktop-side-banner {
         display: block;
     }
 
     .desktop-side-banner--left {
         left: calc(
-            50vw
+            50%
             - var(--desktop-content-half)
             - var(--desktop-banner-gap)
             - var(--desktop-banner-width)
@@ -108,10 +108,117 @@ body[data-page="top"] .site-bg {
 
     .desktop-side-banner--right {
         right: calc(
-            50vw
+            50%
             - var(--desktop-content-half)
             - var(--desktop-banner-gap)
             - var(--desktop-banner-width)
         );
     }
 }
+
+/* =========================================================
+   Desktop horizontal-navigation helpers
+   - Fixed while the relevant horizontal section is in view.
+   - Sits in the 80px lane between the 720px content and banner.
+   - Visible triangle is deliberately narrow/tall (20×80px = 1:4).
+   ========================================================= */
+.desktop-section-arrow {
+    position: fixed;
+    z-index: 1600;
+    top: 50vh;
+    display: none;
+    width: 64px;
+    height: 112px;
+    padding: 0;
+    place-items: center;
+    color: #000;
+    background: transparent;
+    border: 0;
+    font-size: 0;
+    line-height: 1;
+    cursor: pointer;
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    transform: translate(-50%, -50%);
+}
+
+.desktop-section-arrow::before {
+    content: "";
+    display: block;
+    width: 20px;
+    height: 80px;
+    background: currentColor;
+    clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+
+.desktop-section-arrow--prev {
+    left: calc(50% - var(--desktop-content-half) - (var(--desktop-banner-gap) / 2));
+}
+
+.desktop-section-arrow--prev::before {
+    transform: scaleX(-1);
+}
+
+.desktop-section-arrow--next {
+    left: calc(50% + var(--desktop-content-half) + (var(--desktop-banner-gap) / 2));
+}
+
+/* IroKasane は背景色に埋もれないよう、PC補助矢印のみ白。 */
+body[data-page="gallery"] .desktop-section-arrow {
+    color: #fff;
+}
+
+.desktop-section-arrow:disabled {
+    opacity: 0.18;
+    cursor: default;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .top-contents__box,
+    .plan-panel,
+    .iro-work__swipe-zone {
+        -webkit-user-select: none;
+        user-select: none;
+    }
+
+    .top-contents__box img,
+    .iro-work__swipe-zone img {
+        -webkit-user-drag: none;
+        user-select: none;
+    }
+}
+
+@media (min-width: 1200px) and (hover: hover) and (pointer: fine) {
+    .desktop-section-arrow:not([hidden]) {
+        display: grid;
+    }
+
+    /* IroKasaneはPCでは白余白側の補助矢印を使い、既存矢印はモバイル用に維持。 */
+    .iro-work__arrow {
+        display: none;
+    }
+
+    /* コメント窓を独立query container化し、viewport幅で文字だけ肥大しないようにする。 */
+    .music-interpretation__panel {
+        container-type: inline-size;
+        container-name: music-comment-panel;
+    }
+
+    .music-interpretation__lead {
+        font-size: 2.5cqw;
+    }
+
+    .music-interpretation__label,
+    .music-interpretation input,
+    .music-interpretation textarea {
+        font-size: 2.1cqw;
+    }
+
+    .music-interpretation__count,
+    .music-interpretation__message,
+    .music-interpretation__buttons button {
+        font-size: 1.8cqw;
+    }
+}
+

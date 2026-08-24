@@ -3832,6 +3832,7 @@
                 : "images/gallery/live2d/control-icons/zoomOut.svg"
         );
         refs.iroZoom.setAttribute("aria-label", iroState.zoomedOut ? "拡大表示へ戻す" : "全体表示へ切り替える");
+        requestAnimationFrame(iroSyncDesktopArrows);
     }
 
     function iroSetImageSources(work) {
@@ -3947,6 +3948,7 @@
         refs.illustration.classList.remove("is-zoomed-out");
         refs.iroIntro.hidden = false;
         refs.iroWork.hidden = true;
+        requestAnimationFrame(iroSyncDesktopArrows);
         iroCloseDiary();
         iroCloseComment();
         iroClearTheme();
@@ -3964,6 +3966,7 @@
         refs.iroIntro.hidden = true;
         refs.iroWork.hidden = false;
         iroRenderWork({ updateUrl });
+        requestAnimationFrame(iroSyncDesktopArrows);
     }
 
     function iroCssLength(element, property, containerWidth) {
@@ -4212,6 +4215,7 @@
         iroMoveImagesTo(refs.iroImageHost);
         refs.iroImageHost.classList.add("is-background-visible", "is-character-visible");
         iroSyncZoomMetrics();
+        requestAnimationFrame(iroSyncDesktopArrows);
         refs.iroFluid.hidden = true;
         refs.iroFluid.classList.remove("is-background-visible", "is-character-visible");
         iroState.mode = "work";
@@ -4809,6 +4813,7 @@
             await Promise.all(uiAnimations);
             await iroSyncSharedCopyLayout("work");
             iroApplyWorkData(work, { resetComment: true });
+            requestAnimationFrame(iroSyncDesktopArrows);
             iroUpdateUrl(work.slug, true);
         } finally {
             iroState.transitioning = false;
@@ -5138,6 +5143,8 @@ favの変更を反映できませんでした。`;
             if (
                 event.target.closest("button, a, input, textarea, form, .iro-comment-panel, .iro-shared-palette")
             ) return;
+            if (event.pointerType === "mouse" && event.button !== 0) return;
+            if (event.pointerType === "mouse") event.preventDefault();
             iroState.swipePointerId = event.pointerId;
             iroState.swipeStartX = event.clientX;
             iroState.swipeStartY = event.clientY;
@@ -5159,6 +5166,64 @@ favの変更を反映できませんでした。`;
         refs.iroSwipeZone.addEventListener("pointercancel", (event) => {
             if (event.pointerId === iroState.swipePointerId) iroState.swipePointerId = null;
         });
+        refs.iroSwipeZone.addEventListener("dragstart", (event) => {
+            event.preventDefault();
+        });
+    }
+
+    function iroSyncDesktopArrows() {
+        if (!refs.iroDesktopPrev || !refs.iroDesktopNext) return;
+
+        const workVisible = Boolean(
+            refs.iroVisual
+            && !refs.illustration.hidden
+            && refs.illustration.classList.contains("is-work-open")
+            && !refs.iroWork.hidden
+        );
+        const rect = refs.iroVisual?.getBoundingClientRect();
+        const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+        const inView = Boolean(
+            workVisible
+            && rect
+            && rect.bottom > viewportHeight * 0.15
+            && rect.top < viewportHeight * 0.85
+        );
+
+        refs.iroDesktopPrev.hidden = !inView;
+        refs.iroDesktopNext.hidden = !inView;
+    }
+
+    function iroEnsureDesktopArrows() {
+        if (refs.iroDesktopPrev || refs.iroDesktopNext) return;
+
+        const createArrow = (direction, label, glyph) => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = `desktop-section-arrow desktop-section-arrow--${direction}`;
+            button.setAttribute("aria-label", label);
+            button.textContent = glyph;
+            button.hidden = true;
+            document.body.append(button);
+            return button;
+        };
+
+        refs.iroDesktopPrev = createArrow("prev", "前の色かさね", "◀");
+        refs.iroDesktopNext = createArrow("next", "次の色かさね", "▶");
+        refs.iroDesktopPrev.addEventListener("click", () => iroSwitch(-1));
+        refs.iroDesktopNext.addEventListener("click", () => iroSwitch(1));
+
+        if (typeof ResizeObserver === "function" && refs.iroVisual) {
+            refs.iroDesktopResizeObserver = new ResizeObserver(iroSyncDesktopArrows);
+            refs.iroDesktopResizeObserver.observe(refs.iroVisual);
+        }
+        if (typeof MutationObserver === "function") {
+            refs.iroDesktopMutationObserver = new MutationObserver(iroSyncDesktopArrows);
+            refs.iroDesktopMutationObserver.observe(refs.illustration, {
+                attributes: true,
+                attributeFilter: ["class", "hidden"]
+            });
+        }
+        iroSyncDesktopArrows();
     }
 
     function iroFinishPaletteSiblingAnimations(drag) {
@@ -5443,6 +5508,9 @@ favの変更を反映できませんでした。`;
         iroBindCanvasDrag();
         iroBindSwipe();
         iroBindPalette();
+        iroEnsureDesktopArrows();
+        window.addEventListener("scroll", iroSyncDesktopArrows, { passive: true });
+        window.addEventListener("resize", iroSyncDesktopArrows, { passive: true });
         refs.iroPrev.addEventListener("click", () => iroSwitch(-1));
         refs.iroNext.addEventListener("click", () => iroSwitch(1));
         refs.iroZoom.addEventListener("click", () => {
@@ -5846,6 +5914,10 @@ favの変更を反映できませんでした。`;
         refs.iroDiaryButton = refs.illustration.querySelector("[data-iro-diary]");
         refs.iroSwipeZone = refs.illustration.querySelector("[data-iro-swipe-zone]");
         refs.iroVisual = refs.illustration.querySelector("[data-iro-visual]");
+        refs.iroDesktopPrev = null;
+        refs.iroDesktopNext = null;
+        refs.iroDesktopResizeObserver = null;
+        refs.iroDesktopMutationObserver = null;
         refs.iroImageHost = refs.illustration.querySelector("[data-iro-image-host]");
         refs.iroPalette = refs.illustration.querySelector("[data-iro-palette]");
         refs.iroMetaTitle = refs.illustration.querySelector("[data-iro-meta-title]");

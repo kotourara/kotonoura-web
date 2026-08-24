@@ -407,6 +407,38 @@
     let leadMessageIsFirst = true;
     const bannerPreloads = [];
     let bannersPreloaded = false;
+    let desktopPrevButton = null;
+    let desktopNextButton = null;
+
+    const syncDesktopArrowTop = () => {
+        if (!box || !desktopPrevButton || !desktopNextButton) return;
+        const rect = box.getBoundingClientRect();
+        const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+        const visible = rect.bottom > viewportHeight * 0.15 && rect.top < viewportHeight * 0.85;
+        desktopPrevButton.hidden = !visible;
+        desktopNextButton.hidden = !visible;
+    };
+
+    const ensureDesktopArrows = () => {
+        if (desktopPrevButton || desktopNextButton) return;
+
+        const createArrow = (direction, label, glyph) => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = `desktop-section-arrow desktop-section-arrow--${direction}`;
+            button.setAttribute("aria-label", label);
+            button.textContent = glyph;
+            button.hidden = true;
+            document.body.append(button);
+            return button;
+        };
+
+        desktopPrevButton = createArrow("prev", "前のコンテンツ", "◀");
+        desktopNextButton = createArrow("next", "次のコンテンツ", "▶");
+        desktopPrevButton.addEventListener("click", () => setContent(activeIndex - 1, -1, true));
+        desktopNextButton.addEventListener("click", () => setContent(activeIndex + 1, 1, true));
+        syncDesktopArrowTop();
+    };
 
     const preloadBannerImages = () => {
         if (bannersPreloaded) return;
@@ -862,6 +894,9 @@
     if (box) {
         box.addEventListener("pointerdown", (event) => {
             if (event.target.closest("button, a")) return;
+            if (event.pointerType === "mouse" && event.button !== 0) return;
+
+            if (event.pointerType === "mouse") event.preventDefault();
 
             pointerId = event.pointerId;
             pointerStartX = event.clientX;
@@ -883,6 +918,10 @@
 
         box.addEventListener("pointercancel", () => {
             pointerId = null;
+        });
+
+        box.addEventListener("dragstart", (event) => {
+            event.preventDefault();
         });
 
         box.addEventListener("wheel", (event) => {
@@ -908,6 +947,10 @@
     });
 
     renderContent({ animateFront: false, animateText: false, shuffleText: false });
+    ensureDesktopArrows();
+    window.addEventListener("scroll", syncDesktopArrowTop, { passive: true });
+    window.addEventListener("resize", syncDesktopArrowTop, { passive: true });
+    window.addEventListener("load", syncDesktopArrowTop, { once: true });
 })();
 
 (() => {

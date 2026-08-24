@@ -715,6 +715,7 @@
             button.classList.toggle("is-active", isActive);
             button.setAttribute("aria-expanded", String(isActive));
         });
+        syncDesktopPlanArrows();
     }
 
     function updatePlanRail(planId, plan) {
@@ -825,6 +826,7 @@
                 refs.planMain.style.removeProperty("transform");
             }
             state.planTransitioning = false;
+            requestAnimationFrame(syncDesktopPlanArrows);
 
             const pendingPlanId = state.pendingPlanId;
             state.pendingPlanId = "";
@@ -1397,49 +1399,110 @@
         surface.style.minHeight = `${Math.max(0, railRequiredHeight)}px`;
     }
 
+    function adjacentPlanId(direction) {
+        const currentIndex = PLAN_ORDER.indexOf(state.activePlan);
+        if (currentIndex < 0) return "";
+        const nextIndex = currentIndex + direction;
+        if (nextIndex < 0 || nextIndex >= PLAN_ORDER.length) return "";
+        return PLAN_ORDER[nextIndex];
+    }
+
+    function syncDesktopPlanArrows() {
+        if (!refs.desktopPlanPrev || !refs.desktopPlanNext) return;
+
+        const hasPlan = Boolean(state.activePlan && !refs.planPanel.hidden);
+        const rect = refs.planPanel.getBoundingClientRect();
+        const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+        const inView = hasPlan
+            && rect.bottom > viewportHeight * 0.15
+            && rect.top < viewportHeight * 0.85;
+
+        refs.desktopPlanPrev.hidden = !inView;
+        refs.desktopPlanNext.hidden = !inView;
+        refs.desktopPlanPrev.disabled = !adjacentPlanId(-1);
+        refs.desktopPlanNext.disabled = !adjacentPlanId(1);
+    }
+
+    function ensureDesktopPlanArrows() {
+        if (refs.desktopPlanPrev || refs.desktopPlanNext) return;
+
+        const createArrow = (direction, label, glyph) => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = `desktop-section-arrow desktop-section-arrow--${direction}`;
+            button.setAttribute("aria-label", label);
+            button.textContent = glyph;
+            button.hidden = true;
+            document.body.append(button);
+            return button;
+        };
+
+        refs.desktopPlanPrev = createArrow("prev", "前のプラン", "◀");
+        refs.desktopPlanNext = createArrow("next", "次のプラン", "▶");
+        refs.desktopPlanPrev.addEventListener("click", () => {
+            const next = adjacentPlanId(-1);
+            if (next) selectPlan(next);
+        });
+        refs.desktopPlanNext.addEventListener("click", () => {
+            const next = adjacentPlanId(1);
+            if (next) selectPlan(next);
+        });
+
+        if (typeof ResizeObserver === "function") {
+            refs.desktopPlanResizeObserver = new ResizeObserver(syncDesktopPlanArrows);
+            refs.desktopPlanResizeObserver.observe(refs.planPanel);
+        }
+        syncDesktopPlanArrows();
+    }
+
     function attachPlanPanelSwipe() {
         let startX = 0;
         let startY = 0;
-        let tracking = false;
+        let pointerId = null;
 
-        refs.planPanel.addEventListener("touchstart", (event) => {
-            if (event.touches.length !== 1 || !state.activePlan) return;
+        refs.planPanel.addEventListener("pointerdown", (event) => {
+            if (!state.activePlan || !event.isPrimary) return;
+            if (event.pointerType === "mouse" && event.button !== 0) return;
 
             const target = event.target;
             if (target.closest("button, a, input, select, textarea, video, dialog")) {
-                tracking = false;
+                pointerId = null;
                 return;
             }
 
-            startX = event.touches[0].clientX;
-            startY = event.touches[0].clientY;
-            tracking = true;
-        }, { passive: true });
+            if (event.pointerType === "mouse") event.preventDefault();
+            pointerId = event.pointerId;
+            startX = event.clientX;
+            startY = event.clientY;
+            refs.planPanel.setPointerCapture?.(event.pointerId);
+        });
 
-        refs.planPanel.addEventListener("touchend", (event) => {
-            if (!tracking || event.changedTouches.length !== 1) return;
-            tracking = false;
+        refs.planPanel.addEventListener("pointerup", (event) => {
+            if (pointerId !== event.pointerId) return;
 
-            const deltaX = event.changedTouches[0].clientX - startX;
-            const deltaY = event.changedTouches[0].clientY - startY;
+            const deltaX = event.clientX - startX;
+            const deltaY = event.clientY - startY;
             const absX = Math.abs(deltaX);
             const absY = Math.abs(deltaY);
+            pointerId = null;
 
-            /* 縦スクロールを優先し、明確な横スワイプだけを採用 */
+            if (refs.planPanel.hasPointerCapture?.(event.pointerId)) {
+                try { refs.planPanel.releasePointerCapture(event.pointerId); } catch (_) { /* no-op */ }
+            }
+
             if (absX < 56 || absX <= absY * 1.25) return;
 
-            const currentIndex = PLAN_ORDER.indexOf(state.activePlan);
-            if (currentIndex < 0) return;
+            const next = adjacentPlanId(deltaX < 0 ? 1 : -1);
+            if (next) selectPlan(next);
+        });
 
-            const nextIndex = currentIndex + (deltaX < 0 ? 1 : -1);
-            if (nextIndex < 0 || nextIndex >= PLAN_ORDER.length) return;
+        refs.planPanel.addEventListener("pointercancel", (event) => {
+            if (pointerId === event.pointerId) pointerId = null;
+        });
 
-            selectPlan(PLAN_ORDER[nextIndex]);
-        }, { passive: true });
-
-        refs.planPanel.addEventListener("touchcancel", () => {
-            tracking = false;
-        }, { passive: true });
+        refs.planPanel.addEventListener("dragstart", (event) => {
+            event.preventDefault();
+        });
     }
 
     function activatePlanMain(planId, plan) {
@@ -2543,6 +2606,9 @@
         refs.railPrice = null;
         refs.railConsult = null;
         refs.railResizeObserver = null;
+        refs.desktopPlanPrev = null;
+        refs.desktopPlanNext = null;
+        refs.desktopPlanResizeObserver = null;
         refs.optionsList = document.getElementById("options-list");
         refs.consultationSection = document.getElementById("consultation-form");
         refs.consultationFormElement = document.getElementById("production-consultation-form");
@@ -2604,7 +2670,10 @@
         renderPlanTabs();
         renderOptions();
         initConsultationForm();
+        ensureDesktopPlanArrows();
         bindGlobalEvents();
+        window.addEventListener("scroll", syncDesktopPlanArrows, { passive: true });
+        window.addEventListener("resize", syncDesktopPlanArrows, { passive: true });
     }
 
     init();
