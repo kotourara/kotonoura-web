@@ -1802,10 +1802,10 @@
         shell.style.setProperty("--disc-rotation", `${state.discRotation}deg`);
         await audioPromise.catch(() => undefined);
 
-        syncPlayerControls();
-        if (updateUrl) writeUrl({ mode: "replace" });
         state.transitioning = false;
         syncPlayerLoading();
+        syncPlayerControls();
+        if (updateUrl) writeUrl({ mode: "replace" });
     }
 
     async function collapsePlayer({ animate = true, updateUrl = true } = {}) {
