@@ -2196,6 +2196,7 @@ body.is-top-nav-open .lower-visual__hand-anim {
     line-height: 1.6;
     overflow: hidden;
     -webkit-box-orient: vertical;
+    line-clamp: 2;
     -webkit-line-clamp: 2;
 }
 
@@ -2335,12 +2336,14 @@ body.is-top-nav-open .hero__news-content {
     letter-spacing: 0.025em;
     overflow: hidden;
     -webkit-box-orient: vertical;
+    line-clamp: 2;
     -webkit-line-clamp: 2;
 }
 
 .hero__news-summary {
     font-size: 1.55cqw;
     line-height: 1.35;
+    line-clamp: 1;
     -webkit-line-clamp: 1;
 }
 
