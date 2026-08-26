@@ -18,6 +18,8 @@
     const SEEK_DRAG_THRESHOLD = 8;
     const LOCAL_COMMENT_COOLDOWN_MS = 10 * 60 * 1000;
     const MOBILE_MUSIC_MODE = window.matchMedia?.("(max-width: 1099px), (hover: none), (pointer: coarse)")?.matches ?? false;
+    const PUBLICATION_VISIBLE_STATES = new Set(["teaser", "partial", "public"]);
+    const PUBLICATION_DETAIL_STATES = new Set(["partial", "public"]);
 
     const ICONS = Object.freeze({
         album: `${DOT_UI_BASE}/dt_album.svg`,
@@ -159,6 +161,7 @@
             order: 200,
             published: true,
             publishAt: "2026-08-28T19:30:00+09:00",
+            sections: { list: true, detail: true },
             preTitle: "弓可可ヰミナ　2nd Single",
             preDisplayTitle: "『縺れ』",
             title: "縺れ / Motsure",
@@ -561,6 +564,59 @@
         return ORIGINAL_TRACKS[state.activeTrackIndex];
     }
 
+    function trackRawPublicationState(track) {
+        if (track?.publication?.rawState) return track.publication.rawState;
+        return track?.published === true ? "public" : "hidden";
+    }
+
+    function trackEffectivePublicationState(track) {
+        const state = track?.publication?.state
+            || (track?.published === true ? "public" : "hidden");
+        if (!PUBLICATION_VISIBLE_STATES.has(state)) return "hidden";
+        if (!isTrackWithinLocalPublicationWindow(track)) return "hidden";
+        return state;
+    }
+
+    function trackIsPastUnpublishWindow(track, now = Date.now()) {
+        const value = track?.publication?.unpublishAt ?? track?.unpublishAt;
+        const unpublishAt = value ? Date.parse(value) : Number.POSITIVE_INFINITY;
+        return Number.isFinite(unpublishAt) && now >= unpublishAt;
+    }
+
+    function isTrackListVisible(track, now = Date.now()) {
+        if (track?.sections?.list === false) return false;
+
+        const rawVisible = PUBLICATION_VISIBLE_STATES.has(trackRawPublicationState(track));
+        const effectiveVisible = PUBLICATION_VISIBLE_STATES.has(trackEffectivePublicationState(track));
+
+        // list:true は公開予約中の一覧先行表示を許可する。
+        // 詳細／視聴可否は effective state 側で別判定する。
+        if (track?.sections?.list === true) {
+            return rawVisible && !trackIsPastUnpublishWindow(track, now);
+        }
+        return effectiveVisible;
+    }
+
+    function isTrackPlayerAvailable(track) {
+        return PUBLICATION_DETAIL_STATES.has(trackEffectivePublicationState(track))
+            && track?.sections?.detail !== false;
+    }
+
+    function playerTrackIndices() {
+        return ORIGINAL_TRACKS
+            .map((track, index) => ({ track, index }))
+            .filter(({ track }) => isTrackPlayerAvailable(track))
+            .map(({ index }) => index);
+    }
+
+    function adjacentPlayerIndex(index, direction) {
+        const indices = playerTrackIndices();
+        if (!indices.length) return null;
+        const position = indices.indexOf(index);
+        if (position < 0) return indices[0];
+        return indices[(position + direction + indices.length) % indices.length];
+    }
+
     function formatDate(value) {
         return value.replaceAll("-", ".");
     }
@@ -910,6 +966,9 @@
     }
 
     function jacketShellMarkup(track) {
+        const playIcon = isTrackPlayerAvailable(track)
+            ? iconSpanMarkup(ICONS.play, "music-jacket-shell__play")
+            : "";
         return `
             <div class="music-jacket-shell" data-jacket-shell="${track.slug}"
                 style="--disc-rotation:0deg">
@@ -918,16 +977,18 @@
                         alt="${track.title} ジャケット" loading="lazy" decoding="async" draggable="false">
                 </span>
                 <span class="music-jacket-shell__frame" aria-hidden="true"></span>
-                ${iconSpanMarkup(ICONS.play, "music-jacket-shell__play")}
+                ${playIcon}
             </div>`;
     }
 
     function createTrackCard(track, index) {
+        const active = index === state.activeTrackIndex;
+        const playerAvailable = isTrackPlayerAvailable(track);
         return `
-            <article class="music-track-card${index === state.activeTrackIndex ? " is-active" : ""}"
+            <article class="music-track-card${active ? " is-active" : ""}"
                 data-track-card="${track.slug}" data-track-index="${index}">
                 <button class="music-track-card__button" type="button" data-track-select="${index}"
-                    aria-label="${track.title}${index === state.activeTrackIndex ? "を開く" : "を選択"}">
+                    aria-label="${track.title}${active && playerAvailable ? "を開く" : "を選択"}">
                     ${jacketShellMarkup(track)}
                 </button>
             </article>`;
@@ -1048,12 +1109,20 @@
             card.classList.toggle("is-active", active);
             const button = card.querySelector("[data-track-select]");
             if (button) {
-                button.setAttribute("aria-label", `${ORIGINAL_TRACKS[Number(card.dataset.trackIndex)].title}${active ? "を開く" : "を選択"}`);
+                const track = ORIGINAL_TRACKS[Number(card.dataset.trackIndex)];
+                button.setAttribute(
+                    "aria-label",
+                    `${track.title}${active && isTrackPlayerAvailable(track) ? "を開く" : "を選択"}`
+                );
             }
         });
     }
 
-    function setActiveTrack(index, { immediateSummary = false, closeWindows = true } = {}) {
+    function setActiveTrack(index, {
+        immediateSummary = false,
+        closeWindows = true,
+        preserveInterpretation = false
+    } = {}) {
         if (!ORIGINAL_TRACKS.length) return;
         const next = clamp(index, 0, ORIGINAL_TRACKS.length - 1);
         if (next === state.activeTrackIndex) return;
@@ -1061,7 +1130,7 @@
         syncListActiveUi();
         void renderSummary(activeTrack(), { immediate: immediateSummary });
         if (closeWindows) {
-            closeInterpretation();
+            if (!preserveInterpretation) closeInterpretation();
             closeDiaryWindow();
         }
     }
@@ -1098,7 +1167,9 @@
         if (line < firstRect.top) nextIndex = 0;
         if (line >= lastRect.bottom) nextIndex = cards.length - 1;
 
-        if (nextIndex !== state.activeTrackIndex) setActiveTrack(nextIndex);
+        if (nextIndex !== state.activeTrackIndex) {
+            setActiveTrack(nextIndex, { preserveInterpretation: true });
+        }
     }
 
     function scheduleCollapsedScrollUpdate() {
@@ -1560,14 +1631,15 @@
 
     function renderPlayerContent() {
         const track = activeTrack();
-        const count = ORIGINAL_TRACKS.length;
-        let previousIndex = (state.activeTrackIndex - 1 + count) % count;
-        let nextIndex = (state.activeTrackIndex + 1) % count;
+        const playableIndices = playerTrackIndices();
+        const count = playableIndices.length;
+        let previousIndex = adjacentPlayerIndex(state.activeTrackIndex, -1);
+        let nextIndex = adjacentPlayerIndex(state.activeTrackIndex, 1);
         if (state.shuffle && count > 1) {
             const queuedNext = state.shuffleQueue[0];
             const historyPrevious = state.history[state.history.length - 1];
-            if (Number.isInteger(queuedNext)) nextIndex = queuedNext;
-            if (Number.isInteger(historyPrevious)) previousIndex = historyPrevious;
+            if (Number.isInteger(queuedNext) && isTrackPlayerAvailable(ORIGINAL_TRACKS[queuedNext])) nextIndex = queuedNext;
+            if (Number.isInteger(historyPrevious) && isTrackPlayerAvailable(ORIGINAL_TRACKS[historyPrevious])) previousIndex = historyPrevious;
         }
         const variant = currentVariantFor(track);
 
@@ -1584,8 +1656,8 @@
         refs.playerLyrics.classList.remove("is-flavor");
         refs.railLeft.innerHTML = leftRailMarkup();
         refs.railRight.innerHTML = rightRailMarkup(track);
-        refs.adjacentPrev.innerHTML = adjacentMarkup(previousIndex, -1);
-        refs.adjacentNext.innerHTML = adjacentMarkup(nextIndex, 1);
+        refs.adjacentPrev.innerHTML = Number.isInteger(previousIndex) ? adjacentMarkup(previousIndex, -1) : "";
+        refs.adjacentNext.innerHTML = Number.isInteger(nextIndex) ? adjacentMarkup(nextIndex, 1) : "";
         syncPlayerControls();
     }
 
@@ -1630,8 +1702,9 @@
             && audio.duration > 0;
         setMusicActionDisabled("replay5", !audioReady);
         setMusicActionDisabled("forward5", !audioReady);
-        setMusicActionDisabled("skipPrev", state.transitioning || ORIGINAL_TRACKS.length < 2);
-        setMusicActionDisabled("skipNext", state.transitioning || ORIGINAL_TRACKS.length < 2);
+        const playableTrackCount = playerTrackIndices().length;
+        setMusicActionDisabled("skipPrev", state.transitioning || playableTrackCount < 2);
+        setMusicActionDisabled("skipNext", state.transitioning || playableTrackCount < 2);
         setMusicActionDisabled("lyrics", !activeTrack()?.lyrics);
         const audioControlAvailable = Boolean(activeTrack()) && state.originalMode === "player";
         refs.progressButton.disabled = !audioControlAvailable;
@@ -1673,7 +1746,7 @@
     }
 
     async function expandPlayer({ autoplay = true, animate = true, updateUrl = true } = {}) {
-        if (state.transitioning || state.originalMode === "player") return;
+        if (state.transitioning || state.originalMode === "player" || !isTrackPlayerAvailable(activeTrack())) return;
         state.transitioning = true;
         state.listScrollY = window.scrollY;
         closeInterpretation();
@@ -1814,7 +1887,7 @@
         useHistory = true,
         resumePlayback = null
     } = {}) {
-        if (state.transitioning || index === state.activeTrackIndex) return;
+        if (state.transitioning || index === state.activeTrackIndex || !isTrackPlayerAvailable(ORIGINAL_TRACKS[index])) return;
         const shouldResume = typeof resumePlayback === "boolean"
             ? resumePlayback
             : playbackShouldContinue();
@@ -1886,7 +1959,7 @@
        ========================================================= */
 
     function resetShuffleQueue() {
-        const indices = ORIGINAL_TRACKS.map((_, index) => index)
+        const indices = playerTrackIndices()
             .filter((index) => index !== state.activeTrackIndex);
         for (let index = indices.length - 1; index > 0; index -= 1) {
             const target = Math.floor(Math.random() * (index + 1));
@@ -1900,7 +1973,7 @@
         const next = state.shuffleQueue.shift();
         return Number.isInteger(next)
             ? next
-            : (state.activeTrackIndex + 1) % ORIGINAL_TRACKS.length;
+            : adjacentPlayerIndex(state.activeTrackIndex, 1);
     }
 
     async function skipNext({
@@ -1910,7 +1983,8 @@
     } = {}) {
         const next = state.shuffle && applyShuffle
             ? nextShuffleIndex()
-            : (state.activeTrackIndex + 1) % ORIGINAL_TRACKS.length;
+            : adjacentPlayerIndex(state.activeTrackIndex, 1);
+        if (!Number.isInteger(next)) return;
         await switchPlayerTrack(next, { direction: 1, useHistory, resumePlayback });
     }
 
@@ -1920,9 +1994,10 @@
     } = {}) {
         if (state.shuffle && applyShuffle) {
             const previous = state.history.pop();
-            const target = Number.isInteger(previous)
+            const target = Number.isInteger(previous) && isTrackPlayerAvailable(ORIGINAL_TRACKS[previous])
                 ? previous
                 : nextShuffleIndex();
+            if (!Number.isInteger(target)) return;
             await switchPlayerTrack(target, {
                 direction: -1,
                 useHistory: false,
@@ -1930,7 +2005,8 @@
             });
             return;
         }
-        const previous = (state.activeTrackIndex - 1 + ORIGINAL_TRACKS.length) % ORIGINAL_TRACKS.length;
+        const previous = adjacentPlayerIndex(state.activeTrackIndex, -1);
+        if (!Number.isInteger(previous)) return;
         await switchPlayerTrack(previous, { direction: -1, useHistory: true, resumePlayback });
     }
 
@@ -1978,14 +2054,20 @@
             return;
         }
 
-        const isLastTrack = state.activeTrackIndex === ORIGINAL_TRACKS.length - 1;
+        const playableIndices = playerTrackIndices();
+        const currentPosition = playableIndices.indexOf(state.activeTrackIndex);
+        const isLastTrack = currentPosition < 0 || currentPosition === playableIndices.length - 1;
         if (state.repeatMode === "off" && isLastTrack) {
             audio.currentTime = 0;
             pauseAudio();
             return;
         }
 
-        const nextIndex = isLastTrack ? 0 : state.activeTrackIndex + 1;
+        const nextIndex = isLastTrack ? playableIndices[0] : playableIndices[currentPosition + 1];
+        if (!Number.isInteger(nextIndex)) {
+            pauseAudio();
+            return;
+        }
         await switchPlayerTrack(nextIndex, {
             direction: 1,
             useHistory: true,
@@ -2168,9 +2250,30 @@
         });
     }
 
+    function syncSummaryFavUi(track) {
+        if (!track || !refs.summaryInner) return;
+        const favButton = refs.summaryInner.querySelector(`[data-music-action="fav:${track.slug}"]`);
+        if (!favButton) return;
+
+        const favored = favRecord(track).favored;
+        const pending = state.pendingFavSlugs.has(track.slug);
+        favButton.classList.toggle("is-favored", favored);
+        favButton.classList.toggle("is-alt-icon", favored);
+        favButton.classList.toggle("is-pending", pending);
+        favButton.disabled = pending;
+        favButton.setAttribute("aria-busy", String(pending));
+        favButton.setAttribute("aria-pressed", String(favored));
+        favButton.setAttribute("aria-label", favored ? "favを解除する" : "favする");
+
+        const area = favButton.closest(".music-summary__fav-area");
+        requestAnimationFrame(() => {
+            area?.classList.toggle("is-reaction-visible", favored);
+        });
+    }
+
     function syncFavUi() {
         if (state.view === "original" && state.originalMode === "list") {
-            void renderSummary(activeTrack(), { immediate: true });
+            syncSummaryFavUi(activeTrack());
         }
         if (state.originalMode === "player") {
             syncPlayerFavUi(activeTrack());
@@ -2766,7 +2869,9 @@
         }
 
         const urlTrackIsAvailable = Boolean(
-            urlState.track && originalTrackBySlug(urlState.track.slug)
+            urlState.track
+            && originalTrackBySlug(urlState.track.slug)
+            && isTrackPlayerAvailable(urlState.track)
         );
         if (urlState.view === "original" && urlTrackIsAvailable && state.originalMode !== "player") {
             state.restoringUrl = false;
@@ -3082,8 +3187,10 @@
     }
 
     function isTrackWithinLocalPublicationWindow(track, now = Date.now()) {
-        const publishAt = track?.publishAt ? Date.parse(track.publishAt) : Number.NEGATIVE_INFINITY;
-        const unpublishAt = track?.unpublishAt ? Date.parse(track.unpublishAt) : Number.POSITIVE_INFINITY;
+        const publishValue = track?.publication?.publishAt ?? track?.publishAt;
+        const unpublishValue = track?.publication?.unpublishAt ?? track?.unpublishAt;
+        const publishAt = publishValue ? Date.parse(publishValue) : Number.NEGATIVE_INFINITY;
+        const unpublishAt = unpublishValue ? Date.parse(unpublishValue) : Number.POSITIVE_INFINITY;
 
         if (Number.isFinite(publishAt) && now < publishAt) return false;
         if (Number.isFinite(unpublishAt) && now >= unpublishAt) return false;
@@ -3093,7 +3200,7 @@
     function rebuildMusicPublicationLists() {
         const now = Date.now();
         ORIGINAL_TRACKS = ORIGINAL_TRACK_DATA
-            .filter((track) => track.published === true && isTrackWithinLocalPublicationWindow(track, now))
+            .filter((track) => isTrackListVisible(track, now))
             .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
         COVER_TRACKS = COVER_TRACK_DATA
             .filter((track) => track.published === true && isTrackWithinLocalPublicationWindow(track, now));
@@ -3112,7 +3219,20 @@
         [...ORIGINAL_TRACK_DATA, ...COVER_TRACK_DATA].forEach((track) => {
             const record = publication?.get(result, track.contentType, track.slug);
             if (!record) return;
-            track.published = record.state === "public";
+
+            track.publication = {
+                state: record.state,
+                rawState: record.rawState,
+                publishAt: record.publishAt,
+                unpublishAt: record.unpublishAt
+            };
+            if (Object.keys(record.sections || {}).length) {
+                track.sections = { ...(track.sections || {}), ...record.sections };
+            }
+
+            if (track.contentType === "music-cover") {
+                track.published = record.state === "public";
+            }
             if (Number.isFinite(record.sortOrder) && record.sortOrder !== 0) {
                 track.order = record.sortOrder;
             }
