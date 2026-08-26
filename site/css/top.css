@@ -436,7 +436,7 @@ body {
     top: calc(var(--news-window-top) + 2.8cqw);
     margin: 0;
     color: #fff;
-    font-family: "Yu Mincho Demibold", "YuMincho", "Yu Mincho", serif;
+    font-family: "DotGothic16", sans-serif;
     font-size: 5cqw;
     line-height: 1;
     z-index: 860;
@@ -2095,6 +2095,8 @@ body.is-top-nav-open .lower-visual__hand-anim {
 
 .hero__news-content {
     position: absolute;
+    display: flex;
+    flex-direction: column;
     inset: 13cqw 7cqw 8cqw 8cqw;
     color: #fff;
     font-family: "DotGothic16", sans-serif;
@@ -2180,7 +2182,7 @@ body.is-top-nav-open .lower-visual__hand-anim {
 .hero__news-entry-title {
     display: block;
     min-width: 0;
-    font-family: "Yu Mincho Demibold", "YuMincho", "Yu Mincho", serif;
+    font-family: "DotGothic16", sans-serif;
     font-size: 3.5cqw;
     font-weight: 600;
     line-height: 1.45;
@@ -2207,6 +2209,227 @@ body.is-top-nav-open .lower-visual__hand-anim {
     letter-spacing: 0.06em;
 }
 
+
+.hero__news-pagination {
+    display: grid;
+    grid-template-columns: 8cqw minmax(0, 1fr) 8cqw;
+    align-items: center;
+    gap: 1.4cqw;
+    width: 29cqw;
+    margin: auto auto 0;
+    padding-top: 2.4cqw;
+    color: currentColor;
+}
+
+.hero__news-pagination[hidden] {
+    display: none;
+}
+
+.hero__news-page-button {
+    display: grid;
+    place-items: center;
+    width: 8cqw;
+    height: 7cqw;
+    margin: 0;
+    padding: 0;
+    border: 0.3cqw solid currentColor;
+    background: transparent;
+    color: inherit;
+    font-family: "DotGothic16", sans-serif;
+    font-size: 4.5cqw;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.hero__news-page-button:disabled {
+    opacity: 0.28;
+    cursor: default;
+}
+
+.hero__news-page-button:focus-visible {
+    outline: 0.4cqw solid currentColor;
+    outline-offset: 0.8cqw;
+}
+
+.hero__news-page-status {
+    display: block;
+    min-width: 0;
+    text-align: center;
+    font-size: 2.4cqw;
+    line-height: 1;
+    letter-spacing: 0.08em;
+}
+
 body.is-top-nav-open .hero__news-content {
     color: #fff;
+}
+
+/* =========================
+   TOP NEWS LAYOUT TUNING
+   2026-08: beige line = content / pager boundary
+========================= */
+
+/* phi-sequence よりNEWS面を手前へ。赤面と文字を一体で保護する。 */
+.hero__news-window {
+    z-index: 410;
+}
+
+.hero__beige-line--news-front {
+    z-index: 430;
+}
+
+/* 上段はNEWS本文専用。ページャーは下段へabsolute配置する。 */
+.hero__news-content {
+    display: block;
+    inset: 13cqw 7cqw 0 8cqw;
+    z-index: 2;
+}
+
+/* 208cqw始点 → beige line 282cqw の手前で必ず収める。 */
+.hero__news-list {
+    grid-auto-rows: 11cqw;
+    max-height: 55cqw;
+    overflow: hidden;
+}
+
+.hero__news-item {
+    height: 11cqw;
+    overflow: hidden;
+    border-top-width: 0.2cqw;
+}
+
+.hero__news-item:last-child {
+    border-bottom-width: 0.2cqw;
+}
+
+.hero__news-link {
+    box-sizing: border-box;
+    height: 100%;
+    gap: 0.4cqw;
+    padding: 1.05cqw 3.6cqw 1cqw 0;
+    overflow: hidden;
+}
+
+.hero__news-link[href]::after {
+    right: 0.25cqw;
+    font-size: 2.8cqw;
+}
+
+.hero__news-meta {
+    gap: 1.15cqw;
+    font-size: 1.35cqw;
+    line-height: 1;
+}
+
+.hero__news-category {
+    padding-left: 1.15cqw;
+    border-left-width: 0.18cqw;
+}
+
+.hero__news-entry-title {
+    display: -webkit-box;
+    font-family: "DotGothic16", sans-serif;
+    font-size: 2.05cqw;
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: 0.025em;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.hero__news-summary {
+    font-size: 1.55cqw;
+    line-height: 1.35;
+    -webkit-line-clamp: 1;
+}
+
+/* beige line より下だけにページャーを置く。 */
+.hero__news-pagination {
+    position: absolute;
+    left: 50%;
+    bottom: 36cqw;
+    width: 27cqw;
+    margin: 0;
+    padding-top: 0;
+    transform: translateX(-50%);
+}
+
+.hero__news-page-button {
+    width: 7cqw;
+    height: 6cqw;
+    font-size: 3.6cqw;
+}
+
+.hero__news-page-status {
+    font-size: 2cqw;
+}
+
+/* =========================
+   TOP NEWS FINAL LAYER / DOT FONT
+   NEWS background < phi-sequence < NEWS text
+========================= */
+
+/*
+ * NEWS窓そのものはstacking contextを作らない。
+ * 背景と本文をHero直下のレイヤーとして扱うことで、
+ * NEWS背景(150) < phi(400) < NEWS本文(420) を成立させる。
+ * 元のNEWS窓に掛かっていたスクロール遅延は背景・本文へ個別に移す。
+ */
+.hero__news-window {
+    z-index: auto;
+    background-color: transparent;
+    background-image: none;
+    transform: none;
+    will-change: auto;
+}
+
+.hero__news-window::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: var(--layer-news-window);
+    background-color: var(--top-red);
+    background-image: var(--top-bg-image);
+    background-repeat: repeat-y;
+    background-position: center calc(var(--scroll-y) - var(--news-window-top));
+    background-size: 100cqw auto;
+    pointer-events: none;
+    transform: translateY(var(--lag-heavy-y));
+    will-change: transform;
+}
+
+/* phiは既存のz-index:400。本文だけその手前へ置く。 */
+.hero__news-content {
+    z-index: 420;
+    font-family: "DotGothic16", sans-serif;
+    font-weight: 400;
+    font-synthesis: none;
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: unset;
+    transform: translateY(var(--lag-heavy-y));
+    will-change: transform;
+}
+
+.hero__news-title {
+    font-family: "DotGothic16", sans-serif;
+    font-weight: 400;
+    font-synthesis: none;
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: unset;
+}
+
+.hero__news-page-button,
+.hero__news-page-status,
+.hero__news-meta,
+.hero__news-entry-title {
+    font-synthesis: none;
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: unset;
+}
+
+/* nav展開時は分離したNEWS背景側も白へ切り替える。 */
+body.is-top-nav-open .hero__news-window::before {
+    background-color: #fff;
+    background-image: none;
 }

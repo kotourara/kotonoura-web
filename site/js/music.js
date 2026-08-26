@@ -158,6 +158,7 @@
             publicId: "3b6ac789-cab3-4748-866c-e8a5fc3d3084",
             order: 200,
             published: true,
+            publishAt: "2026-08-28T19:30:00+09:00",
             preTitle: "弓可可ヰミナ　2nd Single",
             preDisplayTitle: "『縺れ』",
             title: "縺れ / Motsure",
@@ -246,7 +247,7 @@
 空白模倣　忘れて消えるだけ
 誰も彼も亡くして縺れさせて`,
             links: {
-                streaming: "",
+                streaming: "https://linkco.re/VfUgpGVs",
                 youtube: "https://youtu.be/ASfcEdSpN14",
                 x: ""
             }
@@ -2353,12 +2354,31 @@
     }
 
     function clampInterpretationPanel() {
-        if (!state.interpretationPositioned) return;
+        if (!state.interpretationPositioned || refs.interpretation?.hidden) return;
         const viewport = window.visualViewport;
         const width = viewport?.width || window.innerWidth;
         const height = viewport?.height || window.innerHeight;
         const offsetLeft = viewport?.offsetLeft || 0;
         const offsetTop = viewport?.offsetTop || 0;
+        const focusedControl = refs.interpretationPanel.contains(document.activeElement)
+            && document.activeElement?.matches?.("input, textarea, select, [contenteditable='true']");
+
+        refs.interpretationPanel.classList.toggle("is-input-active", Boolean(focusedControl));
+
+        if (focusedControl) {
+            const gutter = 8;
+            refs.interpretationPanel.style.maxHeight = `${Math.max(180, height - gutter * 2)}px`;
+            const rect = refs.interpretationPanel.getBoundingClientRect();
+            const minLeft = offsetLeft + gutter;
+            const maxLeft = Math.max(minLeft, offsetLeft + width - rect.width - gutter);
+            const minTop = offsetTop + gutter;
+            const maxTop = Math.max(minTop, offsetTop + height - rect.height - gutter);
+            refs.interpretationPanel.style.left = `${clamp(rect.left, minLeft, maxLeft)}px`;
+            refs.interpretationPanel.style.top = `${clamp(rect.top, minTop, maxTop)}px`;
+            return;
+        }
+
+        refs.interpretationPanel.style.removeProperty("max-height");
         const rect = refs.interpretationPanel.getBoundingClientRect();
         const minVisible = Math.min(44, rect.width);
         const minLeft = offsetLeft - rect.width + minVisible;
@@ -2895,6 +2915,19 @@
                 );
             }
         });
+        refs.interpretationPanel.addEventListener("focusin", (event) => {
+            if (!event.target.closest("input, textarea, select, [contenteditable='true']")) return;
+            requestAnimationFrame(clampInterpretationPanel);
+        });
+        refs.interpretationPanel.addEventListener("focusout", () => {
+            window.setTimeout(() => {
+                if (!refs.interpretationPanel.contains(document.activeElement)) {
+                    refs.interpretationPanel.classList.remove("is-input-active");
+                    refs.interpretationPanel.style.removeProperty("max-height");
+                }
+                clampInterpretationPanel();
+            }, 0);
+        });
 
         refs.diaryClose.addEventListener("click", closeDiaryWindow);
         refs.diaryWindow.addEventListener("click", (event) => {
@@ -3048,12 +3081,22 @@
         refs.diaryMore = document.querySelector("[data-music-diary-more]");
     }
 
+    function isTrackWithinLocalPublicationWindow(track, now = Date.now()) {
+        const publishAt = track?.publishAt ? Date.parse(track.publishAt) : Number.NEGATIVE_INFINITY;
+        const unpublishAt = track?.unpublishAt ? Date.parse(track.unpublishAt) : Number.POSITIVE_INFINITY;
+
+        if (Number.isFinite(publishAt) && now < publishAt) return false;
+        if (Number.isFinite(unpublishAt) && now >= unpublishAt) return false;
+        return true;
+    }
+
     function rebuildMusicPublicationLists() {
+        const now = Date.now();
         ORIGINAL_TRACKS = ORIGINAL_TRACK_DATA
-            .filter((track) => track.published === true)
+            .filter((track) => track.published === true && isTrackWithinLocalPublicationWindow(track, now))
             .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
         COVER_TRACKS = COVER_TRACK_DATA
-            .filter((track) => track.published === true);
+            .filter((track) => track.published === true && isTrackWithinLocalPublicationWindow(track, now));
         ALL_MUSIC_ITEMS = [...ORIGINAL_TRACKS, ...COVER_TRACKS];
         state.activeTrackIndex = clamp(state.activeTrackIndex, 0, Math.max(0, ORIGINAL_TRACKS.length - 1));
     }

@@ -1237,6 +1237,7 @@ a {
     touch-action: none;
     user-select: none;
     scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
 }
 
 .music-interpretation__panel::-webkit-scrollbar {
@@ -1256,6 +1257,11 @@ a {
 .music-interpretation__panel.is-dragging {
     transition: none;
     cursor: grabbing;
+}
+
+.music-interpretation__panel.is-input-active {
+    touch-action: pan-y;
+    overscroll-behavior: contain;
 }
 
 .music-interpretation__close {
@@ -1299,6 +1305,7 @@ a {
     border: 0.25cqw solid #fff;
     border-radius: 0;
     outline: none;
+    font-size: max(16px, 2.65cqw);
     user-select: text;
     touch-action: manipulation;
 }

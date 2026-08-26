@@ -294,6 +294,7 @@
         cardScrollEnabled: false,
         customVideoReady: false,
         pendingCustomVideoKey: "",
+        pendingCustomVideoShouldPlay: false,
         customVideoSeekToken: 0,
         customScrollEnabled: false,
         switchToken: 0,
@@ -1545,7 +1546,7 @@
 
                 <div class="custom-content">
                     <div class="custom-video" data-custom-video-wrap>
-                        <video class="custom-video__player" data-custom-video controls muted autoplay playsinline preload="auto"></video>
+                        <video class="custom-video__player" data-custom-video controls muted playsinline webkit-playsinline preload="auto"></video>
                         <div class="custom-video__loading" data-custom-video-loading aria-hidden="true">LOADING</div>
                     </div>
 
@@ -1670,7 +1671,7 @@
         updateCustomParallax();
     }
 
-    function selectCustom(key, userInitiated) {
+    function selectCustom(key, shouldPlayVideo) {
         if (!CUSTOM_DATA[key] || state.activePlan !== "custom") return;
 
         state.activeCustom = key;
@@ -1696,8 +1697,8 @@
         renderCustomMenu(key);
 
         const video = stage.querySelector("[data-custom-video]");
-        if (userInitiated && video) {
-            seekCustomVideo(video, key);
+        if (shouldPlayVideo && video) {
+            seekCustomVideo(video, key, true);
         }
     }
 
@@ -1732,26 +1733,29 @@
         if (indicator) indicator.hidden = !loading;
     }
 
-    function seekCustomVideo(video, key) {
+    function seekCustomVideo(video, key, shouldPlay = false) {
         const section = CUSTOM_VIDEO_SECTIONS[key];
         const stage = video?.closest("[data-custom-stage]");
         if (!video || !section || !stage) return;
 
         state.pendingCustomVideoKey = key;
+        state.pendingCustomVideoShouldPlay = Boolean(shouldPlay);
         const token = ++state.customVideoSeekToken;
         setCustomVideoLoading(stage, true);
 
         const apply = () => {
             if (token !== state.customVideoSeekToken) return;
             state.pendingCustomVideoKey = "";
+            state.pendingCustomVideoShouldPlay = false;
             const wasPlaying = !video.paused && !video.ended;
             try {
                 video.currentTime = section.start;
             } catch (_) {
                 state.pendingCustomVideoKey = key;
+                state.pendingCustomVideoShouldPlay = Boolean(shouldPlay);
                 return;
             }
-            if (wasPlaying) video.play().catch(() => {});
+            if (shouldPlay || wasPlaying) video.play().catch(() => {});
         };
 
         if (video.readyState >= HTMLMediaElement.HAVE_METADATA) apply();
@@ -1765,6 +1769,8 @@
         video.muted = true;
         video.defaultMuted = true;
         video.playsInline = true;
+        video.setAttribute("playsinline", "");
+        video.setAttribute("webkit-playsinline", "");
         video.preload = "auto";
 
         const syncSectionFromTime = () => {
@@ -1783,22 +1789,21 @@
             stage.style.setProperty("--custom-video-aspect", `${video.videoWidth} / ${video.videoHeight}`);
         };
 
-        const startPlayback = () => {
+        const preparePlayback = () => {
             state.customVideoReady = true;
             syncAspectRatio();
-            if (!state.activeCustom) selectCustom("eye", false);
             const pendingKey = state.pendingCustomVideoKey;
-            if (pendingKey) seekCustomVideo(video, pendingKey);
-            else if (state.activeCustom === "eye" && video.currentTime >= CUSTOM_VIDEO_SECTIONS.mouth.start) {
+            if (pendingKey) {
+                seekCustomVideo(video, pendingKey, state.pendingCustomVideoShouldPlay);
+            } else if (state.activeCustom === "eye" && video.currentTime >= CUSTOM_VIDEO_SECTIONS.mouth.start) {
                 video.currentTime = 0;
             }
-            video.play().catch(() => {});
         };
 
         video.src = CUSTOM_VIDEO_SOURCE;
         video.load();
 
-        video.addEventListener("loadedmetadata", startPlayback, { once: true });
+        video.addEventListener("loadedmetadata", preparePlayback, { once: true });
         video.addEventListener("loadeddata", syncAspectRatio);
         video.addEventListener("seeking", () => setCustomVideoLoading(stage, true));
         video.addEventListener("seeked", () => {
@@ -1807,7 +1812,6 @@
         });
         video.addEventListener("canplay", () => {
             setCustomVideoLoading(stage, false);
-            if (video.paused) video.play().catch(() => {});
         });
         video.addEventListener("timeupdate", syncSectionFromTime);
         video.addEventListener("error", () => setCustomVideoLoading(stage, false));
@@ -1832,11 +1836,11 @@
         stage.style.setProperty("--custom-front-x", `${(progress * 8).toFixed(2)}px`);
 
         /*
-         * 自動選択は入力イベントではなく、円軌道の表示位置で判定する。
-         * 他プランから切り替えた時点ですでに発火位置へ到達していれば、
-         * 初回描画から目元選択済みの高さで表示する。
+         * 自動選択は、実際のwheel/touchmove後に円軌道の表示位置で判定する。
+         * プランを開いただけでは動画を開始せず、スクロールで発火位置へ
+         * 到達した時だけ目元を選択して再生する。
          */
-        if (!state.activeCustom) {
+        if (!state.activeCustom && state.customScrollEnabled) {
             const orbit = stage.querySelector(".custom-orbit");
             const triggerRect = orbit?.getBoundingClientRect() || rect;
             const activationLine = window.innerHeight * 0.48;
@@ -1845,7 +1849,7 @@
                 triggerRect.top <= activationLine &&
                 triggerRect.bottom >= 0
             ) {
-                selectCustom("eye", false);
+                selectCustom("eye", true);
             }
         }
     }

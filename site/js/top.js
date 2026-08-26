@@ -957,23 +957,37 @@
     const root = document.querySelector("[data-top-news-root]");
     const list = root?.querySelector("[data-top-news-list]");
     const empty = root?.querySelector("[data-top-news-empty]");
+    const pagination = root?.querySelector("[data-top-news-pagination]");
+    const prevButton = root?.querySelector("[data-top-news-prev]");
+    const nextButton = root?.querySelector("[data-top-news-next]");
+    const pageStatus = root?.querySelector("[data-top-news-page-status]");
 
     if (!root || !list || !empty) return;
 
     const source = window.TOP_NEWS_SOURCE || {};
     const pageUpdates = Array.isArray(source.pageUpdates) ? source.pageUpdates : [];
     const manualEntries = Array.isArray(source.manualEntries) ? source.manualEntries : [];
-    const displayLimit = Math.max(1, Number(source.settings?.displayLimit) || 4);
+    const pageSize = Math.max(1, Number(source.settings?.pageSize) || 5);
+    const previewAll = source.settings?.previewAll === true;
+    const showPagerWhenSinglePage = source.settings?.showPagerWhenSinglePage === true;
+    let activePage = 0;
 
     const categoryLabels = {
         site: "SITE",
         gallery: "GALLERY",
+        "gallery-illustration": "GALLERY - ILLUSTRATION",
+        "gallery-live2d": "GALLERY - LIVE2D",
+        "gallery-works-commission": "GALLERY - WORKS(COMMISSION)",
+        "gallery-works-personal": "GALLERY - WORKS(PERSONAL)",
         order: "ORDER",
         music: "MUSIC",
+        "music-original": "MUSIC - ORIGINAL",
+        "music-cover": "MUSIC - COVER",
         diary: "DIARY",
         profile: "PROFILE",
         youtube: "YOUTUBE",
         x: "X",
+        streaming: "STREAMING",
         notice: "NOTICE"
     };
 
@@ -1021,7 +1035,12 @@
 
     const isVisible = (item, now) => {
         if (!isValidEntry(item)) return false;
+        if (item.approved === false) return false;
         if (item.status === "draft" || item.status === "archived") return false;
+
+        if (previewAll) {
+            return item.status === "published" || item.status === "scheduled";
+        }
 
         const publishAt = parseDate(item.publishAt);
         const unpublishAt = parseDate(item.unpublishAt);
@@ -1047,10 +1066,11 @@
     };
 
     const normalizedPageUpdates = pageUpdates
-        .filter((item) => item?.announce === true)
+        .filter((item) => item?.announce === true && item?.approved !== false)
         .map((item) => ({ ...item, sourceType: "page_update", isExternal: false }));
 
     const normalizedManualEntries = manualEntries
+        .filter((item) => item?.approved !== false)
         .map((item) => ({ ...item, sourceType: "manual" }));
 
     const allEntries = [...normalizedPageUpdates, ...normalizedManualEntries];
@@ -1065,15 +1085,16 @@
     const visibleEntries = allEntries
         .filter((item) => isVisible(item, new Date()))
         .sort((a, b) => {
-            const priorityDifference = (Number(b.priority) || 0) - (Number(a.priority) || 0);
-            if (priorityDifference !== 0) return priorityDifference;
-            return getSortTime(b) - getSortTime(a);
-        })
-        .slice(0, displayLimit);
+            const timeDifference = getSortTime(b) - getSortTime(a);
+            if (timeDifference !== 0) return timeDifference;
 
-    list.replaceChildren();
+            const orderDifference = (Number(a.order) || 0) - (Number(b.order) || 0);
+            if (orderDifference !== 0) return orderDifference;
 
-    visibleEntries.forEach((item) => {
+            return String(a.id || "").localeCompare(String(b.id || ""), "ja");
+        });
+
+    const renderEntry = (item) => {
         const listItem = document.createElement("li");
         listItem.className = "hero__news-item";
         listItem.dataset.newsId = item.id || "";
@@ -1120,10 +1141,41 @@
         }
 
         listItem.append(link);
-        list.append(listItem);
+        return listItem;
+    };
+
+    const renderPage = () => {
+        const pageCount = Math.max(1, Math.ceil(visibleEntries.length / pageSize));
+        activePage = Math.min(Math.max(activePage, 0), pageCount - 1);
+        const startIndex = activePage * pageSize;
+        const pageEntries = visibleEntries.slice(startIndex, startIndex + pageSize);
+
+        list.replaceChildren(...pageEntries.map(renderEntry));
+
+        const hasEntries = visibleEntries.length > 0;
+        list.hidden = !hasEntries;
+        empty.hidden = hasEntries;
+
+        if (pagination && prevButton && nextButton && pageStatus) {
+            pagination.hidden = !hasEntries || (!showPagerWhenSinglePage && pageCount <= 1);
+            pageStatus.textContent = `${activePage + 1} / ${pageCount}`;
+            prevButton.disabled = activePage <= 0;
+            nextButton.disabled = activePage >= pageCount - 1;
+        }
+    };
+
+    prevButton?.addEventListener("click", () => {
+        if (activePage <= 0) return;
+        activePage -= 1;
+        renderPage();
     });
 
-    const hasEntries = visibleEntries.length > 0;
-    list.hidden = !hasEntries;
-    empty.hidden = hasEntries;
+    nextButton?.addEventListener("click", () => {
+        const pageCount = Math.max(1, Math.ceil(visibleEntries.length / pageSize));
+        if (activePage >= pageCount - 1) return;
+        activePage += 1;
+        renderPage();
+    });
+
+    renderPage();
 })();
