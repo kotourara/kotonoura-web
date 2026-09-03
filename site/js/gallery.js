@@ -370,7 +370,7 @@
             color: "#7AB316",
             name: {
                 display: "時宮 リュズ",
-                reading: "",
+                reading: "ときみや りゅず",
                 roman: "Tokimiya Ryuzu",
                 surname: "Tokimiya",
                 given: "Ryuzu",
@@ -378,30 +378,41 @@
             },
             card: {
                 face: "TokimiyaRyuzu-bu-face.webp",
-                body: "TokimiyaRyuzu-bu-body.webp",
-                filter: "brightness(0)"
+                body: "TokimiyaRyuzu-bu-body.webp"
             },
             assets: {
-                models: [],
-                logo: "",
-                animeLogo: "",
-                kv: "",
+                models: ["TokimiyaRyuzu-model.webp", "TokimiyaRyuzu-model_2.webp"],
+                logo: "TokimiyaRyuzu-logo.webp",
+                animeLogo: "TokimiyaRyuzu-anime-logo.webp",
+                kv: "TokimiyaRyuzu-kv.webp",
                 kvFg: "",
-                kvBg: "",
-                view2: "",
+                kvBg: "TokimiyaRyuzu-kv-bg.webp",
+                view2: "TokimiyaRyuzu-2view.webp",
                 view3: ""
             },
-            animeLogo: null,
+            animeLogo: { fps: 30, frames: 101, hold: 400 },
             profile: {
-                birthday: "",
-                height: "",
+                birthday: "6/10",
+                height: "155cm＋歯車",
                 ageType: "text",
-                age: "",
-                details: [],
-                flavor: "",
-                intro: [],
+                age: "付喪神歴不詳",
+                details: [
+                    ["ファンマーク", "🕰⚙"],
+                    ["ファンアート", "#時宮絵図"],
+                    ["ファンネーム", "持ち主"],
+                    ["呼ばれ方", "お好きなように"]
+                ],
+                flavor: "今日も変わらずここに。",
+                intro: [
+                    { text: "壊れた懐中時計に宿る付喪神。" },
+                    { text: "歯車は動いているが針はなく\n正確な時刻を示すことはできない。" },
+                    { text: "人間の感情に興味があり\nかつての持ち主たちの面影をなぞるように\nさまざまな声で語りかける。" },
+                    { text: "手に取ったあなたのお守りとして\n正しい時刻の代わりに\nただ傍で音を刻み続けている。" }
+                ],
                 video: "",
-                socials: {}
+                socials: {
+                    x: "https://x.com/Tokimiya_Ryuzu"
+                }
             },
             mediaAdjust: {
                 card: {},

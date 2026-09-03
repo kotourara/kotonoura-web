@@ -177,6 +177,17 @@
         },
 
         pageUpdates: [
+            pageUpdateBase({
+                id: "news-20260903-gallery-live2d-tokimiya",
+                contentId: "live2d-tokimiya",
+                category: "gallery-live2d",
+                title: "『時宮リュズ』が工房にログインしました",
+                url: "gallery.html",
+                publishAt: "2026-09-03T19:00:00+09:00",
+                order: 10,
+                approved: true,
+                status: "published"
+            }),
             /* 今回は指定文言を優先するため、Original標準テンプレートの「新曲」は付けない。 */
             pageUpdateBase({
                 id: "news-20260828-music-original-motsure",

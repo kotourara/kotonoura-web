@@ -97,6 +97,54 @@
         "height": 2200,
         "animated": false
     },
+    "images/gallery/live2d/models/TokimiyaRyuzu/TokimiyaRyuzu-2view.webp": {
+        "src": "images/mobile/gallery/live2d/models/TokimiyaRyuzu/TokimiyaRyuzu-2view.webp",
+        "originalWidth": 3174,
+        "originalHeight": 1777,
+        "width": 2000,
+        "height": 1120,
+        "animated": false
+    },
+    "images/gallery/live2d/models/TokimiyaRyuzu/TokimiyaRyuzu-kv-bg.webp": {
+        "src": "images/mobile/gallery/live2d/models/TokimiyaRyuzu/TokimiyaRyuzu-kv-bg.webp",
+        "originalWidth": 3600,
+        "originalHeight": 3600,
+        "width": 2800,
+        "height": 2800,
+        "animated": false
+    },
+    "images/gallery/live2d/models/TokimiyaRyuzu/TokimiyaRyuzu-kv.webp": {
+        "src": "images/mobile/gallery/live2d/models/TokimiyaRyuzu/TokimiyaRyuzu-kv.webp",
+        "originalWidth": 3600,
+        "originalHeight": 3600,
+        "width": 2800,
+        "height": 2800,
+        "animated": false
+    },
+    "images/gallery/live2d/models/TokimiyaRyuzu/TokimiyaRyuzu-logo.webp": {
+        "src": "images/mobile/gallery/live2d/models/TokimiyaRyuzu/TokimiyaRyuzu-logo.webp",
+        "originalWidth": 1280,
+        "originalHeight": 720,
+        "width": 960,
+        "height": 540,
+        "animated": false
+    },
+    "images/gallery/live2d/models/TokimiyaRyuzu/TokimiyaRyuzu-model.webp": {
+        "src": "images/mobile/gallery/live2d/models/TokimiyaRyuzu/TokimiyaRyuzu-model.webp",
+        "originalWidth": 1187,
+        "originalHeight": 3176,
+        "width": 822,
+        "height": 2200,
+        "animated": false
+    },
+    "images/gallery/live2d/models/TokimiyaRyuzu/TokimiyaRyuzu-model_2.webp": {
+        "src": "images/mobile/gallery/live2d/models/TokimiyaRyuzu/TokimiyaRyuzu-model_2.webp",
+        "originalWidth": 1187,
+        "originalHeight": 3176,
+        "width": 822,
+        "height": 2200,
+        "animated": false
+    },
     "images/gallery/live2d/models/TsuchinoNono/TsuchinoNono-model.webp": {
         "src": "images/mobile/gallery/live2d/models/TsuchinoNono/TsuchinoNono-model.webp",
         "originalWidth": 1532,
