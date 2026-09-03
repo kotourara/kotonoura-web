@@ -417,7 +417,8 @@
             mediaAdjust: {
                 card: {},
                 modelClose: {},
-                modelFull: {}
+                modelFull: {},
+                kvClose: { x: "-4cqw" }
             }
         }
     ];
