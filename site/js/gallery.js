@@ -411,7 +411,8 @@
                 ],
                 video: "",
                 socials: {
-                    x: "https://x.com/Tokimiya_Ryuzu"
+                    x: "https://x.com/Tokimiya_Ryuzu",
+                    youtube: "https://www.youtube.com/channel/UCxyIidbr2-a7LCO3BDpj2jQ"
                 }
             },
             mediaAdjust: {
