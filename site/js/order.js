@@ -425,6 +425,13 @@
             source.currentMonthThroughDay >= 1 && source.currentMonthThroughDay <= 28
             ? source.currentMonthThroughDay
             : 14;
+        const leadTimeDelaySource = source.leadTimeDelay || {};
+        const leadTimeDelay = {
+            startDate: String(leadTimeDelaySource.startDate || "").trim(),
+            months: Number.isInteger(leadTimeDelaySource.months) && leadTimeDelaySource.months > 0
+                ? leadTimeDelaySource.months
+                : 0
+        };
         const fallbackStatus = availableStatuses.has(source.fallbackStatus)
             ? source.fallbackStatus
             : "open";
@@ -476,6 +483,7 @@
         availabilityConfigCache = {
             displayCount,
             currentMonthThroughDay,
+            leadTimeDelay,
             fallbackStatus,
             positionStatuses,
             globalOverrides,
@@ -534,15 +542,65 @@
             || config.fallbackStatus;
     }
 
+    function parseIsoDateParts(value) {
+        const match = String(value || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (!match) return null;
+
+        const parts = {
+            year: Number(match[1]),
+            month: Number(match[2]),
+            day: Number(match[3])
+        };
+        const date = new Date(Date.UTC(parts.year, parts.month - 1, parts.day));
+        if (date.getUTCFullYear() !== parts.year ||
+            date.getUTCMonth() + 1 !== parts.month ||
+            date.getUTCDate() !== parts.day) {
+            return null;
+        }
+        return parts;
+    }
+
+    function toDateSerial({ year, month, day }) {
+        return year * 10000 + month * 100 + day;
+    }
+
+    function getAvailabilityCycleSerial(dateParts, currentMonthThroughDay) {
+        const nextMonthOffset = dateParts.day <= currentMonthThroughDay ? 0 : 1;
+        return dateParts.year * 12 + (dateParts.month - 1) + nextMonthOffset;
+    }
+
+    function getActiveLeadTimeDelayMonths(config, today) {
+        const delay = config.leadTimeDelay;
+        if (!delay?.months) return 0;
+
+        const startDate = parseIsoDateParts(delay.startDate);
+        if (!startDate) {
+            console.warn("[Order availability] leadTimeDelay.startDate は YYYY-MM-DD 形式で指定してください。", delay.startDate);
+            return 0;
+        }
+        if (toDateSerial(today) < toDateSerial(startDate)) return 0;
+
+        const startCycle = getAvailabilityCycleSerial(startDate, config.currentMonthThroughDay);
+        const currentCycle = getAvailabilityCycleSerial(today, config.currentMonthThroughDay);
+        const elapsedCycles = Math.max(0, currentCycle - startCycle);
+
+        return Math.max(0, delay.months - elapsedCycles);
+    }
+
     function getDisplayedAvailability(planId = "") {
         const config = getAvailabilityConfig();
         const windowConfig = getPlanAvailabilityWindow(planId, config.displayCount);
         const today = getTokyoDateParts();
         const calendarStartOffset = today.day <= config.currentMonthThroughDay ? 0 : 1;
         const calendarStart = shiftYearMonth(today.year, today.month, calendarStartOffset);
+        const activeDelayMonths = getActiveLeadTimeDelayMonths(config, today);
 
         return Array.from({ length: windowConfig.displayCount }, (_, index) => {
-            const target = shiftYearMonth(calendarStart.year, calendarStart.month, windowConfig.startOffset + index);
+            const target = shiftYearMonth(
+                calendarStart.year,
+                calendarStart.month,
+                windowConfig.startOffset + activeDelayMonths + index
+            );
             const position = index + 1;
             return {
                 ...target,

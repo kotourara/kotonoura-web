@@ -32,13 +32,26 @@
      * positions に指定のない位置へ適用する状態です。
      * displayCount:
      * 全プラン共通の表示件数です。納期目安の最短位置から、この件数だけ表示します。
-     * 数値化できない「要相談」プランは基準月から表示します。
+     * leadTimeDelay:
+     * 一時的に全プランの表示開始月を先送りする設定です。
+     * startDate と months を一度指定すれば、表示基準月が1か月進むたびに
+     * 遅延も1か月ずつ自動で減衰し、0になった時点で通常運用へ戻ります。
+     *
+     * 例: startDate="2026-09-17", months=2
+     * 9/17〜10/14: +2 / 10/15〜11/14: +1 / 11/15以降: +0
+     *
+     * 今後同様の先送りを行う場合は、この startDate と months だけ更新します。
+     * months: 0 で遅延なし。
      *
      * 表示基準月は日本時間で、1〜14日は当月、15日以降は翌月です。
      */
     window.ORDER_AVAILABILITY_DATA = Object.freeze({
         currentMonthThroughDay: 14,
         displayCount: 5,
+        leadTimeDelay: Object.freeze({
+            startDate: "2026-09-17",
+            months: 2
+        }),
         fallbackStatus: "open",
 
         positions: Object.freeze([
