@@ -33,6 +33,7 @@
 
     function publicationIsWithinWindow(publication, now = Date.now()) {
         if (!publication) return false;
+        if (window.KotonoUraPublication?.isLocalPreview?.()) return true;
 
         const publishAt = publication.publishAt ? Date.parse(publication.publishAt) : null;
         const unpublishAt = publication.unpublishAt ? Date.parse(publication.unpublishAt) : null;
@@ -3352,13 +3353,21 @@
             type: "illustration",
             seriesId: IRO_KASANE_SERIES_ID,
             slug: "ominaeshi",
-            publication: { state: "partial", publishAt: null, unpublishAt: null },
-            sections: { preview: true, detail: false, diary: false, comments: false },
+            publication: { state: "public", publishAt: "2026-09-30T19:30:00+09:00", unpublishAt: null },
+            sections: { preview: true, detail: true, diary: true, comments: true },
             sortOrder: 500,
-            diaryEntry: null,
+            diaryEntry: "ominaeshi",
             title: "女郎花",
             roman: "ominaeshi",
-            uiColor: "#F2F2B0"
+            uiColor: "#F2F2B0",
+            barMain: "#F5F5AD",
+            barSub: ["#957C3A", "#9C977D", "#ECDD3D", "#EFEDBA", "#C2CF3D", "#C9B3CD", "#DCC7B6"],
+            imageBase: "images/gallery/illustration/IroKasane",
+            background: "ominaeshi-bg.webp",
+            character: "ominaeshi.webp",
+            date: "2026/09",
+            xUrl: "",
+            example: "例：何も考えてないと思われてそう、など",
         },
         {
             id: "220d68bf-9693-41c6-b84b-5b248a078e70",

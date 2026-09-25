@@ -968,7 +968,14 @@
     const pageUpdates = Array.isArray(source.pageUpdates) ? source.pageUpdates : [];
     const manualEntries = Array.isArray(source.manualEntries) ? source.manualEntries : [];
     const pageSize = Math.max(1, Number(source.settings?.pageSize) || 5);
-    const previewAll = source.settings?.previewAll === true;
+    const hostname = window.location?.hostname || "";
+    const private172 = hostname.match(/^172\.(\d{1,2})(?:\.\d{1,3}){2}$/);
+    const localPreview = window.location?.protocol === "file:"
+        || ["localhost", "127.0.0.1", "0.0.0.0", "::1"].includes(hostname)
+        || /^10(?:\.\d{1,3}){3}$/.test(hostname)
+        || /^192\.168(?:\.\d{1,3}){2}$/.test(hostname)
+        || Boolean(private172 && Number(private172[1]) >= 16 && Number(private172[1]) <= 31);
+    const previewAll = source.settings?.previewAll === true || localPreview;
     const showPagerWhenSinglePage = source.settings?.showPagerWhenSinglePage === true;
     let activePage = 0;
 

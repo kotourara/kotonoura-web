@@ -7,6 +7,19 @@
     const CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
     const VALID_STATES = new Set(["hidden", "teaser", "partial", "public", "archived"]);
 
+    function isLocalPreview() {
+        const protocol = window.location?.protocol || "";
+        const hostname = window.location?.hostname || "";
+
+        if (protocol === "file:") return true;
+        if (["localhost", "127.0.0.1", "0.0.0.0", "::1"].includes(hostname)) return true;
+        if (/^10(?:\.\d{1,3}){3}$/.test(hostname)) return true;
+        if (/^192\.168(?:\.\d{1,3}){2}$/.test(hostname)) return true;
+
+        const private172 = hostname.match(/^172\.(\d{1,2})(?:\.\d{1,3}){2}$/);
+        return Boolean(private172 && Number(private172[1]) >= 16 && Number(private172[1]) <= 31);
+    }
+
     function isPlainObject(value) {
         return Boolean(value && typeof value === "object" && !Array.isArray(value));
     }
@@ -135,6 +148,12 @@
             return { source: "none", records: new Map() };
         }
 
+        // ローカル開発では本番Supabaseの公開状態で上書きしない。
+        // ファイル内の予約データをそのまま確認でき、GitHub同期後の本番には影響しない。
+        if (isLocalPreview()) {
+            return { source: "local-preview", records: new Map() };
+        }
+
         try {
             const items = await fetchRecords(types);
             writeCache(items);
@@ -170,6 +189,7 @@
     window.KotonoUraPublication = Object.freeze({
         load,
         get,
-        normalizeState
+        normalizeState,
+        isLocalPreview
     });
 })();

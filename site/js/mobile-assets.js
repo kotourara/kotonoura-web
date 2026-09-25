@@ -9,54 +9,6 @@
     );
 
     const MOBILE_ASSETS = Object.freeze({
-    "images/gallery/illustration/IroKasane/kamenozoki-bg.webp": {
-        "src": "images/mobile/gallery/illustration/IroKasane/kamenozoki-bg.webp",
-        "originalWidth": 1800,
-        "originalHeight": 2594,
-        "width": 1280,
-        "height": 1845,
-        "animated": false
-    },
-    "images/gallery/illustration/IroKasane/kamenozoki.webp": {
-        "src": "images/mobile/gallery/illustration/IroKasane/kamenozoki.webp",
-        "originalWidth": 1800,
-        "originalHeight": 2594,
-        "width": 1280,
-        "height": 1845,
-        "animated": false
-    },
-    "images/gallery/illustration/IroKasane/wakakusa-bg.webp": {
-        "src": "images/mobile/gallery/illustration/IroKasane/wakakusa-bg.webp",
-        "originalWidth": 1800,
-        "originalHeight": 2594,
-        "width": 1280,
-        "height": 1845,
-        "animated": false
-    },
-    "images/gallery/illustration/IroKasane/wakakusa.webp": {
-        "src": "images/mobile/gallery/illustration/IroKasane/wakakusa.webp",
-        "originalWidth": 1800,
-        "originalHeight": 2594,
-        "width": 1280,
-        "height": 1845,
-        "animated": false
-    },
-    "images/gallery/illustration/IroKasane/yamabuki-bg.webp": {
-        "src": "images/mobile/gallery/illustration/IroKasane/yamabuki-bg.webp",
-        "originalWidth": 1800,
-        "originalHeight": 2594,
-        "width": 1280,
-        "height": 1845,
-        "animated": false
-    },
-    "images/gallery/illustration/IroKasane/yamabuki.webp": {
-        "src": "images/mobile/gallery/illustration/IroKasane/yamabuki.webp",
-        "originalWidth": 1800,
-        "originalHeight": 2594,
-        "width": 1280,
-        "height": 1845,
-        "animated": false
-    },
     "images/gallery/live2d/models/KotoUrara/KotoUrara-kv-bg.webp": {
         "src": "images/mobile/gallery/live2d/models/KotoUrara/KotoUrara-kv-bg.webp",
         "originalWidth": 3600,
@@ -523,6 +475,13 @@
     }
 });
 
+    // IllustrationはPC/モバイルで同じ相対パスを使う。
+    // images/gallery/illustration/... に対して images/mobile/gallery/illustration/... を自動参照するため、
+    // 作品追加時にMOBILE_ASSETSへ個別マッピングを追記する必要はない。
+    const AUTO_MOBILE_DIRECTORIES = Object.freeze([
+        "images/gallery/illustration/"
+    ]);
+
     function splitAssetUrl(url) {
         const value = String(url || "");
         const match = value.match(/^([^?#]*)(.*)$/);
@@ -538,6 +497,13 @@
             .replace(/^\//, "");
     }
 
+    function automaticMobileSrc(path) {
+        const normalized = normalizePath(path);
+        if (!/^images\/.+\.webp$/i.test(normalized)) return null;
+        if (!AUTO_MOBILE_DIRECTORIES.some((prefix) => normalized.startsWith(prefix))) return null;
+        return `images/mobile/${normalized.slice("images/".length)}`;
+    }
+
     function entry(url) {
         const { path } = splitAssetUrl(url);
         return MOBILE_ASSETS[normalizePath(path)] || null;
@@ -546,8 +512,10 @@
     function resolve(url) {
         if (!MOBILE_QUERY.matches) return url;
         const parts = splitAssetUrl(url);
-        const asset = MOBILE_ASSETS[normalizePath(parts.path)];
-        return asset ? `${asset.src}${parts.suffix}` : url;
+        const normalized = normalizePath(parts.path);
+        const asset = MOBILE_ASSETS[normalized];
+        const mobileSrc = asset?.src || automaticMobileSrc(normalized);
+        return mobileSrc ? `${mobileSrc}${parts.suffix}` : url;
     }
 
     function metadata(url) {

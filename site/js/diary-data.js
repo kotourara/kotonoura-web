@@ -893,6 +893,43 @@ AIか全知全能の神様くらいですもんね
 誰かの眼に映っていたらいいね
 
 誕生日おめでとう`
+        },
+        {
+            id: "ominaeshi",
+            slug: "ominaeshi",
+            contentType: "diary",
+            published: true,
+            secret: false,
+            title: "をみなへし",
+            date: "2026-09-30",
+            publishAt: "2026-09-30T19:30:00+09:00",
+            author: "urara",
+            initialPopularity: 6.75,
+            related: [
+                {
+                    type: "gallery",
+                    label: "色かさね「女郎花」を見る",
+                    href: "gallery.html?category=illustration&work=ominaeshi"
+                }
+            ],
+            body: `意味や論理よりもずっと速く
+頭に侵入し連想の種を植えていく
+「美しい」という形容に
+
+静けさや無垢を連想することは、
+その感覚が主観的で一方通行な
+偏見であることを意味しているのか
+
+物言わぬほど、作為を感じないほど
+解釈を際限なく広げることができる。
+だから、黙って咲いておれ！とは
+あまりにも横柄な響きですが
+
+繊細に圧縮された情報が数多の
+心を動かしてきたことも事実
+
+口無き花に名札をつける行為が
+片思いであることも、また事実`
         }
     ]);
 
@@ -939,7 +976,12 @@ AIか全知全能の神様くらいですもんね
         };
     }
 
-    function parseDiaryDateAsJst(entry) {
+    function parseDiaryPublishAt(entry) {
+        if (typeof entry?.publishAt === "string" && entry.publishAt) {
+            const explicit = Date.parse(entry.publishAt);
+            if (Number.isFinite(explicit)) return explicit;
+        }
+
         if (!/^\d{4}-\d{2}-\d{2}$/.test(entry?.date || "")) return null;
         const value = Date.parse(`${entry.date}T00:00:00+09:00`);
         return Number.isFinite(value) ? value : null;
@@ -966,10 +1008,15 @@ AIか全知全能の神様くらいですもんね
 
         const target = publicationTarget(entry);
         const publication = window.KotonoUraPublication;
+        if (publication?.isLocalPreview?.()) return true;
+
         const record = publication?.get(publicationResult, target.contentType, target.slug) || null;
 
         if (target.mode === "gallery") {
-            if (!record) return true;
+            if (!record) {
+                const defaultPublishAt = parseDiaryPublishAt(entry);
+                return !Number.isFinite(defaultPublishAt) || now >= defaultPublishAt;
+            }
             return GALLERY_DETAIL_STATES.has(recordState(record))
                 && publicationWithinWindow(record, now)
                 && record.sections?.detail !== false;
@@ -982,7 +1029,7 @@ AIか全知全能の神様くらいですもんね
             if (record.publishAt) return true;
         }
 
-        const defaultPublishAt = parseDiaryDateAsJst(entry);
+        const defaultPublishAt = parseDiaryPublishAt(entry);
         return !Number.isFinite(defaultPublishAt) || now >= defaultPublishAt;
     }
 

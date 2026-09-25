@@ -177,6 +177,16 @@
         },
 
         pageUpdates: [
+            PAGE_UPDATE_TEMPLATES.illustration({
+                id: "news-20260930-gallery-illustration-ominaeshi",
+                contentId: "illustration-ominaeshi",
+                title: "女郎花",
+                slug: "ominaeshi",
+                publishAt: "2026-09-30T19:30:00+09:00",
+                order: 10,
+                approved: true,
+                status: "scheduled"
+            }),
             pageUpdateBase({
                 id: "news-20260903-gallery-live2d-tokimiya",
                 contentId: "live2d-tokimiya",

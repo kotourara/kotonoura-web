@@ -262,6 +262,11 @@ foreach ($File in $CloseModelFiles) {
 
 $Manifest = [ordered]@{}
 foreach ($Result in ($Results | Sort-Object original_path)) {
+    # Gallery Illustrationは相対パス規約で自動解決するため、個別マッピングを持たない。
+    if ($Result.group -eq "gallery-illustration") {
+        continue
+    }
+
     $Manifest[$Result.original_path] = [ordered]@{
         src            = $Result.mobile_path
         originalWidth  = [int]$Result.original_width
@@ -286,6 +291,12 @@ $ManifestTemplate = @'
 
     const MOBILE_ASSETS = Object.freeze(__MOBILE_ASSET_JSON__);
 
+    // IllustrationはPC/モバイルで同じ相対パスを使う。
+    // 作品追加時はmobile側へ同じパスで画像を置くだけでよい。
+    const AUTO_MOBILE_DIRECTORIES = Object.freeze([
+        "images/gallery/illustration/"
+    ]);
+
     function splitAssetUrl(url) {
         const value = String(url || "");
         const match = value.match(/^([^?#]*)(.*)$/);
@@ -301,6 +312,13 @@ $ManifestTemplate = @'
             .replace(/^\//, "");
     }
 
+    function automaticMobileSrc(path) {
+        const normalized = normalizePath(path);
+        if (!/^images\/.+\.webp$/i.test(normalized)) return null;
+        if (!AUTO_MOBILE_DIRECTORIES.some((prefix) => normalized.startsWith(prefix))) return null;
+        return `images/mobile/${normalized.slice("images/".length)}`;
+    }
+
     function entry(url) {
         const { path } = splitAssetUrl(url);
         return MOBILE_ASSETS[normalizePath(path)] || null;
@@ -309,8 +327,10 @@ $ManifestTemplate = @'
     function resolve(url) {
         if (!MOBILE_QUERY.matches) return url;
         const parts = splitAssetUrl(url);
-        const asset = MOBILE_ASSETS[normalizePath(parts.path)];
-        return asset ? `${asset.src}${parts.suffix}` : url;
+        const normalized = normalizePath(parts.path);
+        const asset = MOBILE_ASSETS[normalized];
+        const mobileSrc = asset?.src || automaticMobileSrc(normalized);
+        return mobileSrc ? `${mobileSrc}${parts.suffix}` : url;
     }
 
     function metadata(url) {
