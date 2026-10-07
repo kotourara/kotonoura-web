@@ -50,7 +50,7 @@
         displayCount: 5,
         leadTimeDelay: Object.freeze({
             startDate: "2026-09-17",
-            months: 3
+            months: 4
         }),
         fallbackStatus: "open",
 
