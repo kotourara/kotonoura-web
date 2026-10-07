@@ -51,9 +51,20 @@ body.is-dialog-open {
     text-align: center;
 }
 
+.condition-item__year {
+    display: block;
+    margin: 0 0 0.3cqw;
+    font-size: 2cqw;
+    font-weight: 650;
+    line-height: 1;
+    white-space: nowrap;
+    opacity: 0.62;
+}
+
 .condition-item__month {
+    display: block;
     margin: 0 0 -1cqw;
-    font-size: 4.5cqw;
+    font-size: 3.2cqw;
     font-weight: 750;
     line-height: 1;
     white-space: nowrap;
@@ -2190,6 +2201,11 @@ body.is-dialog-open {
 .deadline-choice__body {
     min-width: 0;
     text-align: center;
+}
+
+.deadline-choice .condition-item__year {
+    margin-bottom: 0.25cqw;
+    font-size: 1.3cqw;
 }
 
 .deadline-choice .condition-item__month {

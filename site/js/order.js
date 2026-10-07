@@ -612,11 +612,12 @@
     }
 
     function renderConditions(planId = "") {
-        refs.conditionList.innerHTML = getDisplayedAvailability(planId).map(({ month, statusKey }) => {
+        refs.conditionList.innerHTML = getDisplayedAvailability(planId).map(({ year, month, statusKey }) => {
             const status = STATUS_DATA[statusKey];
 
             return `
                 <article class="condition-item">
+                    <p class="condition-item__year">${year}</p>
                     <p class="condition-item__month">${month}月中</p>
                     <img class="condition-item__image" src="${status.src}" alt="${status.label}">
                 </article>
@@ -1966,6 +1967,7 @@
                 <label class="deadline-choice">
                     <input type="radio" name="希望納期" value="${value}" data-availability-status="${statusKey}" required>
                     <span class="deadline-choice__body">
+                        <span class="condition-item__year">${year}</span>
                         <span class="condition-item__month">${month}月中</span>
                         <img class="condition-item__image" src="${status.src}" alt="${status.label}">
                     </span>
