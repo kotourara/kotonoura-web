@@ -2,7 +2,7 @@
     "use strict";
 
     const API_URL = "https://atmsoeyldykwhnobxiin.supabase.co/functions/v1/get-publication-config";
-    const CACHE_KEY = "kotonoura_publication_config_v1";
+    const CACHE_KEY = "kotonoura_publication_config_v2";
     const FETCH_TIMEOUT_MS = 4500;
     const CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
     const VALID_STATES = new Set(["hidden", "teaser", "partial", "public", "archived"]);
@@ -44,7 +44,13 @@
         const slug = String(value.slug || "").trim();
         if (!contentType || !slug) return null;
 
-        const sortOrder = Number(value.sort_order);
+        // Supabaseは明示的な緊急上書きだけを公開設定として採用する。
+        // 旧APIや旧キャッシュの通常レコードは、ファイル内設定を上書きさせない。
+        if (value.publication_override !== true) return null;
+
+        const sortOrder = value.sort_order === null || value.sort_order === undefined
+            ? null
+            : Number(value.sort_order);
         return {
             contentType,
             slug,
@@ -52,7 +58,7 @@
             rawState: normalizeState(value.publication_state),
             publishAt: typeof value.publish_at === "string" ? value.publish_at : null,
             unpublishAt: typeof value.unpublish_at === "string" ? value.unpublish_at : null,
-            sortOrder: Number.isFinite(sortOrder) ? sortOrder : 0,
+            sortOrder: Number.isFinite(sortOrder) ? sortOrder : null,
             sections: normalizeSections(value.sections ?? value.publication_sections)
         };
     }
@@ -79,14 +85,19 @@
         }
     }
 
-    function writeCache(items) {
+    function writeCache(items, contentTypes) {
         try {
             const current = JSON.parse(localStorage.getItem(CACHE_KEY) || "null");
             const byKey = new Map();
+            const refreshedTypes = new Set(contentTypes);
 
             if (isPlainObject(current) && Array.isArray(current.items)) {
                 current.items.map(normalizeRecord).filter(Boolean).forEach((record) => {
-                    byKey.set(recordKey(record.contentType, record.slug), record);
+                    // 今回取得したcontent_typeは、空レスポンスも含めて最新状態へ置き換える。
+                    // overrideをfalseへ戻した後に古い上書きキャッシュが復活するのを防ぐ。
+                    if (!refreshedTypes.has(record.contentType)) {
+                        byKey.set(recordKey(record.contentType, record.slug), record);
+                    }
                 });
             }
 
@@ -99,6 +110,7 @@
                 items: [...byKey.values()].map((record) => ({
                     content_type: record.contentType,
                     slug: record.slug,
+                    publication_override: true,
                     publication_state: record.rawState,
                     effective_state: record.state,
                     publish_at: record.publishAt,
@@ -156,7 +168,7 @@
 
         try {
             const items = await fetchRecords(types);
-            writeCache(items);
+            writeCache(items, types);
             return {
                 source: "remote",
                 records: new Map(items.map((record) => [

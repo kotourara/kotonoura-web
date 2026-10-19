@@ -60,9 +60,10 @@ Deno.serve(async (request: Request): Promise<Response> => {
     const { data, error } = await client
       .from("content_items")
       .select(
-        "content_type, slug, publication_state, publish_at, unpublish_at, sort_order, publication_sections",
+        "content_type, slug, publication_override, publication_state, publish_at, unpublish_at, sort_order, publication_sections",
       )
       .in("content_type", contentTypes)
+      .eq("publication_override", true)
       .order("content_type", { ascending: true })
       .order("sort_order", { ascending: true })
       .order("slug", { ascending: true });
@@ -75,6 +76,7 @@ Deno.serve(async (request: Request): Promise<Response> => {
       return {
         content_type: item.content_type,
         slug: item.slug,
+        publication_override: true,
         publication_state: item.publication_state,
         effective_state: active ? item.publication_state : "hidden",
         publish_at: item.publish_at,
