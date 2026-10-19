@@ -928,6 +928,42 @@ AIか全知全能の神様くらいですもんね
 
 音を着せられ愛でられた口無き花は
 いったい、何を思っているのだろう…`
+        },
+        {
+            id: "kikujin",
+            slug: "kikujin",
+            contentType: "diary",
+            published: true,
+            secret: false,
+            title: "麴塵",
+            date: "2026-10-21",
+            publishAt: "2026-10-21T19:30:00+09:00",
+            author: "urara",
+            initialPopularity: 6.75,
+            related: [
+                {
+                    type: "gallery",
+                    label: "色かさね「麹塵」を見る",
+                    href: "gallery.html?category=illustration&work=kikujin"
+                }
+            ],
+            body: `物語には力がある
+
+切り取られた一瞬の端々に
+歴史や辛苦の痕が想像できるだけで
+勝手に、趣深さを感じてしまいます
+
+垢抜けずくすんだ野暮ったさも
+塵埃やカビのような泥臭い気配も
+晴れがましい輝きを身にまとえば
+華やかで尊い勲章へと変身する
+
+それが都合のいい幻想に過ぎなくとも
+実体のないイデアの中でさえ
+一喜一憂できる私たちの不安定さ
+
+それもまた特別で格別な趣ですね、
+いとをかし。`
         }
     ]);
 

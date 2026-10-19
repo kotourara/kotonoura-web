@@ -3374,13 +3374,34 @@
             type: "illustration",
             seriesId: IRO_KASANE_SERIES_ID,
             slug: "kikujin",
-            publication: { state: "partial", publishAt: null, unpublishAt: null },
-            sections: { preview: true, detail: false, diary: false, comments: false },
+            publication: { state: "public", publishAt: "2026-10-21T19:30:00+09:00", unpublishAt: null },
+            sections: { preview: true, detail: true, diary: true, comments: true },
             sortOrder: 600,
-            diaryEntry: null,
+            diaryEntry: "kikujin",
             title: "麹塵",
             roman: "kikujin",
-            uiColor: "#6E7955"
+            uiColor: "#6E7955",
+            barMain: "#6E7955",
+            barSub: ["#A83B20", "#C8A68D", "#877C6C", "#BB9457", "#ADAAA3", "#4A4839"],
+            imageBase: "images/gallery/illustration/IroKasane",
+            background: "kikujin-bg.webp",
+            character: "kikujin.webp",
+            date: "2026/10",
+            xUrl: "",
+            example: "例：地元一同に応援されてそう、など",
+        },
+        {
+            id: "f8c6af6f-c72c-40bf-9a9e-3b0adcfd5f5b",
+            type: "illustration",
+            seriesId: IRO_KASANE_SERIES_ID,
+            slug: "rindo",
+            publication: { state: "partial", publishAt: null, unpublishAt: null },
+            sections: { preview: true, detail: false, diary: false, comments: false },
+            sortOrder: 700,
+            diaryEntry: null,
+            title: "竜胆",
+            roman: "rindo",
+            uiColor: "#9079AD"
         }
     ];
 

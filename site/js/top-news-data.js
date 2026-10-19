@@ -178,6 +178,16 @@
 
         pageUpdates: [
             PAGE_UPDATE_TEMPLATES.illustration({
+                id: "news-20261021-gallery-illustration-kikujin",
+                contentId: "illustration-kikujin",
+                title: "麹塵",
+                slug: "kikujin",
+                publishAt: "2026-10-21T19:30:00+09:00",
+                order: 10,
+                approved: true,
+                status: "scheduled"
+            }),
+            PAGE_UPDATE_TEMPLATES.illustration({
                 id: "news-20260930-gallery-illustration-ominaeshi",
                 contentId: "illustration-ominaeshi",
                 title: "女郎花",
