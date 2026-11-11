@@ -178,6 +178,27 @@
 
         pageUpdates: [
             PAGE_UPDATE_TEMPLATES.illustration({
+                id: "news-20261111-gallery-illustration-rindou",
+                contentId: "illustration-rindou",
+                title: "竜胆",
+                slug: "rindou",
+                publishAt: "2026-11-11T19:30:00+09:00",
+                order: 10,
+                approved: true,
+                status: "scheduled"
+            }),
+            pageUpdateBase({
+                id: "news-20261109-gallery-live2d-tsuchino-nono-update",
+                contentId: "live2d-tsuchino-nono-update",
+                category: "gallery-live2d",
+                title: "『土野のの』をアップデートしました",
+                url: "gallery.html",
+                publishAt: "2026-11-09T00:00:00+09:00",
+                order: 10,
+                approved: true,
+                status: "published"
+            }),
+            PAGE_UPDATE_TEMPLATES.illustration({
                 id: "news-20261021-gallery-illustration-kikujin",
                 contentId: "illustration-kikujin",
                 title: "麹塵",

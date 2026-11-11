@@ -97,19 +97,51 @@
         "height": 2200,
         "animated": false
     },
+    "images/gallery/live2d/models/TsuchinoNono/TsuchinoNono-kv-bg.webp": {
+        "src": "images/mobile/gallery/live2d/models/TsuchinoNono/TsuchinoNono-kv-bg.webp",
+        "originalWidth": 3600,
+        "originalHeight": 3600,
+        "width": 2800,
+        "height": 2800,
+        "animated": false
+    },
+    "images/gallery/live2d/models/TsuchinoNono/TsuchinoNono-kv-fg.webp": {
+        "src": "images/mobile/gallery/live2d/models/TsuchinoNono/TsuchinoNono-kv-fg.webp",
+        "originalWidth": 3600,
+        "originalHeight": 3600,
+        "width": 2800,
+        "height": 2800,
+        "animated": false
+    },
+    "images/gallery/live2d/models/TsuchinoNono/TsuchinoNono-kv.webp": {
+        "src": "images/mobile/gallery/live2d/models/TsuchinoNono/TsuchinoNono-kv.webp",
+        "originalWidth": 3600,
+        "originalHeight": 3600,
+        "width": 2800,
+        "height": 2800,
+        "animated": false
+    },
     "images/gallery/live2d/models/TsuchinoNono/TsuchinoNono-model.webp": {
         "src": "images/mobile/gallery/live2d/models/TsuchinoNono/TsuchinoNono-model.webp",
-        "originalWidth": 1532,
-        "originalHeight": 3061,
-        "width": 1101,
+        "originalWidth": 1264,
+        "originalHeight": 3084,
+        "width": 902,
         "height": 2200,
         "animated": false
     },
     "images/gallery/live2d/models/TsuchinoNono/TsuchinoNono-model_2.webp": {
         "src": "images/mobile/gallery/live2d/models/TsuchinoNono/TsuchinoNono-model_2.webp",
-        "originalWidth": 1261,
+        "originalWidth": 1264,
+        "originalHeight": 3084,
+        "width": 902,
+        "height": 2200,
+        "animated": false
+    },
+    "images/gallery/live2d/models/TsuchinoNono/TsuchinoNono-model_3.webp": {
+        "src": "images/mobile/gallery/live2d/models/TsuchinoNono/TsuchinoNono-model_3.webp",
+        "originalWidth": 1532,
         "originalHeight": 3061,
-        "width": 906,
+        "width": 1101,
         "height": 2200,
         "animated": false
     },

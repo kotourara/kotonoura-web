@@ -308,12 +308,12 @@
                 filter: "grayscale(1) contrast(1.08)"
             },
             assets: {
-                models: ["TsuchinoNono-model.webp", "TsuchinoNono-model_2.webp"],
+                models: ["TsuchinoNono-model.webp", "TsuchinoNono-model_2.webp", "TsuchinoNono-model_3.webp"],
                 logo: "",
                 animeLogo: "",
-                kv: "",
-                kvFg: "",
-                kvBg: "",
+                kv: "TsuchinoNono-kv.webp",
+                kvFg: "TsuchinoNono-kv-fg.webp",
+                kvBg: "TsuchinoNono-kv-bg.webp",
                 view2: "",
                 view3: ""
             },
@@ -354,7 +354,18 @@
             mediaAdjust: {
                 card: { width: "2%", x: "2%", y: "-1%" },
                 modelClose: {},
-                modelFull: {}
+                modelFull: {},
+
+                kvClose: {
+                    width: "0cqw",
+                    x: "-10cqw",
+                    y: "0cqw"
+                },
+                kvFull: {
+                    width: "0cqw",
+                    x: "0cqw",
+                    y: "0cqw"
+                }
             }
         },
         {
@@ -362,10 +373,10 @@
             type: "live2d",
             slug: "tokimiya",
             folder: "TokimiyaRyuzu",
-            publication: { state: "teaser", publishAt: null, unpublishAt: null },
+            publication: { state: "public", publishAt: null, unpublishAt: null },
             sections: {
-                list: true, detail: false, profile: false, model: false,
-                kv: false, view: false, logo: false, video: false
+                list: true, detail: true, profile: true, model: true,
+                kv: true, view: true, logo: true, video: true
             },
             sortOrder: 40,
             color: "#7AB316",
@@ -3394,14 +3405,36 @@
             id: "f8c6af6f-c72c-40bf-9a9e-3b0adcfd5f5b",
             type: "illustration",
             seriesId: IRO_KASANE_SERIES_ID,
-            slug: "rindo",
+            slug: "rindou",
+            publication: { state: "public", publishAt: null, unpublishAt: null },
+            sections: { preview: true, detail: true, diary: true, comments: true },
+            detailPublishAt: "2026-11-11T19:30:00+09:00",
+            sortOrder: 700,
+            diaryEntry: "rindou",
+            title: "竜胆",
+            roman: "rindou",
+            uiColor: "#9079AD",
+            barMain: "#886AAD",
+            barSub: ["#E0D2CA", "#9DAE69", "#9EAF6A", "#30589D", "#707EA7", "#CECEEC", "#3A3A43", "#9C54D8"],
+            imageBase: "images/gallery/illustration/IroKasane",
+            background: "rindou-bg.webp",
+            character: "rindou.webp",
+            date: "2026/11",
+            xUrl: "",
+            example: "例：人生３周くらいしてそう、など",
+        },
+        {
+            id: "7a4d0a42-b30f-4eb6-9da9-c8a6bcfb7394",
+            type: "illustration",
+            seriesId: IRO_KASANE_SERIES_ID,
+            slug: "utsubushi",
             publication: { state: "partial", publishAt: null, unpublishAt: null },
             sections: { preview: true, detail: false, diary: false, comments: false },
-            sortOrder: 700,
+            sortOrder: 800,
             diaryEntry: null,
-            title: "竜胆",
-            roman: "rindo",
-            uiColor: "#9079AD"
+            title: "空五倍子",
+            roman: "utsubushi",
+            uiColor: "#9D896C"
         }
     ];
 
@@ -3420,9 +3453,16 @@
         );
     }
 
+    function illustrationDetailIsWithinWindow(work, now = Date.now()) {
+        if (window.KotonoUraPublication?.isLocalPreview?.()) return true;
+        const detailPublishAt = work?.detailPublishAt ? Date.parse(work.detailPublishAt) : null;
+        return !Number.isFinite(detailPublishAt) || now >= detailPublishAt;
+    }
+
     function canOpenIllustrationDetail(work) {
         return publicationHasState(work, PUBLICATION_DETAIL_STATES)
-            && work.sections?.detail === true;
+            && work.sections?.detail === true
+            && illustrationDetailIsWithinWindow(work);
     }
 
     let IRO_PREVIEW_WORKS = [];

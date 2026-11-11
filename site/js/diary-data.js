@@ -964,6 +964,38 @@ AIか全知全能の神様くらいですもんね
 
 それもまた特別で格別な趣ですね、
 いとをかし。`
+        },
+        {
+            id: "rindou",
+            slug: "rindou",
+            contentType: "diary",
+            published: true,
+            secret: false,
+            title: "龍胆",
+            date: "2026-11-11",
+            publishAt: "2026-11-11T19:30:00+09:00",
+            author: "urara",
+            initialPopularity: 6.75,
+            related: [
+                {
+                    type: "gallery",
+                    label: "色かさね「竜胆」を見る",
+                    href: "gallery.html?category=illustration&work=rindou"
+                }
+            ],
+            body: `野の草木が褪せていくなかで
+生き残った色は一層、鮮やかに映る
+
+目にも耳にもおとなしい季節だから
+内側にばかり興味が向いて
+憂う時間が増えるんですかね
+
+混じり気のない凜とした空気が、
+美しくも醜い自分の輪郭を
+等身大のまま映し出してくれるような
+
+そんなほろ苦い孤独が私は好きです
+ひとりは楽ですから。ぼっち万歳！！`
         }
     ]);
 
