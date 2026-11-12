@@ -244,7 +244,7 @@
                 ],
                 video: "https://youtu.be/lJrJPeAtutg?si=y7UkwBuuSDNNmEHo",
                 socials: {
-                    x: "https://x.com/Yumikaka_WM",
+                    x: "https://x.com/Vtuber_7000000",
                     youtube: "https://youtube.com/@KoTo_0_uRaRa"
                 }
             },
